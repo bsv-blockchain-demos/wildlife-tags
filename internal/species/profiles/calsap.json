@@ -1,0 +1,59 @@
+{
+  "code": "CALSAP",
+  "common": "Atlantic blue crab",
+  "scientific": "Callinectes sapidus",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR blue crab tagging",
+  "primary_measure": "cw",
+  "sweep_after_days": 540,
+  "qr_version_max": 5,
+  "growth_expected": false,
+  "measures": [
+    { "key": "cw", "label": "Carapace width", "unit": "mm", "scale": 1,
+      "min": 50, "max": 260, "required": true,
+      "help": "Measured from the tip of one lateral spine straight across the back of the shell to the tip of the opposite spine." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false },
+    { "key": "sal", "label": "Salinity", "unit": "ppt", "scale": 100,
+      "min": 0, "max": 4500, "required": false }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Males have a T-shaped abdomen and blue claw fingers; females have orange fingers with purple tips.",
+      "values": [
+        { "code": "M",  "label": "Male" },
+        { "code": "FI", "label": "Female, immature" },
+        { "code": "FM", "label": "Female, mature" },
+        { "code": "FS", "label": "Female with eggs (sponge)" }
+      ]},
+    { "key": "stage", "tagging_only": true, "label": "Shell condition", "required": true,
+      "help": "Only hard-shell crabs are tagged: a peeler sheds the tag at its next moult, and a soft or paper shell is injured by handling.",
+      "values": [
+        { "code": "HARD",         "label": "Hard shell" },
+        { "code": "PEELER_WHITE", "label": "Peeler, white sign" },
+        { "code": "PEELER_PINK",  "label": "Peeler, pink sign" },
+        { "code": "PEELER_RED",   "label": "Peeler, red sign" },
+        { "code": "SOFT",         "label": "Soft shell" },
+        { "code": "PAPER",        "label": "Paper shell" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true,
+      "values": [
+        { "code": "TRAP",     "label": "Crab pot / trap" },
+        { "code": "TROTLINE", "label": "Trotline" },
+        { "code": "DIPNET",   "label": "Dip net" },
+        { "code": "HANDLINE", "label": "Hand line" },
+        { "code": "TRAWL",    "label": "Trawl" },
+        { "code": "OTHER",    "label": "Other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "stage", "not_in": ["HARD"],
+      "reason": "only hard-shell crabs should be tagged; a peeler sheds the tag at its next moult and a soft or paper shell is injured by handling" }
+  ],
+  "must_release": [
+    { "vocab": "sex", "in": ["FS"],
+      "reason": "females carrying eggs must be returned to the water" },
+    { "measure": "cw", "less_than": 127,
+      "reason": "under South Carolina's five-inch minimum (127 mm, spine tip to spine tip)" }
+  ]
+}

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wildtag
+  labels: { app: wildtag }
+spec:
+  # ClusterIP, fronted by an ingress that terminates TLS.
+  #
+  # TLS is not optional here and not merely good practice: the redemption page
+  # and the tagging console both need navigator.geolocation, which browsers
+  # refuse outside a secure context. A plain-http deployment produces an
+  # application where the "use my location" button silently does nothing, which
+  # is the worst possible thing to discover on a boat.
+  type: ClusterIP
+  selector: { app: wildtag }
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8120

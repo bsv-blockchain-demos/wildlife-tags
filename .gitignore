@@ -1,0 +1,54 @@
+# Secrets. These patterns are deliberately overlapping and deliberately
+# unanchored: rule-110-arcade leaked live private keys because a /data/-only
+# rule did not match a directory someone had named data-sqlite-backup/.
+# Any key that has ever existed in this repository must be treated as burned.
+/data/
+data/
+data-*/
+*-backup/
+*.key
+keys.json
+*.env
+
+# Tag secrets, in every form they take. The previous rule here was the bare
+# word `secrets.csv`, which matches a file called exactly that and nothing
+# else -- so `B20260901-AD87F5.secrets.csv`, which is what the export command
+# actually writes, was not covered. Each line of one of those files can redeem
+# a tag. So can each QR code on a printed sheet.
+*secrets*
+*.secrets.*
+/run-ttn/
+
+# Signed application binaries. Large, rebuildable, and not source.
+*.apk
+*.aab
+*.ipa
+
+# Databases
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Build output
+/wildtag
+/spike
+*.log
+*.log.prev
+
+# The field app's dependencies and native build output. package-lock.json is
+# committed: the storage provider is a copy that tracks an abstract base class
+# in @bsv/wallet-toolbox-mobile, so a floating version is a wallet that stops
+# compiling for reasons nobody changed.
+apps/field/node_modules/
+apps/field/.expo/
+apps/field/android/
+apps/field/ios/
+
+# Editor and IDE state
+.idea/
+.vscode/
+*.swp
+.DS_Store

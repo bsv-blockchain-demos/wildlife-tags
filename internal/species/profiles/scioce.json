@@ -1,0 +1,54 @@
+{
+  "code": "SCIOCE",
+  "common": "Red drum",
+  "scientific": "Sciaenops ocellatus",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "tl",
+  "sweep_after_days": 1095,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "measures": [
+    { "key": "tl", "label": "Total length", "unit": "mm", "scale": 1,
+      "min": 100, "max": 1600, "required": true,
+      "help": "Tip of the lower jaw to the tip of the tail." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false },
+    { "key": "sal", "label": "Salinity", "unit": "ppt", "scale": 100,
+      "min": 0, "max": 4500, "required": false }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Red drum cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown" },
+        { "code": "M", "label": "Male" },
+        { "code": "F", "label": "Female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",    "label": "Good — swam off strongly" },
+        { "code": "FAIR",    "label": "Fair — slow to recover" },
+        { "code": "POOR",    "label": "Poor — barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true,
+      "values": [
+        { "code": "HANDLINE", "label": "Rod and reel" },
+        { "code": "FLY",      "label": "Fly" },
+        { "code": "CASTNET",  "label": "Cast net" },
+        { "code": "TRAWL",    "label": "Trawl" },
+        { "code": "OTHER",    "label": "Other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "tl", "less_than": 381,
+      "reason": "under South Carolina's 15-inch minimum for red drum" },
+    { "measure": "tl", "more_than": 584,
+      "reason": "over South Carolina's 23-inch slot maximum for red drum" }
+  ]
+}

@@ -1,0 +1,36 @@
+# Secrets. These patterns are deliberately overlapping and deliberately
+# unanchored: rule-110-arcade leaked live private keys because a /data/-only
+# rule did not match a directory someone had named data-sqlite-backup/.
+# Any key that has ever existed in this repository must be treated as burned.
+/data/
+data/
+data-*/
+*-backup/
+*.key
+keys.json
+secrets.csv
+*.env
+
+# Databases
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Build output
+/wildtag
+/spike
+*.log
+*.log.prev
+
+# Build context extras
+.git/
+.github/
+deploy/
+scripts/
+*_test.go
+
+# The field app is not part of the server image.
+apps/

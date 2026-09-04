@@ -1,0 +1,57 @@
+{
+  "name": "wildtag-field",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --no-warnings=MODULE_TYPELESS_PACKAGE_JSON test/*.test.mjs"
+  },
+  "dependencies": {
+    "@bsv/sdk": "2.1.2",
+    "@bsv/wallet-toolbox-mobile": "2.1.28",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "expo": "~55.0.0",
+    "expo-camera": "~55.0.19",
+    "expo-constants": "~55.0.16",
+    "expo-crypto": "~55.0.15",
+    "expo-dev-client": "~55.0.35",
+    "expo-linking": "~55.0.15",
+    "expo-local-authentication": "~55.0.14",
+    "expo-location": "~55.1.14",
+    "expo-print": "~55.0.15",
+    "expo-router": "~55.0.16",
+    "expo-secure-store": "~55.0.14",
+    "expo-splash-screen": "~55.0.21",
+    "expo-sqlite": "~55.0.16",
+    "expo-status-bar": "~55.0.6",
+    "react": "19.2.0",
+    "react-native": "0.83.10",
+    "react-native-gesture-handler": "~2.30.0",
+    "react-native-quick-crypto": "^0.7.17",
+    "react-native-nitro-modules": "^0.35.2",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.23.0",
+    "react-native-sse": "^1.2.1",
+    "react-native-svg": "15.15.3",
+    "react-native-qrcode-svg": "^6.3.15",
+    "stream-browserify": "^3.0.0",
+    "buffer": "^6.0.3",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.10",
+    "typescript": "~5.9.2",
+    "@types/qrcode": "^1.5.6",
+    "babel-preset-expo": "~55.0.25",
+    "@babel/core": "^7.25.2"
+  },
+  "overrides": {
+    "@bsv/sdk": "2.1.2",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  }
+}

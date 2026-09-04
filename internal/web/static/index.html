@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SCDNR wildlife tag program</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <h1>SCDNR wildlife tags</h1>
+  <div class="tagline">tagged animals, reported by whoever finds them, paid on the spot</div>
+  <nav>
+    <a href="/about">about</a>
+    <a href="/api/export.csv">dataset (CSV)</a>
+    <a href="/api/export.json">JSON</a>
+    <a href="/admin">admin</a>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <div class="card">
+    <h2>The program</h2>
+    <div class="grid stats" id="stats"></div>
+  </div>
+
+  <div class="card">
+    <h2>Why this exists</h2>
+    <p class="note">
+      SCDNR tags Atlantic blue crabs around Charleston and depends on crabbers
+      to report the ones they catch. By SCDNR's own account fewer than half of
+      the tags anglers encounter are ever reported, and the fisheries literature
+      puts much of the blame on how rewards are delivered: the finder's identity
+      gets lost, weeks pass, and by the time anything arrives the incentive is
+      gone.
+    </p>
+    <p class="note">
+      Here the reward is locked to the tag itself. Scanning it pays the finder
+      in seconds, and their position and measurements are written into the same
+      transaction that moves the money — so the reward and the data cannot be
+      separated afterwards.
+    </p>
+    <p class="note"><a href="/about">What this changes, and what it costs to try &rarr;</a></p>
+  </div>
+
+  <div class="card">
+    <h2>Recent activity</h2>
+    <div class="scroll-x">
+      <table>
+        <thead>
+          <tr><th>Tag</th><th>Event</th><th>Gen</th><th>Amount</th><th>Status</th><th>When</th></tr>
+        </thead>
+        <tbody id="recent"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>What the chain does and doesn't prove</h2>
+    <dl class="honesty">
+      <dt class="yes">Time and integrity</dt>
+      <dd>Every tagging and every report is a Bitcoin transaction. Once mined,
+        the record cannot be backdated or edited by anyone, including SCDNR.</dd>
+      <dt class="yes">Possession of the tag</dt>
+      <dd>A reward can only be unlocked with the key printed on the tag, so a
+        report can only have come from someone holding it.</dd>
+      <dt class="yes">Paid exactly once</dt>
+      <dd>Each reward is a single coin. A duplicate claim is a double-spend and
+        fails.</dd>
+      <dt class="no">Location</dt>
+      <dd>Positions are reported by the phone that scanned the tag and are taken
+        on trust. Reported accuracy is recorded alongside every fix. This is an
+        attestation, not proof of where anyone stood.</dd>
+      <dt class="no">Release</dt>
+      <dd>Whether an animal really went back in the water cannot be shown on chain.
+        The bonus for releasing one is held and paid only if the tag is reported
+        again, which is corroboration rather than proof.</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2>Open data</h2>
+    <p class="note">
+      Every row of the dataset names the transaction that recorded it and
+      whether that transaction has a verified merkle proof, so any single line
+      can be checked against the chain rather than taken on our word.
+      <a href="/api/export.csv">Download CSV</a> or
+      <a href="/api/export.json">JSON</a>.
+    </p>
+  </div>
+
+</main>
+
+<footer>
+  South Carolina Department of Natural Resources &middot;
+  network <span id="net" class="mono"></span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

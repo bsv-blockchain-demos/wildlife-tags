@@ -1,0 +1,90 @@
+name: ci
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+          cache: true
+
+      # This is also the check that go.mod still resolves from public git: the
+      # toolbox is replaced to a pseudo-version rather than a local path
+      # precisely so this step works here.
+      - name: build
+        run: go build ./...
+
+      - name: vet
+        run: go vet ./...
+
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "these files need gofmt:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      # Node is not optional here. The cross-language tests that compare the
+      # client's canonical bytes against Go's -- the guard three production bugs
+      # got past -- skip silently without it, and a guard that skips is not a
+      # guard.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: test
+        run: go test ./... -race
+
+      - name: the cross-language guard actually ran
+        run: |
+          out=$(go test ./internal/web/ -run 'TestTheApp' -v -count=1)
+          echo "$out"
+          if echo "$out" | grep -q 'node not found'; then
+            echo "the cross-language tests skipped; without node they prove nothing"
+            exit 1
+          fi
+
+      # Build the compile stage only. It needs no credentials and no registry,
+      # and it catches a Dockerfile that has drifted from the source tree.
+      - name: docker build stage
+        run: docker build --target build .
+
+  # The field app. Its rule evaluation has to agree with internal/species and
+  # its canonical encoder has to be the server's own file, so both are checked
+  # against the shipped profiles rather than against a fixture.
+  app:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/field
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/field/package-lock.json
+
+      - name: install
+        run: npm ci
+
+      - name: typecheck
+        run: npm run typecheck
+
+      - name: test
+        run: npm test
+

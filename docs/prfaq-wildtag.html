@@ -1,0 +1,307 @@
+<title>WildTag PR/FAQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap">
+<style>
+  /* Brackish, not corporate. The palette is estuarine because the subject is:
+     a plastic tag on a fish in a Carolina creek. The accent appears only on
+     structural marks; the amber is semantic and reserved for [OPEN], because
+     unanswered questions are what this document is actually for. */
+  :root {
+    --paper:      #f7f9f8;
+    --panel:      #ffffff;
+    --ink:        #16211f;
+    --ink-soft:   #55645f;
+    --ink-faint:  #8496908f;
+    --rule:       #d8e0dd;
+    --tide:       #1d6b63;
+    --open:       #a2650c;
+    --open-bg:    #a2650c14;
+
+    --measure: 66ch;
+    --serif: "Newsreader", Georgia, "Times New Roman", serif;
+    --sans:  "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono:  "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  :root:not([data-theme="light"]) {
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:     #0f1614;
+      --panel:     #16201e;
+      --ink:       #e6ecea;
+      --ink-soft:  #a2b2ad;
+      --ink-faint: #6d7d788f;
+      --rule:      #2a3733;
+      --tide:      #58b3a7;
+      --open:      #dda94a;
+      --open-bg:   #dda94a1c;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:     #0f1614;
+    --panel:     #16201e;
+    --ink:       #e6ecea;
+    --ink-soft:  #a2b2ad;
+    --ink-faint: #6d7d788f;
+    --rule:      #2a3733;
+    --tide:      #58b3a7;
+    --open:      #dda94a;
+    --open-bg:   #dda94a1c;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.62;
+    font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 4.5rem) clamp(1.15rem, 4vw, 3rem) 6rem;
+  }
+  @media (min-width: 62rem) {
+    .sheet { grid-template-columns: 15rem minmax(0, var(--measure)); gap: 4rem; }
+  }
+
+  /* Masthead ------------------------------------------------------------- */
+  .masthead { grid-column: 1 / -1; border-bottom: 2px solid var(--ink); padding-bottom: 1.4rem; margin-bottom: 2.6rem; }
+  .eyebrow {
+    font-family: var(--sans); font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--tide);
+    margin: 0 0 0.6rem;
+  }
+  .masthead h1 {
+    font-family: var(--sans); font-weight: 600; font-size: clamp(1.9rem, 4.2vw, 2.7rem);
+    line-height: 1.1; letter-spacing: -0.018em; margin: 0 0 0.9rem; text-wrap: balance;
+  }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 0.4rem 1.6rem;
+    font-family: var(--mono); font-size: 0.76rem; color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .meta b { font-weight: 500; color: var(--ink); }
+
+  /* Contents rail -------------------------------------------------------- */
+  .rail { display: none; }
+  @media (min-width: 62rem) {
+    .rail {
+      display: block; grid-column: 1; align-self: start;
+      position: sticky; top: 2.5rem;
+      font-family: var(--sans); font-size: 0.82rem; line-height: 1.5;
+    }
+    .rail p {
+      font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--ink-soft); margin: 0 0 0.8rem;
+    }
+    .rail ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+    .rail a { color: var(--ink-soft); text-decoration: none; display: block; border-left: 2px solid var(--rule); padding-left: 0.75rem; }
+    .rail a:hover, .rail a:focus-visible { color: var(--tide); border-left-color: var(--tide); }
+  }
+
+  main { grid-column: 1 / -1; }
+  @media (min-width: 62rem) { main { grid-column: 2; } }
+
+  /* Prose ---------------------------------------------------------------- */
+  h2 {
+    font-family: var(--sans); font-weight: 600; font-size: 1.42rem; line-height: 1.22;
+    letter-spacing: -0.012em; margin: 3.4rem 0 0.4rem; text-wrap: balance;
+    padding-top: 1.5rem; border-top: 1px solid var(--rule);
+  }
+  h3 {
+    font-family: var(--sans); font-weight: 600; font-size: 1.06rem; line-height: 1.3;
+    margin: 2.4rem 0 0.3rem; text-wrap: balance;
+  }
+  h4 {
+    font-family: var(--sans); font-weight: 600; font-size: 0.74rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--tide); margin: 2.2rem 0 0.2rem;
+  }
+  p { margin: 0.9rem 0; }
+  h2 + p, h3 + p, h4 + p { margin-top: 0.7rem; }
+  strong { font-weight: 600; }
+  a { color: var(--tide); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, .rail a:focus-visible { outline: 2px solid var(--tide); outline-offset: 3px; border-radius: 2px; }
+  hr { border: 0; border-top: 1px solid var(--rule); margin: 3rem 0 0; }
+  code { font-family: var(--mono); font-size: 0.84em; }
+  ul { margin: 0.9rem 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  li::marker { color: var(--ink-faint); }
+
+  /* The draft notice, and the [OPEN] flags it points at. */
+  .notice {
+    font-family: var(--sans); font-size: 0.86rem; line-height: 1.55;
+    background: var(--open-bg); border-left: 3px solid var(--open);
+    padding: 0.9rem 1.1rem; margin: 1.6rem 0; border-radius: 0 4px 4px 0;
+  }
+  .open {
+    font-family: var(--sans); font-size: 0.78em; font-weight: 600;
+    letter-spacing: 0.04em; color: var(--open);
+    background: var(--open-bg); padding: 0.1em 0.42em; border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  /* Tables: figures line up, and nothing pushes the page sideways. */
+  .tablewrap { overflow-x: auto; margin: 1.5rem 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+  th, td { text-align: left; vertical-align: top; padding: 0.62rem 0.9rem 0.62rem 0; border-bottom: 1px solid var(--rule); }
+  th {
+    font-family: var(--sans); font-weight: 600; font-size: 0.7rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft);
+    border-bottom-color: var(--ink);
+  }
+  td { font-family: var(--sans); font-size: 0.85rem; line-height: 1.5; font-variant-numeric: tabular-nums; }
+  td code { font-size: 0.92em; }
+
+
+  /* Print / PDF -----------------------------------------------------------
+     BSVA reads this document in silence for twenty minutes, on paper or as a
+     PDF, so print is a real target rather than an afterthought. Three things
+     change: the palette is forced light (a dark ground would be wrong on
+     paper and wasteful on a printer), the contents rail goes because it is a
+     screen navigation aid, and headings are kept with the text they head. */
+  @page {
+    size: A4;
+    margin: 19mm 17mm 17mm;
+  }
+  @media print {
+    :root, :root[data-theme="dark"], :root:not([data-theme="light"]) {
+      --paper:     #ffffff;
+      --panel:     #ffffff;
+      --ink:       #14201e;
+      --ink-soft:  #4c5b56;
+      --ink-faint: #8a9a95;
+      --rule:      #c9d4d0;
+      --tide:      #175a53;
+      --open:      #7d4e07;
+      --open-bg:   #f2ead9;
+      color-scheme: light;
+    }
+    body { font-size: 9.6pt; line-height: 1.44; }
+    .sheet { display: block; max-width: none; margin: 0; padding: 0; }
+    .rail { display: none; }
+
+    .masthead { margin-bottom: 0.9rem; padding-bottom: 0.5rem; border-bottom-width: 1.5px; }
+    .masthead h1 { font-size: 15pt; margin-bottom: 0.35rem; }
+    .eyebrow { font-size: 6.6pt; margin-bottom: 0.25rem; }
+    .meta { font-size: 7.2pt; gap: 0.15rem 0.9rem; }
+
+    /* A heading stranded at the foot of a page is the classic print defect. */
+    h2, h3 { break-after: avoid; page-break-after: avoid; }
+    h2 { font-size: 12pt; margin-top: 0; padding-top: 0; border-top: 0; margin-bottom: 0.2rem; }
+    h3 { font-size: 10pt; margin-top: 0.95rem; margin-bottom: 0.1rem; }
+    p, li { orphans: 3; widows: 3; }
+    .notice, table, tr { break-inside: avoid; page-break-inside: avoid; }
+    .notice { font-size: 8.2pt; padding: 0.55rem 0.8rem; margin: 0.8rem 0; }
+    p { margin: 0.55rem 0; }
+    ul { margin: 0.55rem 0; gap: 0.28rem; }
+    .tablewrap { overflow: visible; }
+    table { font-size: 8pt; }
+    td { font-size: 7.9pt; }
+    th, td { padding: 0.4rem 0.7rem 0.4rem 0; }
+
+    /* Each Part starts a fresh page: the template treats them as separate
+       sections with their own page budget, and a reviewer flips between them. */
+    h2 { break-before: page; page-break-before: page; }
+    h2:first-of-type { break-before: auto; page-break-before: auto; }
+
+    a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rule); }
+    hr { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+  html { scroll-behavior: smooth; }
+</style>
+<div class="sheet">
+  <header class="masthead">
+    <p class="eyebrow">Working Backwards &middot; BSVA</p>
+    <h1>WildTag &mdash; PR/FAQ</h1>
+    <div class="meta">
+      <span>Author <b>Dylan Murray</b></span>
+      <span>Date <b>1 September 2026</b></span>
+      <span>Version <b>v0.1</b></span>
+      <span>Status <b>Draft</b></span>
+      <span>Reviewers <b>none</b></span>
+    </div>
+  </header>
+
+  <nav class="rail" aria-label="Contents">
+    <p>Contents</p>
+    <ol><li><a href="#part-1-press-release">Part 1: Press Release</a></li><li><a href="#part-2-external-faq">Part 2: External FAQ</a></li><li><a href="#part-3-internal-faq">Part 3: Internal FAQ</a></li><li><a href="#part-4-appendix-measured-facts">Part 4: Appendix — measured facts</a></li></ol>
+  </nav>
+
+  <main>
+    <aside class="notice"><strong>Draft notice.</strong> The BSVA quote below is a placeholder pending a real attribution. The customer quote is illustrative and invented by role, as the template instructs. SCDNR is named because the system is built around their published material — <strong>they have not been contacted.</strong> See internal FAQ 2.</aside>
+    <h2 id="part-1-press-release">Part 1: Press Release</h2>
+<h3 id="wildlife-agencies-can-pay-a-tag-reward-in-second">Wildlife agencies can pay a tag reward in seconds — and get the recapture position from the boat instead of from memory</h3>
+<p><strong>For biologists running tag-and-release programmes, and for the anglers and crabbers who catch the tagged animals: a printed code that pays the finder on the spot and records where the animal actually was.</strong></p>
+<p><strong>Charleston, South Carolina</strong> — A tag on a released fish carries a phone number. Somebody catches the fish, and mostly they do not call. When they do, a reward turns up weeks later, often to the boat captain rather than the person holding the fish, and the position of the catch is whatever they remember by the time a form reaches them. WildTag replaces the phone number with a code the finder scans: the money is in their phone before they have put the rod down, and the position is taken there, on the water. Both are written into the same transaction, so the agency's record of a catch and its payment for that catch are one object and cannot come apart.</p>
+<p><strong>The problem.</strong> SCDNR's own review, <a href="https://www.dnr.sc.gov/marine/tagfish/pdf/Sept13-Don't%20Underestimate%20the%20Reward.pdf"><em>Don't Underestimate the Reward</em></a>, reports that fewer than half of encountered tags are ever reported, and that tags carrying money do better than tags that do not. The fisheries literature blames delivery rather than generosity: the finder's identity is lost when a captain collects the tag, weeks pass, and a prize draw arrives too late to be an incentive. The data suffers the same way round — precise release positions recorded by a biologist, recapture positions remembered days later. And the one thing reporters say they want, the animal's own history, nobody sends.</p>
+<p><strong>The solution.</strong> The tag stock does not change: same plastic, wired on the same way, with a code added and the phone number left where it is. A biologist arms a tag from a phone, in the field, with the animal in hand. Whoever catches it later scans it, is shown where the animal was tagged and how far it has come, answers four questions, and takes a position fix where they are standing. The reward arrives in seconds, into a wallet the app made for them the first time they opened it. No account, no form to post, nothing to reconcile afterwards.</p>
+<p><strong>Quote from BSVA.</strong> <em>"[Placeholder — attribution to be confirmed.] Small payments to people who have no account with you, made at the moment they earn them, is a thing our network can do and most cannot. A wildlife agency paying a dollar to a stranger on a boat is a better first demonstration of that than any pilot we could invent."</em></p>
+<p><strong>How to get started.</strong> Order one batch of tags with codes printed on them, fund a wallet with the reward budget for that batch, and hand the tags to whoever is already doing the tagging. Nothing else in the programme changes, and every tag already in the water keeps working exactly as it does now.</p>
+<p><strong>Quote from a customer</strong> <em>(illustrative — see draft notice).</em> <em>"We hear back on fewer than half the tags people actually catch, and I have had anglers tell me they did not call because they did not want a T-shirt,"</em> says the marine resources biologist who runs an inshore tagging programme. <em>"What I care about is the position. Right now I get one somebody remembered three days later. This gets me one taken on the boat, with the fish in their hand, and I get it because paying them and recording it are the same action."</em></p>
+<hr>
+<h2 id="part-2-external-faq">Part 2: External FAQ</h2>
+<p><strong>1. What exactly is this and who is it for?</strong> A tagging programme's reward system, replaced. It is for the agency that runs the programme and for the members of the public who catch tagged animals. The agency gets more reports and better recapture positions; the finder gets paid immediately instead of eventually. The software is a server the agency runs, a public web page, and a phone app for Android and iOS.</p>
+<p><strong>2. What does it cost, and who pays for what?</strong> The agency sets the reward per tag and funds it — nothing is charged per report. Sending the payment and writing the record costs about 250 satoshis for a tag's whole life, which is a fraction of a cent and roughly one per cent of a one-dollar reward. Compare that with a cheque, which costs an agency several dollars once handling is counted, or a card payment at roughly thirty cents plus a percentage. Those numbers are why a one-dollar reward has never been practical to send. The software itself is open source.</p>
+<p><strong>3. How is this different from what we do today?</strong> Today is a phone number and swag, and the honest alternative to consider alongside it is doing nothing. The differences that matter: the finder is paid at the moment they report rather than weeks later; the position comes from the device at the catch rather than from memory; and the dataset is written into the payments themselves, so it can be rebuilt from public records if every server involved disappears. The parts that are not different: the tag, the field protocol, the species rules, and the phone number, which stays printed on the tag so anyone who would have called still can.</p>
+<p><strong>4. What do I need before I can use it?</strong> Tag stock with a code printed on it, a wallet funded with the reward budget, and a server — one binary and a database, on a laptop or in a cluster. Finders need a phone with the app; it makes them a wallet the first time they open it, with no account and no sign-up. Taggers sign in; anglers do not.</p>
+<p><strong>5. Who supports it when something breaks?</strong> Open for a production deployment. In a pilot, the authors. Beyond a pilot this needs a named integrator with a support agreement, and the agency should not sign a pilot without knowing who that would be. See internal FAQ 4 on why we think the reference implementation belongs with a non-profit and the support relationship does not.</p>
+<p><strong>6. What are the regulatory and compliance implications for me as an agency?</strong> Three, and none of them is settled. <strong>Public records:</strong> a report includes a citizen's position and their wallet's public identifier, and it is published permanently. Whether that is compatible with your state's records and privacy law is a question for your counsel, and it is the first question we would want asked. <strong>Procurement and treasury:</strong> the agency has to hold and account for the reward budget in satoshis, which is likely a harder internal conversation than the technology. <strong>Payments:</strong> an agency paying its own posted reward is settling its own obligation rather than transmitting money for others, but that reading needs your counsel's agreement, not ours.</p>
+<p><strong>7. What is BSVA's long-term commitment?</strong> The implementation is open source, and the record format is intended to be published as an open specification so a second implementation is possible without us. If BSVA stopped work tomorrow, an agency running it would keep running it: the server is a single binary with no licence check and no service dependency on BSVA, and the dataset is already public. What would be lost is maintenance, not operation. We think that is the right shape of commitment to offer a public body, and it is deliberately less than "we will look after you forever".</p>
+<hr>
+<h2 id="part-3-internal-faq">Part 3: Internal FAQ</h2>
+<h3 id="customer-and-market">Customer and market</h3>
+<p><strong>1. Who precisely is the first customer?</strong> The marine resources biologist who runs SCDNR's inshore tagging programme in Charleston. The first three users would be that biologist, one authorised volunteer tagger — the marine game fish programme runs substantially on volunteers rather than staff — and one angler who catches a tagged red drum.</p>
+<p><strong>2. How do we know they want this? <span class="open">[OPEN — the weakest part of this document]</span></strong> We do not. <strong>No agency has been contacted and no conversations have been held.</strong> The evidence is entirely documentary: SCDNR published the reward problem themselves, in their own review, and concluded that tags carrying money are reported better. That is a real finding by the real customer about the real problem, which is more than most proposals start with — and it is still not the same as somebody saying they would use this. Anyone reading this document should treat the demand case as unvalidated. The cheapest next step is not engineering; it is one conversation with that biologist, and it should happen before anything else in this document is funded.</p>
+<p><strong>3. How big is this if it works?</strong> SCDNR's marine game fish programme alone covers <a href="https://www.dnr.sc.gov/marine/tagfish/tagfish.html">46 species across 20 families</a>. Every coastal and inland state runs programmes of the same shape, as do federal agencies and universities. Beyond tagging, the same pattern — a bearer instrument, a claim that can be made exactly once, and a timestamped field record — is what harvest tagging is: South Carolina already mandates electronic deer reporting through <a href="https://dnr.sc.gov/harvestreport/">SC Game Check</a>, which issues a confirmation number a meat processor has to trust a database to validate. That is a materially larger programme than fish tagging and a natural second act. It is deliberately not in v1.</p>
+<p><strong>4. Why is BSVA the right party to do this, rather than an ecosystem company or nobody?</strong> Two reasons and one tension. A state agency will not take a dependency on a startup that may not exist in three years; a non-profit steward with a published maintenance position is a different procurement conversation. And the output is a public dataset and an open record format, which is standards work rather than product work.</p>
+<p>The tension is real: BSVA maintaining a reference implementation edges toward competing with the integrators we exist to enable. The split we would propose is that BSVA owns the open implementation and the record specification, and integrators own deployment, hosting and support contracts with agencies. If management does not accept that split, this should be handed to an ecosystem company with BSVA contributing only the specification — that is a legitimate outcome of this review, not a failure of it.</p>
+<h3 id="product-and-technology">Product and technology</h3>
+<p><strong>5. What has to be true technically for this to work?</strong></p>
+<div class="tablewrap"><table><thead><tr><th>Assumption</th><th>Confidence</th></tr></thead><tbody><tr><td>Transaction fees stay far below the reward</td><td><strong>High.</strong> Measured at 98–143 satoshis per transaction on TTN today.</td></tr><tr><td>A member of the public can hold a wallet without understanding it</td><td><strong>Medium.</strong> The app makes one silently on first launch and it works, but no member of the public has used it.</td></tr><tr><td>Arcade/Teranode availability adequate for a field application</td><td><strong>Medium.</strong> Adequate in testing; propagation lag was visible during development and is documented.</td></tr><tr><td>Mobile wallet stack is dependable</td><td><strong>Low–medium.</strong> The storage provider is copied from bsv-browser, not a supported dependency. See question 8.</td></tr></tbody></table></div>
+<p><strong>6. What is the hardest technical problem, and do we know how to solve it?</strong> It is not the chain, and that is the uncomfortable part. The hardest problem is that a public agency must acquire, hold, account for and audit a balance in satoshis. That touches procurement, treasury policy and the state auditor, and we do not know how to solve it. Every technical problem in this project has been solved; this one has not been started.</p>
+<p>The second hardest is the finder's exit: an angler paid a dollar in satoshis has a dollar they may not know how to use. We have deliberately not built a cash-out path, and a pilot that ignores this will produce a good reporting rate and a bad experience.</p>
+<p><strong>7. What do we explicitly not build in v1?</strong> The harvest/deer workflow — it is modelled in the data model so the abstraction was shaped against real difference, but it is not built. Multi-state or multi-agency deployment. Any fiat cash-out path. Tag printing hardware or stock supply. Any token: the rewards are ordinary satoshis, and introducing an instrument would change the regulatory conversation entirely for no benefit.</p>
+<p><strong>8. What existing BSVA work does this depend on, extend or conflict with?</strong> Depends on Teranode and arcade, which it runs against today, and on the BRC-100 wallet interface, BRC-29 payments and the BRC-48 PushDrop output shape. It extends none of them and conflicts with none. It could contribute one thing back: the record format — a signed field observation with a species profile that is data rather than code — is a reasonable candidate for a BRC, and no equivalent exists.</p>
+<p>One dependency is weaker than it looks. There is no published mobile storage provider for <code>@bsv/wallet-toolbox-mobile</code>; ours is copied from bsv-browser with attribution, and it tracks an abstract base class that can change underneath it. If BSVA wants field applications on phones at all, that gap is worth closing properly, and this project is a reason to.</p>
+<h3 id="regulatory-and-legal">Regulatory and legal</h3>
+<p><strong>9. What is the regulatory exposure, for BSVA and for the customer?</strong> For BSVA, publishing open-source software and a specification: low. For the agency, three exposures, in the order we would worry about them.</p>
+<p><strong>Public records and privacy — the sharpest, and the one most likely to be missed.</strong> A report publishes a citizen's position, the time they were there, and a public key that is stable across everything they ever report. That is a permanent, public, un-deletable record about a member of the public, created by a state agency. State records law, any applicable privacy statute, and the plain question of whether the angler understood what they agreed to all apply. <strong><span class="open">[OPEN]</span></strong> — needs counsel, and we would not run a pilot without an answer.</p>
+<p><strong>Money transmission.</strong> An agency paying its own posted reward is settling its own obligation, not transmitting funds for a third party, which we believe puts it outside transmitter licensing. <strong><span class="open">[OPEN]</span></strong> — our belief is not advice, and this needs a US-qualified opinion.</p>
+<p><strong>Procurement.</strong> Acquiring and holding satoshis against a budget line. See question 6.</p>
+<p><strong>10. Are there IP, licensing or patent considerations?</strong> The implementation is ours to license openly. One third-party dependency is vendored rather than depended on and is attributed in the source. The mapping tiles used by the public page come from OpenStreetMap under their usage policy, which a real deployment should replace with its own tile server rather than lean on donated infrastructure. No patent search has been done. <strong><span class="open">[OPEN]</span></strong></p>
+<h3 id="cost-and-execution">Cost and execution</h3>
+<p><strong>11. What does this cost to build and to run?</strong> The system exists. What remains before a pilot is roughly <strong>three engineer-months</strong>: agency onboarding and operator documentation, a decision and implementation for the finder's cash-out path, hardening the mobile wallet dependency, and a support runbook. Add <strong>two to four weeks of legal and policy time</strong> for questions 9 and 6, which should start first because they can kill it. Running it costs almost nothing: one binary, one database, and the reward budget the agency chooses. Ongoing maintenance is perhaps a quarter of an engineer.</p>
+<p><strong>12. Who would build it, and what do they stop doing?</strong> It is one engineer who already has the whole system in their head, so the opportunity cost is whatever that person is otherwise assigned to for a quarter — management should name it explicitly rather than assume it is free. The legal and policy time is the scarcer resource and is not substitutable.</p>
+<p><strong>13. What does success look like at 6 and 18 months?</strong> <strong>At 6 months:</strong> one agency has signed a pilot, one batch of tags is in the water, and reports have been paid to members of the public who were not us. If no agency has signed by then, the reason will be procurement or legal, and that is decision-grade information. <strong>At 18 months:</strong> the reporting rate on coded tags is measurably higher than that agency's own historical baseline for uncoded tags, measured by them and not by us. That single comparison is the whole thesis. A second agency or the harvest workflow would be upside.</p>
+<h3 id="risk">Risk</h3>
+<p><strong>14. What is the most likely way this fails?</strong> Not technically. The most likely failure is that the pilot dies in the agency's finance office: nobody will approve a budget line denominated in satoshis, or the state auditor will not sign off on holding them, and it stalls for six months and quietly lapses without a tag ever being scanned. What we would do about it: ask the treasury question in the <em>first</em> meeting rather than the fifth, and have a fallback ready in which a third party holds the reward float and the agency contracts for reporting outcomes rather than holding a balance itself. That fallback is worse — it puts an intermediary back into a system designed to remove them — and we would rather know early that it is needed than discover it late.</p>
+<p>The second most likely failure is quieter: the pilot works, reports go up, and the agency cannot articulate to its own leadership why a ledger was necessary rather than a database and a payments processor. The answer is real — the record and the payment are one object, and the dataset outlives the database — but if a biologist cannot say it in their own words after using it, we have not made the case.</p>
+<p><strong>15. What would have to be true for us to kill this after starting?</strong> Pre-committed, while nobody's ego is invested:</p>
+<ul><li><strong>No signed pilot within nine months</strong> of the first agency conversation. Not "still interested" — signed.</li><li><strong>A pilot runs and the reporting rate does not move</strong> against the agency's own baseline. The thesis is falsifiable and this is the falsification.</li><li><strong>Counsel concludes the agency cannot hold satoshis</strong> and the only workable structure puts a custodial intermediary between the agency and the finder. At that point the thing that made it worth doing is gone, and it should be archived rather than reshaped.</li></ul>
+<hr>
+<h2 id="part-4-appendix-measured-facts">Part 4: Appendix — measured facts</h2>
+<p>Everything cited above, measured on the running TTN deployment rather than estimated. Any reviewer can re-run these.</p>
+<div class="tablewrap"><table><thead><tr><th>Fact</th><th>Value</th><th>How it was measured</th></tr></thead><tbody><tr><td>Fee to write one full signed record</td><td><strong>98–118 satoshis</strong> (13 activations)</td><td>wallet debits minus the 20,000 locked</td></tr><tr><td>Fee to pay a finder and re-lock the tag</td><td><strong>141–143 satoshis</strong> (7 redemptions)</td><td>wallet debits minus the 5,000 paid</td></tr><tr><td>Fee for a tag's whole lifecycle</td><td><strong>~250 satoshis</strong>, about 1% of the reward</td><td>activation + redemption</td></tr><tr><td>Transaction size carrying a full record</td><td>779–1,119 bytes</td><td>raw transactions in the wallet store</td></tr><tr><td>Reward per tag</td><td>20,000 satoshis (5,000 on report, 15,000 held for a release)</td><td><code>chain.DefaultConfig</code></td></tr><tr><td>Live on TTN</td><td>22 tags minted, 13 armed, 10 reports paid, 23 transactions proven</td><td><code>run-ttn</code> deployment</td></tr><tr><td>Chain-versus-database reconciliation</td><td><strong>no findings</strong></td><td><code>wildtag audit</code></td></tr><tr><td>Species supported</td><td>2 (Atlantic blue crab, red drum); adding one is a JSON file</td><td><code>internal/species/profiles/</code></td></tr><tr><td>Verification</td><td>186 Go tests, 36 app tests</td><td><code>go test ./...</code>, <code>npm test</code></td></tr></tbody></table></div>
+<h3 id="what-the-system-does-and-does-not-establish">What the system does and does not establish</h3>
+<p>Carried from the application's own public pages, which state the same thing to finders:</p>
+<ul><li><strong>Established:</strong> that a record existed by a given block and has not been altered; that whoever redeemed a tag held the physical tag; that the reward can be claimed exactly once.</li><li><strong>Not established:</strong> that the phone was where it says it was. The position is self-reported and attested, not proven, and every user-facing page says so.</li><li><strong>A cost, not a feature:</strong> redemption requires the agency's counter-signature, so a finder cannot take the money unilaterally. This buys replay protection across a tag's life and the ability to refuse a claim on a tag reported stolen. It is a genuine reduction in how trustless the system is, and it is documented rather than glossed.</li></ul>
+<h3 id="sources">Sources</h3>
+<ul><li>SCDNR, <em>Don't Underestimate the Reward</em> — <a class="src" href="https://www.dnr.sc.gov/marine/tagfish/pdf/Sept13-Don't%20Underestimate%20the%20Reward.pdf">https://www.dnr.sc.gov/marine/tagfish/pdf/Sept13-Don't%20Underestimate%20the%20Reward.pdf</a></li><li>SCDNR marine game fish tagging programme — <a class="src" href="https://www.dnr.sc.gov/marine/tagfish/tagfish.html">https://www.dnr.sc.gov/marine/tagfish/tagfish.html</a></li><li>SC Game Check, harvest reporting — <a class="src" href="https://dnr.sc.gov/harvestreport/">https://dnr.sc.gov/harvestreport/</a></li></ul>
+  </main>
+</div>

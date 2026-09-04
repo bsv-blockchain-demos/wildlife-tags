@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tagged animal — report and get paid</title>
+<link rel="stylesheet" href="vendor/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <h1>SCDNR wildlife tag</h1>
+  <div class="tagline">report a tagged animal, get paid on the spot</div>
+</header>
+
+<main class="wrap narrow">
+
+  <div id="loading" class="card">
+    <p><span class="spin"></span> Reading the tag…</p>
+  </div>
+
+  <!-- No secret in the URL fragment: somebody typed or shared the address. -->
+  <div id="noSecret" class="card hidden">
+    <h2>This link is missing its tag code</h2>
+    <p class="note">
+      The QR code on the tag carries a code that this page needs, and it only
+      travels when the code is scanned directly. If you typed the address by
+      hand, or someone forwarded you the link, scan the tag itself with your
+      phone's camera instead.
+    </p>
+    <p class="note">Tag <span id="noSecretTag" class="mono"></span></p>
+  </div>
+
+  <div id="tagState" class="card hidden">
+    <h2>Tag <span id="tagDisplay" class="mono"></span></h2>
+    <div id="tagStatus"></div>
+  </div>
+
+  <!-- The report form. -->
+  <form id="form" class="card hidden" autocomplete="off">
+    <h2>What did you catch?</h2>
+
+    <div id="mustRelease" class="banner warn hidden"></div>
+
+    <!-- The measurements and choices this species records. Built from
+         GET /api/schema rather than written out here: a blue crab has a
+         carapace width and a moult stage, a red drum has neither, and a page
+         that hardcodes one animal's fields is a page that needs a release for
+         every new species. -->
+    <div id="fields"></div>
+
+    <div class="field">
+      <label>Where you caught it</label>
+      <div id="fix" class="banner">Waiting for a position fix…</div>
+      <button type="button" id="locate" class="wide">Use my location</button>
+    </div>
+
+    <!-- Naming. Shown only when the crab has none: a name is chosen once, by
+         whoever gets there first, and never changed. -->
+    <div class="field hidden" id="nameField">
+      <label for="animalname">Name this animal <span class="note">(optional)</span></label>
+      <input id="animalname" type="text" maxlength="24" placeholder="e.g. Old Bertha" autocomplete="off">
+      <p class="note">Nobody has named this one yet, so it is yours to name. The
+        name goes on the public record permanently and cannot be changed &mdash;
+        by you or by anyone else &mdash; so pick something you would not mind a
+        biologist reading out in ten years.</p>
+    </div>
+
+    <div id="formErr" class="err"></div>
+    <button type="submit" id="submit" class="primary wide" disabled>Continue</button>
+  </form>
+
+  <!-- The payment flow, step by step, because it takes a few seconds and three
+       wallet prompts and silence would read as a hang. -->
+  <div id="pay" class="card hidden">
+    <h2>Getting you paid</h2>
+    <ol class="steps" id="steps">
+      <li data-step="quote">Work out what you're owed</li>
+      <li data-step="attest">Sign your report with your wallet</li>
+      <li data-step="build">Build the payment</li>
+      <li data-step="verify">Check the payment really pays you</li>
+      <li data-step="sign">Unlock the tag</li>
+      <li data-step="receive">Put it in your wallet</li>
+    </ol>
+    <div id="payErr" class="err"></div>
+    <button type="button" id="retry" class="wide hidden">Try again</button>
+  </div>
+
+  <div id="paid" class="card hidden">
+    <h2>Paid</h2>
+    <div class="reward" id="paidAmount"></div>
+    <p class="note" id="paidNote"></p>
+    <p class="note">Transaction <a id="paidTx" class="mono" target="_blank" rel="noopener"></a></p>
+  </div>
+
+  <!-- The animal's story. SCDNR's own account of running a tagging programme is
+       that many reporters care more about the animal's history than the money,
+       so this gets the weight rather than the payment confirmation. -->
+  <div id="prov" class="card hidden">
+    <div class="crab-hero">
+      <div class="crab-name" id="animalName"></div>
+      <div class="crab-sub" id="animalSub"></div>
+    </div>
+
+    <div class="journey" id="journey"></div>
+
+    <div class="mapwrap">
+      <div id="map" class="map"></div>
+      <svg id="track" class="track hidden" viewBox="0 0 600 260" role="img" aria-labelledby="trackTitle"></svg>
+      <div id="mapNote" class="note maplegend">
+        <span class="dot tagged"></span> tagged
+        <span class="dot caught"></span> found
+        <span id="mapAttrib"></span>
+      </div>
+    </div>
+
+    <div id="timeline"></div>
+    <div id="funFacts" class="facts"></div>
+  </div>
+
+  <div class="card">
+    <h2>What this record does and doesn't prove</h2>
+    <dl class="honesty">
+      <dt class="yes">The time</dt>
+      <dd>Your report is written into a Bitcoin transaction. Once a block
+        carries it, the record cannot be backdated or altered — not by you, not
+        by SCDNR, not by us.</dd>
+
+      <dt class="yes">That you had the tag</dt>
+      <dd>The reward can only be unlocked with the key printed on the tag
+        itself, so the record can only have come from someone holding it.</dd>
+
+      <dt class="yes">That it pays once</dt>
+      <dd>The reward is a single coin. A second claim on the same tag is a
+        double-spend and simply fails.</dd>
+
+      <dt class="no">Where you were</dt>
+      <dd>The position comes from this phone and is taken on trust. We record
+        how accurate the phone claims to be, and we tie the fix to your report
+        so it cannot be edited afterwards &mdash; but none of that establishes
+        where anyone actually stood, and we will not pretend otherwise.</dd>
+
+      <dt class="no">That you released it</dt>
+      <dd>Also taken on trust. The bonus for putting an animal back is held rather
+        than paid, and released to you only if this tag is reported again —
+        which is the closest thing to evidence a release can have.</dd>
+    </dl>
+  </div>
+
+</main>
+
+<footer>
+  South Carolina Department of Natural Resources &middot;
+  <a href="/">program dashboard</a> &middot;
+  <a href="/about">about this program</a> &middot;
+  <a href="/api/export.csv">open dataset</a>
+</footer>
+
+<script src="vendor/bsv-sdk.js"></script>
+<script src="vendor/leaflet.js"></script>
+<script src="canonical.js"></script>
+<script src="schema.js"></script>
+<script src="wallet.js"></script>
+<script src="redeem.js"></script>
+</body>
+</html>

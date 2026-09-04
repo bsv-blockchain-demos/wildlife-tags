@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wildtag
+  labels: { app: wildtag }
+data:
+  WILDTAG_NETWORK: "tstn"
+  WILDTAG_ARCADE_URL: "https://arcade-v2-tstn-us-1.bsvblockchain.tech"
+
+  # Baked into every printed QR code. Changing this after a batch has been
+  # printed makes those tags point at a host that no longer serves them, and
+  # there is no way to fix a tag once it is wired to an animal. Treat it as
+  # immutable for the life of the program.
+  WILDTAG_PUBLIC_URL: "https://bcrab.sc.gov"
+
+  WILDTAG_BASE_SATS: "5000"
+  WILDTAG_BONUS_SATS: "15000"
+
+  # BRC-100 identity keys permitted to administer the program, comma separated.
+  # Keys here are added at every start; removing one does NOT revoke it, because
+  # a config edit that silently locked every biologist out of a live program
+  # would be worse than a stale entry. Revoke through the application.
+  WILDTAG_ADMIN_IDENTITY_KEYS: ""
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: wildtag
+  labels: { app: wildtag }
+type: Opaque
+stringData:
+  # Replace before applying. This is a placeholder, not a credential.
+  WILDTAG_POSTGRES_DSN: "postgres://wildtag:changeme@postgres:5432/wildtag?sslmode=disable"
+
+  # The fallback for administering the program without a BRC-100 wallet -- from
+  # a script, from CI, or from a laptop whose wallet is not set up. Leave empty
+  # to disable it entirely; the program refuses to start with neither an
+  # allowlist nor a password.
+  WILDTAG_ADMIN_PASSWORD: ""

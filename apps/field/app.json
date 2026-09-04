@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "WildTag Field",
+    "slug": "wildtag-field",
+    "scheme": "wildtag",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "android": {
+      "package": "gov.sc.dnr.wildtag",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.USE_BIOMETRIC"
+      ],
+      "edgeToEdgeEnabled": true
+    },
+    "ios": {
+      "bundleIdentifier": "gov.sc.dnr.wildtag",
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSCameraUsageDescription": "To scan the QR code on a tag.",
+        "NSLocationWhenInUseUsageDescription": "To record where an animal was tagged or found. The position is the whole scientific point of a report.",
+        "NSFaceIDUsageDescription": "To unlock the wallet holding your rewards."
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        { "cameraPermission": "To scan the QR code on a tag." }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "To record where an animal was tagged or found."
+        }
+      ]
+    ],
+    "experiments": { "typedRoutes": true }
+  }
+}
