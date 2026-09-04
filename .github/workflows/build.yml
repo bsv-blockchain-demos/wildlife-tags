@@ -28,9 +28,17 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           # No `latest`. Whatever consumes this image should pin a tag and treat
-          # a moving one as a defect -- a crab tag deployment that silently
-          # changes wallet code under a running program is not a rollout, it is
-          # an incident.
+          # a moving one as a defect -- a tag deployment that silently changes
+          # wallet code under a running programme is not a rollout, it is an
+          # incident.
+          #
+          # `flavor: latest=false` is what actually enforces that. Leaving it
+          # out does not: metadata-action defaults to latest=auto and adds the
+          # tag itself on any semver push, so this comment described an
+          # intention the configuration did not implement -- and v0.0.1 shipped
+          # a `latest` because of it.
+          flavor: |
+            latest=false
           tags: |
             type=sha,format=long
             type=semver,pattern={{version}}
