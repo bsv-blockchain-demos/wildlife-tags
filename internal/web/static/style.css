@@ -1127,15 +1127,17 @@ th { color: var(--ink-dim); font-weight: 700; font-size: 12px;
 }
 
 /* ---- the DNR seal, orbited by what it tags -------------------------------
-   Six rings of icons circling the department's own seal: the tag itself
-   closest in, the two species this programme actually tags, the families
-   a future one might (the same silhouettes as the species cards, at
-   family level), a species/place/confirmed trio, the record's own
-   properties (written, protected, permanent, still the tag), and an outer
-   echo of the tag again. A deliberate, explicit exception to "nothing
-   animates continuously at rest" -- everywhere else that rule holds; this
-   one ambient loop was asked for by name, with a reference. It still
-   freezes under prefers-reduced-motion like everything else does.
+   Two rings, not the six this used to be: the two species this programme
+   actually tags closest in, five more families a future one might further
+   out. Animal icons only, and each one's medallion is colored with the
+   same --grad-* token its own species card uses elsewhere (see
+   SPECIES_GRADIENT in app.js/admin.js) instead of a flat translucent
+   white -- this constellation and the species grid below now read as one
+   system, not two different decorations that happen to share a page. A
+   deliberate, explicit exception to "nothing animates continuously at
+   rest" -- everywhere else that rule holds; this one ambient loop was
+   asked for by name, with a reference. It still freezes under
+   prefers-reduced-motion like everything else does.
 
    Each ring is two nested elements, not one: the <ul> spins as a whole
    (carrying its <li>s around with it, each parked at a fixed angle+radius
@@ -1144,52 +1146,48 @@ th { color: var(--ink-dim); font-weight: 700; font-size: 12px;
    appearing to tumble.
 
    The rings sit *above* .orbit-center in stacking order (z-index 2 vs 1),
-   not below it, so the innermost ring's own orbit radius is deliberately
-   smaller than the seal's: the icons are meant to visibly pass over its
-   face as they turn, not stop short of it. */
+   not below it, so the inner ring's own orbit radius is deliberately a
+   little smaller than the seal's: the icons are meant to visibly pass over
+   its face as they turn, not stop short of it. */
 .orbit-card {
   position: relative; overflow: hidden;
   border-radius: var(--radius-lg); height: 100%; min-height: 300px;
   display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, #0f3d2e 0%, #0f5c56 45%, #b45309 100%);
+  /* One hue, not two fighting each other -- a soft dark vignette so the
+     colored medallions are the only strong color note in the card. */
+  background: radial-gradient(circle at 50% 36%, #123f38 0%, #0a2420 60%, #061512 100%);
 }
 .orbit-card::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  background:
-    radial-gradient(circle at 26% 20%, rgb(255 255 255 / 0.28), transparent 55%),
-    radial-gradient(circle at 82% 92%, rgb(0 0 0 / 0.22), transparent 60%);
+  background: radial-gradient(circle at 50% 26%, rgb(255 255 255 / 0.12), transparent 60%);
 }
 .orbit-rings { position: relative; z-index: 2; width: 300px; height: 300px; flex-shrink: 0; }
 .orbit-ring { position: absolute; top: 50%; left: 50%; list-style: none; margin: 0; padding: 0; }
-.orbit-ring-1 { width: 64px;  height: 64px;  margin: -32px;  animation: orbit-spin 34s linear infinite; }
-.orbit-ring-2 { width: 104px; height: 104px; margin: -52px;  animation: orbit-spin 42s linear infinite reverse; }
-.orbit-ring-3 { width: 144px; height: 144px; margin: -72px;  animation: orbit-spin 50s linear infinite; }
-.orbit-ring-4 { width: 184px; height: 184px; margin: -92px;  animation: orbit-spin 58s linear infinite reverse; }
-.orbit-ring-5 { width: 224px; height: 224px; margin: -112px; animation: orbit-spin 66s linear infinite; }
-.orbit-ring-6 { width: 264px; height: 264px; margin: -132px; animation: orbit-spin 74s linear infinite reverse; }
+.orbit-ring-1 { width: 92px;  height: 92px;  margin: -46px;  animation: orbit-spin 36s linear infinite; }
+.orbit-ring-2 { width: 236px; height: 236px; margin: -118px; animation: orbit-spin 58s linear infinite reverse; }
 /* Each <li>'s own box is centred on the ring (top/left 50% + a negative
    margin of half its size) *before* its inline rotate()+translateX()
    transform runs, so that transform's default origin -- the box's own
    center -- is exactly the ring's center. Without this, rotate() would
    pivot around the icon's top-left corner instead of sweeping it around
    the ring. */
-.orbit-ring li { position: absolute; top: 50%; left: 50%; }
-.orbit-ring-1 li, .orbit-ring-2 li, .orbit-ring-4 li, .orbit-ring-6 li { width: 22px; height: 22px; margin: -11px; }
-.orbit-ring-3 li, .orbit-ring-5 li { width: 20px; height: 20px; margin: -10px; }
+.orbit-ring li { position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; margin: -22px; }
 .orbit-icon {
   display: flex; align-items: center; justify-content: center;
   width: 100%; height: 100%; border-radius: 50%;
-  background: rgb(255 255 255 / 0.16); border: 1px solid rgb(255 255 255 / 0.3);
-  backdrop-filter: blur(1px);
+  border: 1.5px solid rgb(255 255 255 / 0.25);
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.35);
 }
-.orbit-icon svg, .orbit-icon img { width: 60%; height: 60%; object-fit: contain; color: #fff; }
-.orbit-icon img { filter: brightness(0) invert(1); }
-.orbit-ring-1 .orbit-icon { animation: orbit-spin 34s linear infinite reverse; }
-.orbit-ring-2 .orbit-icon { animation: orbit-spin 42s linear infinite; }
-.orbit-ring-3 .orbit-icon { animation: orbit-spin 50s linear infinite reverse; }
-.orbit-ring-4 .orbit-icon { animation: orbit-spin 58s linear infinite; }
-.orbit-ring-5 .orbit-icon { animation: orbit-spin 66s linear infinite reverse; }
-.orbit-ring-6 .orbit-icon { animation: orbit-spin 74s linear infinite; }
+.orbit-icon img {
+  width: 72%; height: 72%; object-fit: contain;
+  /* Same white-silhouette-plus-shadow treatment as .card-icon-badge img:
+     a plain white PhyloPic icon stays legible on any of these gradients,
+     including the brighter end of --grad-amber or --grad-coral, without
+     needing a backing disc of its own. */
+  filter: brightness(0) invert(1) drop-shadow(0 1px 2px rgb(0 0 0 / 0.35));
+}
+.orbit-ring-1 .orbit-icon { animation: orbit-spin 36s linear infinite reverse; }
+.orbit-ring-2 .orbit-icon { animation: orbit-spin 58s linear infinite; }
 @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 .orbit-center {
@@ -1198,9 +1196,9 @@ th { color: var(--ink-dim); font-weight: 700; font-size: 12px;
      .orbit-rings in stacking order (z-index 1 vs 2) on purpose: see the
      comment above .orbit-card for why the rings ride over the seal. */
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;
-  width: 80px; height: 80px; border-radius: 50%;
+  width: 120px; height: 120px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 0 4px rgb(255 255 255 / 0.85), var(--shadow-raised);
+  box-shadow: 0 0 0 5px rgb(255 255 255 / 0.9), var(--shadow-raised);
 }
 .orbit-center img { width: 100%; height: 100%; border-radius: 50%; }
 

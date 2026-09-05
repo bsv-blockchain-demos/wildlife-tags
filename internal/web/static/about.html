@@ -129,81 +129,44 @@
             measurements into the same transaction that moves the money, so
             the payment and the data can't come apart.</p>
         </div>
-        <!-- The department's own seal, orbited by what it tags and how:
-             the tag itself closest in, the two species this programme
-             actually tags, four more families a future one might, a
-             species/place/confirmed trio, the record's own properties
-             (written, protected, permanent, still the tag), and an outer
-             echo of the tag again -- near and far, it's still the same
-             object. Six rings, deliberately smaller and slower than a
-             first pass at this had them, and riding *over* the seal
-             rather than under it -- see orbit-rings' z-index below. See
-             .orbit-card in style.css for how the rings turn without
-             tumbling the icons riding them. -->
+        <!-- The department's own seal, orbited by what it tags: the two
+             species this programme actually tags closest in, five more
+             families a future one might further out. Animal icons only
+             (an outer pair of rings used to carry the record's own
+             abstract properties -- written, protected, permanent -- but
+             one clear idea, what gets tagged, reads better than two).
+             Each medallion's color is the same --grad-* token that
+             species' own card uses elsewhere (see SPECIES_GRADIENT in
+             app.js/admin.js), so this reads as one system with the grid
+             below rather than its own decoration. See .orbit-card in
+             style.css for how the rings turn without tumbling the icons
+             riding them. -->
         <div class="summary-visual" aria-hidden="true">
           <div class="orbit-card">
             <div class="orbit-rings">
               <ul class="orbit-ring orbit-ring-1">
-                <li style="transform: rotate(-90deg) translateX(32px);">
-                  <span class="orbit-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/></svg></span>
+                <li style="transform: rotate(-90deg) translateX(46px);">
+                  <span class="orbit-icon" style="background: var(--grad-estuary)"><img src="/vendor/animals/blue-crab.svg" alt=""></span>
                 </li>
-                <li style="transform: rotate(90deg) translateX(32px);">
-                  <span class="orbit-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/></svg></span>
+                <li style="transform: rotate(90deg) translateX(46px);">
+                  <span class="orbit-icon" style="background: var(--grad-sunset)"><img src="/vendor/animals/red-drum.svg" alt=""></span>
                 </li>
               </ul>
               <ul class="orbit-ring orbit-ring-2">
-                <li style="transform: rotate(-90deg) translateX(52px);">
-                  <span class="orbit-icon"><img src="/vendor/animals/blue-crab.svg" alt=""></span>
+                <li style="transform: rotate(-90deg) translateX(118px);">
+                  <span class="orbit-icon" style="background: var(--grad-marsh)"><img src="/vendor/animals/sea-turtle.svg" alt=""></span>
                 </li>
-                <li style="transform: rotate(90deg) translateX(52px);">
-                  <span class="orbit-icon"><img src="/vendor/animals/red-drum.svg" alt=""></span>
+                <li style="transform: rotate(-18deg) translateX(118px);">
+                  <span class="orbit-icon" style="background: var(--grad-tide)"><img src="/vendor/animals/shark.svg" alt=""></span>
                 </li>
-              </ul>
-              <ul class="orbit-ring orbit-ring-3">
-                <li style="transform: rotate(-90deg) translateX(72px);">
-                  <span class="orbit-icon"><img src="/vendor/animals/sea-turtle.svg" alt=""></span>
+                <li style="transform: rotate(54deg) translateX(118px);">
+                  <span class="orbit-icon" style="background: var(--grad-amber)"><img src="/vendor/animals/bird-generic.svg" alt=""></span>
                 </li>
-                <li style="transform: rotate(0deg) translateX(72px);">
-                  <span class="orbit-icon"><img src="/vendor/animals/shark.svg" alt=""></span>
+                <li style="transform: rotate(126deg) translateX(118px);">
+                  <span class="orbit-icon" style="background: var(--grad-dusk)"><img src="/vendor/animals/fish-generic.svg" alt=""></span>
                 </li>
-                <li style="transform: rotate(90deg) translateX(72px);">
-                  <span class="orbit-icon"><img src="/vendor/animals/bird-generic.svg" alt=""></span>
-                </li>
-                <li style="transform: rotate(180deg) translateX(72px);">
-                  <span class="orbit-icon"><img src="/vendor/animals/fish-generic.svg" alt=""></span>
-                </li>
-              </ul>
-              <ul class="orbit-ring orbit-ring-4">
-                <li style="transform: rotate(-90deg) translateX(92px);">
-                  <span class="orbit-icon"><img src="/vendor/animals/crab-generic.svg" alt=""></span>
-                </li>
-                <li style="transform: rotate(30deg) translateX(92px);">
-                  <span class="orbit-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2.2" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="6"/><path d="M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18"/></svg></span>
-                </li>
-                <li style="transform: rotate(150deg) translateX(92px);">
-                  <span class="orbit-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7"/><path d="M6.5 10.5 9 13 13.5 7.5"/></svg></span>
-                </li>
-              </ul>
-              <ul class="orbit-ring orbit-ring-5">
-                <li style="transform: rotate(-90deg) translateX(112px);">
-                  <span class="orbit-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="10" height="14" rx="1.5"/><path d="M7.5 7h5M7.5 10h5M7.5 13h3"/></svg></span>
-                </li>
-                <li style="transform: rotate(0deg) translateX(112px);">
-                  <span class="orbit-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2.5 16 5v4c0 4-2.5 7-6 8.5-3.5-1.5-6-4.5-6-8.5V5l6-2.5Z"/></svg></span>
-                </li>
-                <li style="transform: rotate(90deg) translateX(112px);">
-                  <span class="orbit-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v3.5l2.5 1.5"/></svg></span>
-                </li>
-                <li style="transform: rotate(180deg) translateX(112px);">
-                  <span class="orbit-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/></svg></span>
-                </li>
-              </ul>
-              <ul class="orbit-ring orbit-ring-6">
-                <li style="transform: rotate(-90deg) translateX(132px);">
-                  <span class="orbit-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/></svg></span>
-                </li>
-                <li style="transform: rotate(90deg) translateX(132px);">
-                  <span class="orbit-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/></svg></span>
+                <li style="transform: rotate(198deg) translateX(118px);">
+                  <span class="orbit-icon" style="background: var(--grad-slate)"><img src="/vendor/animals/crab-generic.svg" alt=""></span>
                 </li>
               </ul>
             </div>
