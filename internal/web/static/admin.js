@@ -261,6 +261,21 @@
     if (el) el.textContent = state.armedCount ? `${state.armedCount} armed this session` : '';
   }
 
+  // pulseTally is the small visual "yes, that one counted" for the running
+  // total, called only from flushQueue's success path (see below) -- never
+  // from renderTally itself, which also runs on page load restoring a count
+  // from earlier in the session, and should not replay the animation for
+  // something that already happened. Removing the class before re-adding it
+  // forces the browser to notice it's a fresh animation rather than a no-op
+  // on an already-applied one, so two arms confirmed back to back both pulse.
+  function pulseTally() {
+    const el = $('armTally');
+    if (!el) return;
+    el.classList.remove('pulse');
+    void el.offsetWidth; // force a reflow between remove and re-add
+    el.classList.add('pulse');
+  }
+
   // ---- funding ----------------------------------------------------------
 
   async function loadFunding() {
@@ -775,6 +790,13 @@
     checkArmable();
     renderQueue();
     flushQueue();
+    // The Arm button closeConfirm() just returned focus to is disabled the
+    // instant the form above clears -- a focused, disabled button silently
+    // drops focus to <body>. Sending it to Tag id instead means the next
+    // scan (or the next character typed by a handheld scanner acting as a
+    // keyboard) lands straight in the field that wants it, with no tap in
+    // between arming one animal and starting the next.
+    $('tag').focus();
   }
 
   async function submitArm(entry) {
@@ -914,6 +936,7 @@
           entry.status = 'done';
           state.armedCount++;
           renderTally();
+          pulseTally();
           buzz(BUZZ_OK);
           announceArmed(entry, res);
           loadFunding();
@@ -1227,9 +1250,29 @@
     $('scanTag').addEventListener('click', openScanner);
     $('scannerClose').addEventListener('click', closeScanner);
     document.addEventListener('keydown', (e) => {
-      if (e.key !== 'Escape') return;
-      if (!$('scannerOverlay').hidden) closeScanner();
-      else if (!$('confirmSheet').hidden) closeConfirm();
+      if (e.key === 'Escape') {
+        if (!$('scannerOverlay').hidden) closeScanner();
+        else if (!$('confirmSheet').hidden) closeConfirm();
+        return;
+      }
+      // Enter confirms the sheet the same way Escape cancels it: this is a
+      // read-only summary with nothing to type into (see armSummaryHTML),
+      // so there is no editable field an Enter keypress could collide with
+      // -- only a decision most of a session's arms make identically to the
+      // one before it, and a biologist standing up with wet hands should
+      // not need to land a tap on a specific button to make it.
+      //
+      // Guarded to a non-button activeElement (FocusTrap.activate focuses
+      // the sheet itself, not either button, so this is the ordinary case):
+      // without it, tabbing to "Back" and pressing Enter would both cancel
+      // (the button's own native activation) *and* arm (this handler,
+      // since the sheet is still technically visible mid-close-animation
+      // when that fires) -- confirming the exact thing the person just
+      // tried to back out of.
+      if (e.key === 'Enter' && !$('confirmSheet').hidden && document.activeElement.tagName !== 'BUTTON') {
+        e.preventDefault();
+        $('confirmGo').click();
+      }
     });
     $('rearms').addEventListener('click', (e) => {
       // closest, not e.target directly: the button now has an icon inside

@@ -824,6 +824,20 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .net-status.bad { color: var(--warn); }
 .net-status.bad::before { background: var(--warn); }
 
+/* The running "N armed this session" count's own small confirmation --
+   see admin.js's pulseTally, fired once per animal actually confirmed, not
+   on every render. A beat of color and scale, not a bounce or a spin: this
+   fires dozens of times in a working session and needs to read as a quiet
+   acknowledgement, not a distraction from the next tag. */
+#armTally { display: inline-block; }
+#armTally.pulse { animation: tally-pulse var(--dur-base) var(--ease-out); }
+@keyframes tally-pulse {
+  0% { transform: scale(1); color: inherit; }
+  35% { transform: scale(1.16); color: var(--good); }
+  100% { transform: scale(1); color: inherit; }
+}
+@media (prefers-reduced-motion: reduce) { #armTally.pulse { animation: none; } }
+
 /* A field the console carries forward instead of clearing after each arm --
    see species.Measure.Sticky. Same tone as a pill, quieter than a banner:
    this is a reassurance, not a warning. */
