@@ -84,9 +84,10 @@
   /* ---- the ambient-gradient family for card headers --------------------
      Eight jewel-tone diagonals, same shape (deep corner to bright corner),
      different hues, so a screen full of them reads as one coordinated
-     system rather than a grab-bag. Icons sit in a translucent white
-     circular badge on top of every one of these (see .card-icon-badge), so
-     contrast never depends on which gradient a given card happens to use. */
+     system rather than a grab-bag. Icons sit directly on top of every one
+     of these, sized to fill most of the header (see .card-icon-badge); a
+     drop-shadow on the icon itself, not a backing badge, is what keeps it
+     legible no matter which gradient a given card happens to use. */
   --grad-estuary: linear-gradient(135deg, #0f5c56 0%, #2dd4bf 100%);
   --grad-tide:    linear-gradient(135deg, #1e3a8a 0%, #60a5fa 100%);
   --grad-sunset:  linear-gradient(135deg, #9a3412 0%, #fb923c 100%);
@@ -448,18 +449,25 @@ button.grad-card { display: block; width: 100%; text-align: left; padding: 0; bo
 .grad-card-title { font-family: var(--font-display); font-size: 17px; font-weight: 600; color: var(--ink); text-wrap: balance; }
 .grad-card-sub { font-size: 13px; color: var(--ink-dim); margin-top: 2px; }
 
-/* The circular icon badge that sits on a gradient header. */
+/* The icon that sits on a gradient header. No backing disc: at 29+
+   species, a small silhouette in a small white circle reads as a blur,
+   not a shape, and with this many similar fish outlines the shape is
+   the whole point. Sized to fill most of the header instead, with a
+   soft drop-shadow standing in for the disc's old job of guaranteeing
+   contrast -- the icon itself is a plain white silhouette, and without
+   it a light-colored corner of one of the eight header gradients (e.g.
+   --grad-amber's #fbbf24) could wash it out. */
 .card-icon-badge {
   display: flex; align-items: center; justify-content: center;
-  width: 56px; height: 56px; border-radius: 50%;
-  background: rgb(255 255 255 / 0.22); border: 1.5px solid rgb(255 255 255 / 0.4);
-  backdrop-filter: blur(2px);
+  width: 56px; height: 56px;
   color: #fff;
 }
 .grad-card-header.size-sm .card-icon-badge { width: 44px; height: 44px; }
 .grad-card-header.size-lg .card-icon-badge { width: 76px; height: 76px; }
-.card-icon-badge img, .card-icon-badge svg { width: 60%; height: 60%; object-fit: contain; }
-.card-icon-badge img { filter: brightness(0) invert(1); } /* PhyloPic silhouettes recolored to white */
+.card-icon-badge img, .card-icon-badge svg { width: 86%; height: 86%; object-fit: contain; }
+.card-icon-badge img {
+  filter: brightness(0) invert(1) drop-shadow(0 1px 3px rgb(0 0 0 / 0.35));
+} /* PhyloPic silhouettes recolored to white, shadowed for legibility on any gradient */
 
 /* A little more presence on hover than the card's own lift: the badge
    itself grows, and the animal inside it grows a touch more and tips,
