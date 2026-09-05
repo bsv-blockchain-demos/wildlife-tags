@@ -84,13 +84,19 @@
       Signing in with your wallet puts your identity key on every tag you arm,
       so the record says which biologist made it.
     </p>
-    <button id="walletLogin" class="primary wide">Sign in with my wallet</button>
+    <button id="walletLogin" class="primary wide btn-icon">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/><circle cx="14" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
+      Sign in with my wallet
+    </button>
     <div id="pwBox" class="hidden" style="margin-top:16px">
       <div class="field">
         <label for="pw">Or the operator password</label>
         <input id="pw" type="password" autocomplete="current-password">
       </div>
-      <button id="pwLogin" class="wide">Sign in with the password</button>
+      <button id="pwLogin" class="wide btn-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="7" r="3.2"/><path d="M9.3 9.3 16.5 16.5M13 12l1.8 1.8M15.7 9.3 18 11.5"/></svg>
+        Sign in with the password
+      </button>
       <p class="note">A password session is recorded as "operator" rather than
         as a person, so activations made this way are not attributable to a
         named biologist.</p>
@@ -172,11 +178,25 @@
         <div class="field">
           <label>Where you are</label>
           <div id="afix" class="banner">No position fix yet.</div>
-          <button type="button" id="alocate" class="wide">Use my location</button>
         </div>
 
         <div id="armErr" class="err"></div>
-        <button id="arm" class="primary wide" disabled>Arm this tag</button>
+
+        <!-- The secondary action (refresh a fix already being fetched in
+             the background) and the primary one (arm), as a pair rather
+             than two independently-placed .wide buttons: stacked full
+             width on mobile, side by side with "Arm this tag" rightmost
+             on anything wider. -->
+        <div class="cta-row">
+          <button type="button" id="alocate" class="wide btn-icon">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="2.2" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="6"/><path d="M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18"/></svg>
+            <span id="alocateLabel">Use my location</span>
+          </button>
+          <button id="arm" class="primary wide btn-icon" disabled>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/></svg>
+            Arm this tag
+          </button>
+        </div>
 
         <!-- Submissions queued locally: an arm that could not reach the
              server yet (no signal), or one the server refused and a
@@ -209,10 +229,13 @@
             </div>
             <div class="field">
               <label for="mintSpecies">For which species</label>
-              <select id="mintSpecies"></select>
+              <select id="mintSpecies" data-combobox></select>
             </div>
           </div>
-          <button id="mint" class="primary wide">Create batch</button>
+          <button id="mint" class="primary wide btn-icon">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg>
+            Create batch
+          </button>
           <div id="mintErr" class="err" style="margin-top:10px"></div>
           <p class="note" style="margin-top:12px">
             Creating a batch mints keys and tag ids; it does not spend anything.
@@ -268,9 +291,15 @@
   <div class="confirm-sheet" id="confirmSheet" hidden role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
     <h2 id="confirmTitle">Confirm this tagging</h2>
     <div id="confirmBody"></div>
-    <div class="confirm-actions">
-      <button type="button" id="confirmBack" class="wide">Keep editing</button>
-      <button type="button" id="confirmGo" class="primary wide">Confirm &amp; arm</button>
+    <div class="cta-row">
+      <button type="button" id="confirmBack" class="wide btn-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4 6 10l8 6"/></svg>
+        Keep editing
+      </button>
+      <button type="button" id="confirmGo" class="primary wide btn-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 8.5 15 16 6"/></svg>
+        Confirm &amp; arm
+      </button>
     </div>
   </div>
 
@@ -298,6 +327,7 @@
 <script src="tabs.js"></script>
 <script src="canonical.js"></script>
 <script src="toast.js"></script>
+<script src="combobox.js"></script>
 <script src="schema.js"></script>
 <script src="wallet.js"></script>
 <script src="admin.js"></script>

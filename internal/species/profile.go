@@ -59,6 +59,13 @@ type Measure struct {
 type VocabValue struct {
 	Code  string `json:"code"`
 	Label string `json:"label"`
+	// Icon names an entry in the frontend's small icon registry (see
+	// combobox.js) -- optional, and unknown to this package, which just
+	// carries the string through. A value with no obvious universal
+	// pictogram (a moult stage, a life-history code) is better shown with
+	// no icon than a fabricated one, so leaving this blank is a normal,
+	// expected choice, not an oversight.
+	Icon string `json:"icon,omitempty"`
 }
 
 // Vocab is a categorical choice: sex, life stage, gear, disposition.

@@ -108,7 +108,11 @@
 
   <!-- The payment flow, step by step, because it takes a few seconds and three
        wallet prompts and silence would read as a hang. -->
-  <div id="pay" class="card hidden">
+  <!-- data-no-reveal on these three: they are shown by a flow state change,
+       not scrolled to, and #paid already has its own signature entrance
+       (see .paid-badge in style.css) -- the generic scroll reveal would
+       otherwise start it at opacity 0 and flash it in late. -->
+  <div id="pay" class="card hidden" data-no-reveal>
     <h2>Getting you paid</h2>
     <ol class="steps" id="steps">
       <li data-step="quote">Work out what you're owed</li>
@@ -122,7 +126,7 @@
     <button type="button" id="retry" class="wide hidden">Try again</button>
   </div>
 
-  <div id="paid" class="card hidden">
+  <div id="paid" class="card hidden" data-no-reveal>
     <div class="paid-badge" aria-hidden="true">
       <svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6"/></svg>
     </div>
@@ -135,7 +139,7 @@
   <!-- The animal's story. SCDNR's own account of running a tagging programme is
        that many reporters care more about the animal's history than the money,
        so this gets the weight rather than the payment confirmation. -->
-  <div id="prov" class="card hidden">
+  <div id="prov" class="card hidden" data-no-reveal>
     <div class="crab-hero" id="crabHero">
       <div class="card-icon-badge" id="animalIconBadge"><img id="animalIcon" src="" alt="" loading="lazy"></div>
       <div class="crab-name" id="animalName"></div>
@@ -200,6 +204,8 @@
 <script src="vendor/bsv-sdk.js"></script>
 <script src="vendor/leaflet.js"></script>
 <script src="canonical.js"></script>
+<script src="reveal.js"></script>
+<script src="combobox.js"></script>
 <script src="schema.js"></script>
 <script src="wallet.js"></script>
 <script src="redeem.js"></script>

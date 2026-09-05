@@ -64,6 +64,18 @@
     const el = document.createElement('div');
     el.className = `toast toast-${kind}`;
 
+    // A colored circle carries the meaning now, not the whole card: see
+    // the admin console's status pills for the same "color is a small
+    // accent, not a wash" choice.
+    const iconPath = kind === 'good' ? 'M4 10.5 8.5 15 16 6' : kind === 'bad' ? 'M6 6l8 8M14 6l-8 8' : '';
+    if (iconPath) {
+      const icon = document.createElement('span');
+      icon.className = 'toast-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="${iconPath}"/></svg>`;
+      el.appendChild(icon);
+    }
+
     const text = document.createElement('span');
     text.className = 'toast-text';
     text.textContent = message;

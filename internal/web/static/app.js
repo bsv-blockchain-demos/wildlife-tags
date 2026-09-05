@@ -20,18 +20,35 @@
   const emptyRow = (colspan, text) =>
     `<tr><td colspan="${colspan}"><div class="empty-state"><span class="icon-badge">${EMPTY_ICON}</span><span>${text}</span></div></td></tr>`;
 
+  // A large, faint watermark per tile (see .stat-icon in style.css) -- pure
+  // decoration, so the shapes only need to be recognisable at 10% opacity,
+  // not detailed. One svg wrapper, one inner path per concept.
+  const statIcon = (inner) =>
+    `<span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${inner}</svg></span>`;
+  const STAT_ICONS = {
+    tag: '<path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/>',
+    flag: '<path d="M5 3v14"/><path d="M5 4h9l-2.5 3 2.5 3H5"/>',
+    coin: '<circle cx="10" cy="10" r="6.5"/><path d="M10 7v6M12 8.3c-.4-.6-1.1-1-2-1-1.2 0-2 .6-2 1.5s.8 1.3 2 1.5c1.2.2 2 .6 2 1.5s-.8 1.5-2 1.5c-.9 0-1.6-.4-2-1"/>',
+    lock: '<rect x="5" y="9" width="10" height="8" rx="1.5"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/>',
+    hourglass: '<path d="M6 3h8M6 17h8M6.5 3c.3 2.8 2 4.3 3.5 5 1.5-.7 3.2-2.2 3.5-5M6.5 17c.3-2.8 2-4.3 3.5-5 1.5.7 3.2 2.2 3.5 5"/>',
+    stack: '<rect x="4" y="4" width="12" height="3" rx="1"/><rect x="4" y="8.5" width="12" height="3" rx="1"/><rect x="4" y="13" width="12" height="3" rx="1"/>',
+  };
+
   function statTiles(s) {
     return [
-      ['tags in the water', num(s.tags_active)],
-      ['reports', num(s.recaptures)],
-      ['paid out', `${num(s.satoshis_paid)} sats`],
-      ['locked in tags', `${num(s.satoshis_locked)} sats`],
+      ['tags in the water', num(s.tags_active), 'tag'],
+      ['reports', num(s.recaptures), 'flag'],
+      ['paid out', `${num(s.satoshis_paid)} sats`, 'coin'],
+      ['locked in tags', `${num(s.satoshis_locked)} sats`, 'lock'],
       // Bonuses owed but not yet payable: money promised to crabbers who put a
       // crab back, waiting on that crab turning up again.
-      ['bonuses pending', `${num(s.escrow_owed)} sats`],
-      ['tags printed', num(s.tags_minted + s.tags_active + s.tags_cooldown + s.tags_retired)],
+      ['bonuses pending', `${num(s.escrow_owed)} sats`, 'hourglass'],
+      ['tags printed', num(s.tags_minted + s.tags_active + s.tags_cooldown + s.tags_retired), 'stack'],
     ]
-      .map(([k, v]) => `<div class="stat"><div class="n tabular">${v}</div><div class="k">${k}</div></div>`)
+      .map(
+        ([k, v, icon]) =>
+          `<div class="stat">${statIcon(STAT_ICONS[icon])}<div class="n tabular">${v}</div><div class="k">${k}</div></div>`
+      )
       .join('');
   }
 

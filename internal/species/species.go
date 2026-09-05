@@ -175,8 +175,8 @@ func dispositionVocab() Vocab {
 		// explicitly, which is the one place it means anything.
 		Required: false,
 		Values: []VocabValue{
-			{Code: string(Released), Label: "Released with the tag still on"},
-			{Code: string(Harvested), Label: "Kept"},
+			{Code: string(Released), Label: "Released with the tag still on", Icon: "release"},
+			{Code: string(Harvested), Label: "Kept", Icon: "harvest"},
 		},
 	}
 }

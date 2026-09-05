@@ -8,6 +8,12 @@
   const escHTML = (s) =>
     String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+  // Truncated in the middle, not at the end: an identity key's *end* is
+  // what a person actually checks it against (the last few characters they
+  // remember from their own wallet), so cutting from the end throws away
+  // the part that matters most.
+  const midTruncate = (k) => (k && k.length > 16 ? `${k.slice(0, 8)}…${k.slice(-6)}` : k || '');
+
   // The same tag mark as the wordmark and favicon, drawn as an outline
   // rather than filled -- a table with nothing in it yet, not an error.
   const EMPTY_ICON =
@@ -15,6 +21,24 @@
     '<path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/></svg>';
   const emptyRow = (colspan, text) =>
     `<tr><td colspan="${colspan}"><div class="empty-state"><span class="icon-badge">${EMPTY_ICON}</span><span>${text}</span></div></td></tr>`;
+
+  // The same rotate glyph as the "Waiting to re-arm" tab: putting a tag
+  // back in service is that tab's one action, so its button wears the
+  // tab's own icon rather than a new one.
+  const REARM_ICON =
+    '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M16.5 10a6.5 6.5 0 1 1-2-4.7"/><path d="M16.5 3v4h-4"/></svg>';
+
+  // A large, faint watermark per funding tile -- see .stat-icon in
+  // style.css and app.js's identical statIcon, which this mirrors for the
+  // three admin-only figures (app.js's own six cover everything public).
+  const statIcon = (inner) =>
+    `<span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${inner}</svg></span>`;
+  const FUNDING_ICONS = {
+    balance: '<rect x="2.5" y="5.5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/><circle cx="14" cy="12" r="1" fill="currentColor" stroke="none"/>',
+    perTag: '<path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/>',
+    activations: '<rect x="4" y="4" width="12" height="12" rx="2"/><path d="M7 10l2 2 4-4"/>',
+  };
 
   const ATTEST_PROTOCOL = [2, 'wildtag observation'];
   const QUEUE_KEY = 'wildtag.armqueue.v1';
@@ -167,7 +191,7 @@
     $('logoutMobile').classList.remove('hidden');
     const key = state.session.identity_key || '';
     $('who').textContent =
-      key === 'operator' ? 'signed in as operator (password)' : `signed in as ${key.slice(0, 16)}…`;
+      key === 'operator' ? 'signed in as operator (password)' : `signed in as ${midTruncate(key)}`;
     try {
       localStorage.setItem(IDENTITY_CACHE_KEY, key);
     } catch (_) {
@@ -189,7 +213,11 @@
   function setOnline(isOnline) {
     const el = $('netStatus');
     if (!el) return;
-    el.textContent = isOnline ? 'online' : 'offline · will retry';
+    // Bare "online" read as unexplained noise -- what it is a signal *for*
+    // is whether an arm queued right now can actually reach the server, so
+    // the label says that rather than assuming it's obvious.
+    el.textContent = isOnline ? 'Signal: connected' : 'Signal: offline, will retry';
+    el.title = 'Whether this console can currently reach the server. Arms queue locally and send automatically once it can.';
     el.className = 'net-status' + (isOnline ? ' good' : ' bad');
   }
 
@@ -205,11 +233,14 @@
       const f = await api('/api/admin/funding');
       $('deposit').textContent = f.deposit_address;
       $('funding').innerHTML = [
-        ['balance', `${num(f.balance)} sats`],
-        ['per tag', `${num(f.reward_per_tag)} sats`],
-        ['activations left', num(f.activations_left)],
+        ['balance', `${num(f.balance)} sats`, 'balance'],
+        ['per tag', `${num(f.reward_per_tag)} sats`, 'perTag'],
+        ['activations left', num(f.activations_left), 'activations'],
       ]
-        .map(([k, v]) => `<div class="stat"><div class="n tabular">${v}</div><div class="k">${k}</div></div>`)
+        .map(
+          ([k, v, icon]) =>
+            `<div class="stat">${statIcon(FUNDING_ICONS[icon])}<div class="n tabular">${v}</div><div class="k">${k}</div></div>`
+        )
         .join('');
     } catch (e) {
       $('funding').innerHTML = `<div class="stat"><div class="k">${e.message}</div></div>`;
@@ -279,14 +310,14 @@
     if (!state.fix) {
       box.textContent = 'No position fix yet.';
       box.className = 'banner';
-      $('alocate').textContent = 'Use my location';
+      $('alocateLabel').textContent = 'Use my location';
       return;
     }
     box.innerHTML =
       `${state.fix.lat.toFixed(5)}, ${state.fix.lon.toFixed(5)} ` +
       `<span class="note">(&plusmn;${Math.round(state.fix.acc)} m &middot; <span data-fix-age>${ageLabel(state.fixAt)}</span>)</span>`;
     box.className = 'banner good';
-    $('alocate').textContent = 'Refresh location';
+    $('alocateLabel').textContent = 'Refresh location';
   }
 
   // A fix taken minutes ago and quietly reused for the next animal in the
@@ -372,6 +403,13 @@
         .map((p) => `<option value="${p.code}">${p.common} (${p.scientific})</option>`)
         .join('');
       mintEl.value = window.Schema.profile().code;
+      // Enhanced once here rather than by admin.js's other enhanceAll()
+      // calls: this select's icons come from the species silhouettes
+      // (SPECIES_ICON), not combobox.js's own small built-in registry, and
+      // it is built once at boot rather than rebuilt per species change.
+      window.Combobox.enhance(mintEl, {
+        iconHTML: (option) => `<img src="/vendor/animals/${SPECIES_ICON[option.value] || FALLBACK_ICON}" alt="">`,
+      });
     }
 
     const grid = $('armSpeciesGrid');
@@ -426,6 +464,12 @@
     // not -- a tagger is releasing the animal by definition.
     window.Schema.renderFields(state.profile, $('armFields'), { tagging: true });
     addBlankOptions();
+    // Every vocab select schema.js just rendered, as a searchable popover
+    // with an icon per entry where species.VocabValue.Icon names one (see
+    // combobox.js). Re-run on every species change: renderFields tore down
+    // and rebuilt the <select> elements from scratch, so any previous
+    // enhancement was on nodes that no longer exist.
+    window.Combobox.enhanceAll($('armFields'));
     for (const el of $('armFields').querySelectorAll('input, select')) {
       el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', checkArmable);
     }
@@ -467,6 +511,11 @@
       if (el.hasAttribute('data-sticky')) continue;
       el.value = '';
     }
+    // Setting .value directly does not fire 'change', so the enhanced
+    // selects' own trigger buttons would otherwise keep showing the last
+    // animal's answer after the underlying <select> has already gone
+    // back to blank.
+    window.Combobox.refreshAll($('armFields'));
   }
 
   // checkArmable refuses an animal the profile says should not carry a tag, and
@@ -875,7 +924,7 @@
         (t) =>
           `<tr><td class="mono">${t.display}</td><td class="tabular">${t.generation}</td>` +
           `<td class="tabular">${num(t.satoshis)} sats</td>` +
-          `<td><button data-rearm="${t.tag_id}">put back</button></td></tr>`
+          `<td><button class="btn-icon" data-rearm="${t.tag_id}">${REARM_ICON}put back</button></td></tr>`
       );
       $('rearms').innerHTML = rows.length
         ? rows.join('')
@@ -931,8 +980,11 @@
       else if (!$('confirmSheet').hidden) closeConfirm();
     });
     $('rearms').addEventListener('click', (e) => {
-      const id = e.target.getAttribute && e.target.getAttribute('data-rearm');
-      if (id) rearm(id, e.target);
+      // closest, not e.target directly: the button now has an icon inside
+      // it, so a click can land on the <svg> rather than the <button> that
+      // carries the data attribute.
+      const button = e.target.closest && e.target.closest('[data-rearm]');
+      if (button) rearm(button.getAttribute('data-rearm'), button);
     });
     $('armQueue').addEventListener('click', (e) => {
       const discard = e.target.getAttribute && e.target.getAttribute('data-discard');
@@ -959,10 +1011,15 @@
 
   function mockFunding() {
     $('funding').innerHTML = [
-      ['balance', '1,840,000 sats'],
-      ['per tag', '20,000 sats'],
-      ['activations left', '92'],
-    ].map(([k, v]) => `<div class="stat"><div class="n tabular">${v}</div><div class="k">${k}</div></div>`).join('');
+      ['balance', '1,840,000 sats', 'balance'],
+      ['per tag', '20,000 sats', 'perTag'],
+      ['activations left', '92', 'activations'],
+    ]
+      .map(
+        ([k, v, icon]) =>
+          `<div class="stat">${statIcon(FUNDING_ICONS[icon])}<div class="n tabular">${v}</div><div class="k">${k}</div></div>`
+      )
+      .join('');
     $('deposit').textContent = '1EstuaryDemoDepositAddressXXXXXXXX';
   }
 
@@ -983,7 +1040,7 @@
     ];
     $('rearms').innerHTML = rows.map(([id, gen, sats]) =>
       `<tr><td class="mono">${id}</td><td class="tabular">${gen}</td>` +
-      `<td class="tabular">${sats}</td><td><button data-rearm="${id}">put back</button></td></tr>`).join('');
+      `<td class="tabular">${sats}</td><td><button class="btn-icon" data-rearm="${id}">${REARM_ICON}put back</button></td></tr>`).join('');
   }
 
   // Shows the signed-in shell without showConsole()'s call to refresh(),
@@ -995,7 +1052,7 @@
     $('logout').classList.remove('hidden');
     $('logoutMobile').classList.remove('hidden');
     $('who').textContent =
-      identityKey === 'operator' ? 'signed in as operator (password)' : `signed in as ${identityKey.slice(0, 16)}…`;
+      identityKey === 'operator' ? 'signed in as operator (password)' : `signed in as ${midTruncate(identityKey)}`;
     setOnline(navigator.onLine);
   }
 

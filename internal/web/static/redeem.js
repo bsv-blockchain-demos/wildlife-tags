@@ -155,6 +155,9 @@
   // buildForm renders the profile's fields and wires them up.
   function buildForm() {
     window.Schema.renderFields(state.profile, $('fields'), { tagging: false });
+    // Every vocab select schema.js just rendered, as a searchable popover
+    // with an icon per entry where one is defined (see combobox.js).
+    window.Combobox.enhanceAll($('fields'));
     for (const el of $('fields').querySelectorAll('input, select')) {
       el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', checkRules);
     }
@@ -771,7 +774,10 @@
       return iso;
     }
   }
-  const shortKey = (k) => (k && k.length > 12 ? k.slice(0, 10) + '…' : k || 'a biologist');
+  // Truncated in the middle, not at the end -- see admin.js's identical
+  // midTruncate for why: the tail of a key is the part a person actually
+  // checks against, and cutting it off throws away the part that matters.
+  const shortKey = (k) => (k && k.length > 16 ? `${k.slice(0, 8)}…${k.slice(-6)}` : k || 'a biologist');
   function escapeHTML(s) {
     return String(s).replace(/[&<>"']/g, (c) =>
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

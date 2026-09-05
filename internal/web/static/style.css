@@ -332,6 +332,12 @@ header.site .tagline { color: var(--ink-dim); font-size: 14px; text-wrap: balanc
   text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-dim); font-weight: 700; }
 .card p, .card .note, .honesty dd { max-width: 68ch; text-wrap: pretty; }
 
+/* Scroll reveal: see reveal.js. transform/opacity only, so this composites
+   on its own layer and costs nothing else on the page while it runs. */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); }
+.reveal-in { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
 /* ---- gradient-header cards ----------------------------------------------
    The signature component: a rounded card whose top is an ambient gradient
    carrying a circular icon badge, with a plain surface below it for text.
@@ -430,7 +436,16 @@ button.grad-card { display: block; width: 100%; text-align: left; padding: 0; bo
 @media (min-width: 640px) { .grid.two { grid-template-columns: 1fr 1fr; } }
 .grid.cards { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--sp-md); }
 
-.stat { background: var(--panel-2); border-radius: var(--radius); padding: 12px; }
+.stat { background: var(--panel-2); border-radius: var(--radius); padding: 12px; position: relative; overflow: hidden; container-type: inline-size; }
+
+/* A large, faint icon in the corner -- decoration, not information (the
+   number and label already say everything that matters), so it stays out
+   of the way at low opacity and disappears below a size it would just
+   crowd. A container query, not a viewport one: whether a given tile has
+   "space" depends on how many share its row, not on the screen it's on. */
+.stat-icon { display: none; position: absolute; top: 8px; right: 8px; width: 34px; height: 34px; color: var(--ink); opacity: 0.1; pointer-events: none; }
+.stat-icon svg { width: 100%; height: 100%; }
+@container (min-width: 160px) { .stat-icon { display: block; } }
 
 /* ---- "The program" stat breakdown chart ---------------------------------
    A real composition chart, not a decorative fabrication: the four ring
@@ -477,8 +492,8 @@ button.grad-card { display: block; width: 100%; text-align: left; padding: 0; bo
 .skel-line.cell { height: 13px; width: 70%; }
 @keyframes skeleton-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
 @media (prefers-reduced-motion: reduce) { .skel-line { animation: none; opacity: 0.6; } }
-.stat .n { font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
-.stat .k { font-size: 12px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.07em; }
+.stat .n { position: relative; z-index: 1; font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+.stat .k { position: relative; z-index: 1; font-size: 12px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.07em; }
 
 label { display: block; font-size: 14px; color: var(--ink-dim); margin: 0 0 4px; }
 input, select, textarea {
@@ -489,6 +504,55 @@ input, select, textarea {
 .field { margin: 0 0 14px; }
 .row { display: grid; gap: 12px; grid-template-columns: 1fr; }
 @media (min-width: 480px) { .row { grid-template-columns: 1fr 1fr; } }
+
+/* ---- combobox: a <select> enhanced into a searchable popover ------------
+   See combobox.js. The native <select> stays in the DOM (hidden, off to
+   the side) as the real form control; everything below is the visual and
+   interaction layer in front of it. */
+.combo { position: relative; }
+.combo-native { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
+.combo-trigger {
+  width: 100%; display: flex; align-items: center; gap: 10px; text-align: left;
+  padding: 12px; font-size: 16px; font-family: var(--font-body); font-weight: 400; color: var(--ink);
+  background: var(--panel); border: 1px solid var(--line-strong); border-radius: var(--radius);
+  cursor: pointer; min-height: 0;
+}
+.combo-trigger:hover { background: var(--panel-2); }
+.combo-trigger-icon { flex-shrink: 0; width: 20px; height: 20px; color: var(--accent); }
+.combo-trigger-icon svg { width: 100%; height: 100%; }
+.combo-trigger-icon img, .combo-option-icon img { width: 100%; height: 100%; object-fit: contain; }
+/* The species silhouettes are plain black fills (see animals/ATTRIBUTION.md),
+   legible as-is on the light rows here -- except in dark mode, the same as
+   the footer seal. */
+:root[data-theme="dark"] .combo-trigger-icon img,
+:root[data-theme="dark"] .combo-option-icon img { filter: invert(1); }
+.combo-trigger-label { flex: 1; }
+.combo-trigger-label.placeholder { color: var(--ink-dim); }
+.combo-caret { flex-shrink: 0; width: 16px; height: 16px; color: var(--ink-dim); transition: transform var(--dur-fast) var(--ease-out); }
+.combo[data-open="true"] .combo-trigger { border-color: var(--accent); }
+.combo[data-open="true"] .combo-caret { transform: rotate(180deg); }
+
+.combo-popover {
+  position: absolute; z-index: 45; top: calc(100% + 4px); left: 0; right: 0;
+  display: flex; flex-direction: column; max-height: 280px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow-overlay); overflow: hidden;
+}
+.combo-popover[hidden] { display: none; }
+.combo-search-wrap { padding: 8px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+.combo-search { padding: 8px 10px; font-size: 14px; border-radius: var(--radius-sm); }
+.combo-list { list-style: none; margin: 0; padding: 4px; overflow-y: auto; }
+.combo-option, .combo-list li[role="option"] {
+  display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: var(--radius-sm);
+  font-size: 14px; color: var(--ink); cursor: pointer;
+}
+.combo-list li[data-active="true"] { background: var(--panel-2); }
+.combo-list li[aria-selected="true"] { font-weight: 600; }
+.combo-list li[aria-selected="true"]::after { content: ""; margin-left: auto; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.combo-option-icon { flex-shrink: 0; width: 18px; height: 18px; color: var(--accent); }
+.combo-option-icon svg { width: 100%; height: 100%; }
+.combo-option-icon.blank { visibility: hidden; } /* keeps labels aligned when only some options in the list have one */
+.combo-empty { padding: 16px 10px; text-align: center; color: var(--ink-dim); font-size: 13px; }
 
 button {
   font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
@@ -557,6 +621,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .icon-btn { display: inline-flex; align-items: center; gap: 6px; padding: 12px 16px; white-space: nowrap; }
 .icon-btn svg { width: 18px; height: 18px; }
 
+/* A leading icon on an otherwise plain or .wide button -- left-aligned
+   with the label, not centered on its own, so "+ Create batch" reads as
+   one phrase. */
+button.btn-icon { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+button.btn-icon svg { width: 18px; height: 18px; flex-shrink: 0; }
+
 /* Queued arms: a submission with nowhere to go yet (no signal) or one the
    server refused and a person needs to look at. Nothing here is "done" --
    a successful submission is removed, not shown, so this list is only ever
@@ -601,8 +671,14 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .confirm-row:last-child { border-bottom: none; }
 .confirm-k { color: var(--ink-dim); }
 .confirm-v { font-weight: 600; text-align: right; }
-.confirm-actions { display: flex; flex-direction: column; gap: 8px; margin-top: var(--sp-lg); }
-@media (min-width: 480px) { .confirm-actions { flex-direction: row-reverse; } .confirm-actions button { flex: 1; } }
+/* A primary action paired with one secondary one: stacked and full-width
+   on mobile (thumb reach beats layout density), side by side with the
+   primary action rightmost on anything wider -- the confirm sheet's
+   buttons and the arm form's "locate" + "arm" pairing both use this
+   rather than two independently-placed .wide buttons that happened to be
+   near each other. */
+.cta-row { display: flex; flex-direction: column; gap: 8px; margin-top: var(--sp-md); }
+@media (min-width: 480px) { .cta-row { flex-direction: row; } .cta-row button { flex: 1; } }
 
 /* ---- status toasts -------------------------------------------------------
    This app's stand-in for DESIGN.md's "sonner" toasts: there is no React
@@ -613,9 +689,11 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
    Positioned top, not bottom: bottom-left is the dev FAB and bottom-right
    is Agentation's own toolbar in dev mode, and both sheets in this file
-   already anchor to the bottom edge. Colors are fixed rather than drawn
-   from --ink/--bg, which flip in dark mode -- a toast should read the same
-   regardless of which theme the page under it is in. */
+   already anchor to the bottom edge. A light/dark card matching every
+   other surface in the app (--panel, not a fixed solid color) -- a full
+   block of saturated green or red reads as an alarm even for routine
+   confirmations; the color now lives only in the icon circle, the way the
+   status pills elsewhere already do it. */
 .toast-stack {
   position: fixed; z-index: 95; left: 0; right: 0;
   top: calc(var(--header-h) + 12px);
@@ -627,22 +705,27 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 .toast {
   pointer-events: auto;
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: 12px;
   width: 100%; max-width: 380px;
-  background: #1a1d21; color: #f3f5f8;
-  border-radius: var(--radius); padding: 12px 12px 12px 16px;
+  background: var(--panel); color: var(--ink); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 12px;
   box-shadow: var(--shadow-overlay);
   font-size: 14px;
   transform: translateY(-8px); opacity: 0;
   transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out);
 }
 .toast.in { transform: translateY(0); opacity: 1; }
-.toast-good { background: var(--good); color: #fff; }
-.toast-bad  { background: var(--bad);  color: #fff; }
+.toast-icon {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+.toast-icon svg { width: 15px; height: 15px; }
+.toast-good .toast-icon { background: var(--good); }
+.toast-bad  .toast-icon { background: var(--bad); }
 .toast-text { flex: 1; text-wrap: balance; }
 .toast-action, .toast-close {
   flex-shrink: 0; min-height: 32px; padding: 6px 10px; font-size: 13px;
-  background: rgb(255 255 255 / 0.14); border-color: rgb(255 255 255 / 0.3); color: inherit;
+  background: var(--panel-2); border-color: var(--line-strong); color: var(--ink);
 }
 .toast-close { padding: 6px 9px; font-size: 16px; line-height: 1; }
 @media (prefers-reduced-motion: reduce) { .toast { transition: none !important; } }

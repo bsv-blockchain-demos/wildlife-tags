@@ -173,12 +173,18 @@
       const req = v.required && (tagging || !v.tagging_only) ? ' required' : '';
       const sticky = v.sticky ? ' data-sticky="true"' : '';
       const options = (v.values || [])
-        .map((val) => `<option value="${esc(val.code)}">${esc(val.label)}</option>`)
+        .map((val) => {
+          const icon = val.icon ? ` data-icon="${esc(val.icon)}"` : '';
+          return `<option value="${esc(val.code)}"${icon}>${esc(val.label)}</option>`;
+        })
         .join('');
       parts.push(
         `<div class="field">` +
           `<label for="f_${esc(v.key)}">${esc(v.label)}${stickyBadge(v.sticky)}</label>` +
-          `<select id="f_${esc(v.key)}" data-attr="${esc(v.key)}"${sticky}${req}>${options}</select>` +
+          // data-combobox, so admin.js/redeem.js can enhance every select this
+          // renders into a searchable popover (see combobox.js) in one pass,
+          // without needing to know each field's id in advance.
+          `<select id="f_${esc(v.key)}" data-attr="${esc(v.key)}" data-combobox${sticky}${req}>${options}</select>` +
           (v.help ? `<p class="note">${esc(v.help)}</p>` : '') +
           (v.key === dispKey ? `<p class="note" data-disp-note></p>` : '') +
         `</div>`
