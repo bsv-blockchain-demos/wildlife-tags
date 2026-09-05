@@ -399,6 +399,19 @@ button.grad-card { display: block; width: 100%; text-align: left; padding: 0; bo
 .grid.cards { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--sp-md); }
 
 .stat { background: var(--panel-2); border-radius: var(--radius); padding: 12px; }
+
+/* Skeleton placeholders: shown in the markup by default, replaced the
+   instant real data arrives, so a slow connection sees an intentional
+   loading shape instead of a blank tile that pops a number into existence.
+   A pulse, never a sweeping gradient -- see DESIGN's motion rules -- and it
+   freezes under prefers-reduced-motion rather than stopping outright, so
+   the loading state stays legible either way. */
+.skel-line { background: var(--line); border-radius: 4px; animation: skeleton-pulse 1.8s var(--ease-in-out) infinite; }
+.skel-line.n { height: 26px; width: 56%; margin-bottom: 8px; }
+.skel-line.k { height: 11px; width: 78%; }
+.skel-line.cell { height: 13px; width: 70%; }
+@keyframes skeleton-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { .skel-line { animation: none; opacity: 0.6; } }
 .stat .n { font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
 .stat .k { font-size: 12px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.07em; }
 
@@ -563,6 +576,9 @@ footer a { color: var(--ink-dim); }
 .tab-btn svg { width: 16px; height: 16px; }
 .tab-btn[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 .tab-panel[hidden] { display: none; }
+.tab-panel { opacity: 0; transform: translateY(4px); }
+.tab-panel.in { opacity: 1; transform: translateY(0); transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); }
+@media (prefers-reduced-motion: reduce) { .tab-panel { transition: none !important; transform: none !important; } }
 
 /* ---- species picker -----------------------------------------------------
    A visual card grid replacing a plain <select> wherever a person chooses
@@ -580,7 +596,19 @@ footer a { color: var(--ink-dim); }
 }
 .species-card:hover { transform: translateY(-2px); }
 .species-card[aria-pressed="true"] { border-color: var(--accent); }
-.species-card-header { height: 76px; display: flex; align-items: center; justify-content: center; }
+.species-card-header { position: relative; height: 76px; display: flex; align-items: center; justify-content: center; }
+
+/* A soft light-from-upper-left plus a faint opposite-corner vignette on
+   every gradient surface -- the difference between a flat color swatch and
+   something that reads as premium. Generated, not an image, so it costs
+   nothing to repeat across eight gradients and any future one. */
+.grad-card-header::before, .species-card-header::before, .crab-hero::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle at 26% 20%, rgb(255 255 255 / 0.32), transparent 55%),
+    radial-gradient(circle at 82% 92%, rgb(0 0 0 / 0.14), transparent 60%);
+}
+.grad-card-header > *, .species-card-header > *, .crab-hero > * { position: relative; z-index: 1; }
 .species-card-body { padding: var(--sp-sm) var(--sp-md) var(--sp-md); }
 .species-card-name { font-family: var(--font-display); font-size: 14px; font-weight: 600; color: var(--ink); }
 .species-card-sci { font-size: 12px; font-style: italic; color: var(--ink-dim); margin-top: 1px; }

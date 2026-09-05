@@ -237,6 +237,10 @@ func (s *Server) serveStatic(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "image/svg+xml")
 	case strings.HasSuffix(path, ".woff2"):
 		w.Header().Set("Content-Type", "font/woff2")
+	case strings.HasSuffix(path, ".webmanifest") || path == "manifest.json":
+		w.Header().Set("Content-Type", "application/manifest+json")
+	case strings.HasSuffix(path, ".png"):
+		w.Header().Set("Content-Type", "image/png")
 	}
 	w.Header().Set("ETag", etag)
 	if r.URL.Query().Get("v") != "" {

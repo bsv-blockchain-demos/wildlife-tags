@@ -4,9 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tagged animal — report and get paid</title>
+<meta name="description" content="Report a tagged animal and get paid on the spot.">
+<meta property="og:title" content="Tagged animal &mdash; report and get paid">
+<meta property="og:description" content="Scan a tagged animal, report it, and get paid on the spot.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#f3f5f8" id="themeColor">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script>
   try {
-    document.documentElement.setAttribute('data-theme', localStorage.getItem('wildtag.theme') || 'light');
+    var t = localStorage.getItem('wildtag.theme') || 'light';
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('themeColor').setAttribute('content', t === 'dark' ? '#0e1418' : '#f3f5f8');
   } catch (_) {
     document.documentElement.setAttribute('data-theme', 'light');
   }

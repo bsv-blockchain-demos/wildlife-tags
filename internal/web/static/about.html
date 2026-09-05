@@ -4,9 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>About &mdash; SCDNR wildlife tag rewards</title>
+<meta name="description" content="What this changes, and what it costs to try: a QR-unlockable reward locked to the tag itself, on Bitcoin SV.">
+<meta property="og:title" content="About &mdash; SCDNR wildlife tag rewards">
+<meta property="og:description" content="What this changes, and what it costs to try.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#f3f5f8" id="themeColor">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script>
   try {
-    document.documentElement.setAttribute('data-theme', localStorage.getItem('wildtag.theme') || 'light');
+    var t = localStorage.getItem('wildtag.theme') || 'light';
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('themeColor').setAttribute('content', t === 'dark' ? '#0e1418' : '#f3f5f8');
   } catch (_) {
     document.documentElement.setAttribute('data-theme', 'light');
   }
@@ -84,6 +97,8 @@
 </div>
 
 <main class="wrap">
+
+  <p class="page-title">About the programme</p>
 
   <!-- Every section heading below is a disclosure button: aria-expanded on
        the trigger, aria-controls -> the body's id, wired up by accordion.js.

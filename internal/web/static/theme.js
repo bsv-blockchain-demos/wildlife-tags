@@ -23,8 +23,17 @@
     }
   }
 
+  // The browser chrome (the address bar / status bar tint) should match
+  // *this app's* theme, not the OS's -- a person who explicitly chose dark
+  // here would otherwise get a light address bar over a dark page, which is
+  // exactly the "not finished" seam a system-preference-only meta tag
+  // leaves behind.
+  const BG = { light: '#f3f5f8', dark: '#0e1418' };
+
   function apply(theme) {
     document.documentElement.setAttribute('data-theme', theme);
+    const meta = document.getElementById('themeColor');
+    if (meta) meta.setAttribute('content', BG[theme] || BG.light);
     try {
       localStorage.setItem(KEY, theme);
     } catch (_) {

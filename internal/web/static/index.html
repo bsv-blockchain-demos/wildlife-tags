@@ -4,11 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SCDNR wildlife tag program</title>
+<meta name="description" content="Tagged animals, reported by whoever finds them, paid on the spot. A live QR-unlockable reward programme built on Bitcoin SV.">
+<meta property="og:title" content="SCDNR wildlife tag program">
+<meta property="og:description" content="Tagged animals, reported by whoever finds them, paid on the spot.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#f3f5f8" id="themeColor">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script>
   // Applied before first paint so a person who chose dark never sees a
   // light flash. See theme.js for the toggle itself.
   try {
-    document.documentElement.setAttribute('data-theme', localStorage.getItem('wildtag.theme') || 'light');
+    var t = localStorage.getItem('wildtag.theme') || 'light';
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('themeColor').setAttribute('content', t === 'dark' ? '#0e1418' : '#f3f5f8');
   } catch (_) {
     document.documentElement.setAttribute('data-theme', 'light');
   }
@@ -93,7 +106,15 @@
 
   <div class="card">
     <h2>The program</h2>
-    <div class="grid stats" id="stats"></div>
+    <div class="grid stats" id="stats">
+      <!-- Replaced the instant /api/stats answers; see app.js. -->
+      <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+      <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+      <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+      <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+      <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+      <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+    </div>
   </div>
 
   <div class="card">
@@ -148,7 +169,11 @@
         <thead>
           <tr><th>Tag</th><th>Event</th><th>Gen</th><th>Amount</th><th>Status</th><th>When</th></tr>
         </thead>
-        <tbody id="recent"></tbody>
+        <tbody id="recent">
+          <tr><td colspan="6"><div class="skel-line cell"></div></td></tr>
+          <tr><td colspan="6"><div class="skel-line cell"></div></td></tr>
+          <tr><td colspan="6"><div class="skel-line cell"></div></td></tr>
+        </tbody>
       </table>
     </div>
   </div>
