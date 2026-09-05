@@ -38,10 +38,20 @@
   // Each plays once on arrival and holds still; see .onboard-rise/-settle/
   // -sweep in style.css, and DESIGN's motion rules for why nothing loops.
 
+  // Tag glyph, a drawn connector, the reward -- the headline ("a reward
+  // locked to the tag itself") drawn as the relationship it describes
+  // rather than illustrated with one shape that means both halves at
+  // once. See .onboard-trace-h in style.css.
   function welcomeScene() {
     return (
-      `<div class="onboard-settle" style="width:76px;height:76px;border-radius:50%;background:var(--grad-estuary);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-raised);">` +
-      `<span style="width:34px;height:34px;color:#fff;">${svg(`<path d="${TAG_PATH}"/><circle cx="7" cy="7" r="1.1"/>`)}</span>` +
+      `<div style="display:flex;align-items:center;">` +
+      `<div class="onboard-surface onboard-settle" style="width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;">` +
+      `<span style="width:26px;height:26px;color:var(--ink-dim);">${svg(`<path d="${TAG_PATH}"/><circle cx="7" cy="7" r="1.1"/>`)}</span>` +
+      `</div>` +
+      `<svg class="onboard-trace-h" viewBox="0 0 34 10" style="width:34px;height:10px;color:var(--accent);" aria-hidden="true"><path d="M1 5 H33" style="animation-delay:140ms"/></svg>` +
+      `<div class="onboard-settle" style="animation-delay:260ms;width:76px;height:76px;border-radius:50%;background:var(--grad-estuary);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-raised);">` +
+      `<span style="width:34px;height:34px;color:#fff;">${svg(`<path d="${CHECK_PATH}" stroke-width="2.4" style="animation-delay:460ms"/>`, { className: 'draw-mark' })}</span>` +
+      `</div>` +
       `</div>`
     );
   }
@@ -66,23 +76,38 @@
     );
   }
 
+  // A field record, and a corner badge confirming it landed -- the first
+  // row's dot becomes an actual position-fix glyph (the same one "Use my
+  // location" carries elsewhere in this app) rather than a plain accent
+  // dot, since this step is specifically about *that* field, and the
+  // badge in the corner is the same "arrived, then confirmed" pairing
+  // .arm-confirm and the Paid badge already use.
   function recordScene() {
+    const rows = [
+      {
+        icon: '<circle cx="10" cy="10" r="2.2" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="6"/><path d="M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18"/>',
+        width: '70%',
+      },
+      { icon: null, width: '90%' },
+      { icon: null, width: '55%' },
+    ];
     return (
-      `<div style="width:100%;max-width:220px;">` +
-      `<div class="onboard-surface" style="padding:10px;">` +
-      [
-        ['var(--accent)', '70%'],
-        ['', '90%'],
-        ['', '55%'],
-      ]
+      `<div style="position:relative;width:100%;max-width:200px;">` +
+      `<div class="onboard-surface" style="padding:12px;">` +
+      rows
         .map(
-          ([color, width], i) =>
+          (r, i) =>
             `<div class="onboard-sweep" style="animation-delay:${i * 90}ms;display:flex;align-items:center;gap:8px;${i ? 'margin-top:8px;' : ''}">` +
-            `<span class="onboard-ghost" style="width:10px;height:10px;flex-shrink:0;${color ? `background:${color};` : ''}"></span>` +
-            `<span class="onboard-ghost" style="height:6px;width:${width};"></span>` +
+            (r.icon
+              ? `<span style="width:16px;height:16px;flex-shrink:0;color:var(--accent);">${svg(r.icon)}</span>`
+              : `<span class="onboard-ghost" style="width:10px;height:10px;flex-shrink:0;"></span>`) +
+            `<span class="onboard-ghost" style="height:6px;width:${r.width};"></span>` +
             `</div>`
         )
         .join('') +
+      `</div>` +
+      `<div class="onboard-surface onboard-settle" style="animation-delay:380ms;position:absolute;right:-10px;bottom:-10px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--good);box-shadow:var(--shadow-raised);">` +
+      `<span style="width:18px;height:18px;color:#fff;">${svg(`<path d="${CHECK_PATH}" stroke-width="2.6" style="animation-delay:480ms"/>`, { className: 'draw-mark' })}</span>` +
       `</div>` +
       `</div>`
     );
@@ -107,13 +132,31 @@
     return `<div style="width:100%;max-width:220px;display:flex;flex-direction:column;gap:8px;">${row(true, 0)}${row(false, 90)}</div>`;
   }
 
+  // A completed record and its seal, not a bare checkmark -- this is the
+  // walkthrough's own closing beat, and it earns the same "document with
+  // a confirmation mark" composition recordScene and the arm-confirm
+  // flourish already use, sized up since here it's the whole scene rather
+  // than a corner detail.
   function readyScene() {
+    const lines = [0.85, 0.6, 0.75];
     return (
-      `<div class="onboard-surface onboard-settle" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;">` +
-      // draw-mark (see style.css): drawn after the circle's own --dur-base
-      // settle, the same "arrives, then confirmed" beat as everywhere else
-      // this app uses the technique.
-      `<span style="width:28px;height:28px;color:var(--good);">${svg(`<path d="${CHECK_PATH}" stroke-width="2.4" style="animation-delay:250ms"/>`, { className: 'draw-mark' })}</span>` +
+      `<div style="position:relative;width:100%;max-width:180px;">` +
+      `<div class="onboard-surface onboard-settle" style="padding:16px;">` +
+      lines
+        .map(
+          (w, i) =>
+            `<div class="onboard-sweep" style="animation-delay:${i * 80}ms;${i ? 'margin-top:8px;' : ''}">` +
+            `<span class="onboard-ghost" style="display:block;height:6px;width:${w * 100}%;"></span>` +
+            `</div>`
+        )
+        .join('') +
+      `</div>` +
+      `<div class="onboard-settle" style="animation-delay:340ms;position:absolute;right:-14px;bottom:-14px;width:56px;height:56px;border-radius:50%;background:var(--good);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-raised);">` +
+      // draw-mark (see style.css): drawn after the seal's own settle, the
+      // same "arrives, then confirmed" beat as everywhere else this app
+      // uses the technique.
+      `<span style="width:26px;height:26px;color:#fff;">${svg(`<path d="${CHECK_PATH}" stroke-width="2.6" style="animation-delay:480ms"/>`, { className: 'draw-mark' })}</span>` +
+      `</div>` +
       `</div>`
     );
   }

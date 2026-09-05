@@ -5,6 +5,17 @@
 
   const $ = (id) => document.getElementById(id);
   const num = (n) => Number(n || 0).toLocaleString();
+  // A funding tile is a glance, not an audit -- "1.84m" reads in a way
+  // "1,840,000" doesn't at a stat-tile size, and the exact figure is still
+  // one hover away (see loadFunding's title attribute). Left as num()
+  // below 1,000, since there is nothing worth abbreviating yet.
+  const compactSats = (n) => {
+    n = Number(n || 0);
+    const abs = Math.abs(n);
+    if (abs >= 1_000_000) return parseFloat((n / 1_000_000).toFixed(2)) + 'm';
+    if (abs >= 1_000) return parseFloat((n / 1_000).toFixed(1)) + 'k';
+    return num(n);
+  };
   const escHTML = (s) =>
     String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -244,13 +255,13 @@
       const f = await api('/api/admin/funding');
       $('deposit').textContent = f.deposit_address;
       $('funding').innerHTML = [
-        ['balance', `${num(f.balance)} sats`, 'balance'],
-        ['per tag', `${num(f.reward_per_tag)} sats`, 'perTag'],
-        ['activations left', num(f.activations_left), 'activations'],
+        ['balance', `${compactSats(f.balance)} sats`, 'balance', `${num(f.balance)} sats`],
+        ['per tag', `${compactSats(f.reward_per_tag)} sats`, 'perTag', `${num(f.reward_per_tag)} sats`],
+        ['activations left', num(f.activations_left), 'activations', null],
       ]
         .map(
-          ([k, v, icon]) =>
-            `<div class="stat">${statIcon(FUNDING_ICONS[icon])}<div class="n tabular">${v}</div><div class="k">${k}</div></div>`
+          ([k, v, icon, full]) =>
+            `<div class="stat">${statIcon(FUNDING_ICONS[icon])}<div class="n tabular"${full ? ` title="${full}"` : ''}>${v}</div><div class="k">${k}</div></div>`
         )
         .join('');
     } catch (e) {
@@ -1197,13 +1208,13 @@
 
   function mockFunding() {
     $('funding').innerHTML = [
-      ['balance', '1,840,000 sats', 'balance'],
-      ['per tag', '20,000 sats', 'perTag'],
-      ['activations left', '92', 'activations'],
+      ['balance', '1.84m sats', 'balance', '1,840,000 sats'],
+      ['per tag', '20k sats', 'perTag', '20,000 sats'],
+      ['activations left', '92', 'activations', null],
     ]
       .map(
-        ([k, v, icon]) =>
-          `<div class="stat">${statIcon(FUNDING_ICONS[icon])}<div class="n tabular">${v}</div><div class="k">${k}</div></div>`
+        ([k, v, icon, full]) =>
+          `<div class="stat">${statIcon(FUNDING_ICONS[icon])}<div class="n tabular"${full ? ` title="${full}"` : ''}>${v}</div><div class="k">${k}</div></div>`
       )
       .join('');
     $('deposit').textContent = '1EstuaryDemoDepositAddressXXXXXXXX';
