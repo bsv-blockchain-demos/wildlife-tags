@@ -188,8 +188,9 @@
     const icon = SPECIES_ICON[p.code] || FALLBACK_ICON;
     const grad = SPECIES_GRADIENT[p.code] || GRADIENT_CYCLE[index % GRADIENT_CYCLE.length];
     const workflow = p.workflow === 'harvest' ? 'Harvest' : 'Mark-recapture';
+    const search = `${p.common} ${p.scientific} ${p.code}`.toLowerCase();
     return (
-      `<a class="grad-card" href="/about">` +
+      `<a class="grad-card" href="/about" data-search="${esc(search)}">` +
       `<div class="grad-card-header size-sm" style="background: var(--grad-${grad})">` +
       `<div class="card-icon-badge"><img src="/vendor/animals/${icon}" alt="" loading="lazy"></div>` +
       `</div>` +
@@ -212,9 +213,86 @@
       // page has any reason to know.
       const profiles = window.Schema.profiles().slice().sort((a, b) => a.common.localeCompare(b.common));
       grid.innerHTML = profiles.map(speciesCard).join('');
+      applySpeciesFilter(); // re-assert any chips pinned before this (re)render
     } catch (e) {
       grid.innerHTML = `<p class="note">Could not load the species list: ${esc(e.message)}</p>`;
     }
+  }
+
+  // ---- species search: type to narrow, Enter to pin as a removable chip -
+  //
+  // Chips are an OR, not an AND: pinning "shark" and then "tuna" widens the
+  // grid to both, since the point on a browse-only page like this one is
+  // building up a shortlist of families to compare, not narrowing to one
+  // exact match the way the admin arm panel's search does.
+  let chipTerms = [];
+
+  function applySpeciesFilter() {
+    const grid = $('speciesGrid');
+    const search = $('speciesSearch');
+    if (!grid || !search) return;
+    const live = search.value.trim().toLowerCase();
+    const terms = live ? chipTerms.concat(live) : chipTerms;
+    let anyVisible = false;
+    grid.querySelectorAll('.grad-card').forEach((card) => {
+      // Skeleton placeholders (see index.html) have no data-search yet --
+      // still present in the grid for an instant before renderSpeciesGrid
+      // replaces them, and a fast Enter could reach here before that.
+      const haystack = card.dataset.search || '';
+      const match = !terms.length || terms.some((t) => haystack.includes(t));
+      card.classList.toggle('hidden', !match);
+      if (match) anyVisible = true;
+    });
+    const empty = $('speciesEmpty');
+    if (empty) empty.classList.toggle('hidden', anyVisible || !terms.length);
+  }
+
+  function renderChips() {
+    const row = $('speciesChips');
+    if (!row) return;
+    row.classList.toggle('hidden', !chipTerms.length);
+    const profiles = window.Schema.profiles ? window.Schema.profiles() : [];
+    row.innerHTML = chipTerms
+      .map((term) => {
+        // The chip's icon is whichever matching species sorts first, same
+        // as the grid it's filtering -- a broad term like "shark" still
+        // lands on a real animal, not a placeholder, and every shark in
+        // this programme already shares one icon (see SPECIES_ICON) so it
+        // rarely even matters which one wins.
+        const hit = profiles.find((p) => `${p.common} ${p.scientific} ${p.code}`.toLowerCase().includes(term));
+        const icon = hit ? SPECIES_ICON[hit.code] || FALLBACK_ICON : FALLBACK_ICON;
+        return (
+          `<span class="chip">` +
+          `<span class="chip-icon"><img src="/vendor/animals/${icon}" alt="" loading="lazy"></span>` +
+          `<span>${esc(term)}</span>` +
+          `<button type="button" class="chip-remove" data-term="${esc(term)}" aria-label="Remove filter: ${esc(term)}">&times;</button>` +
+          `</span>`
+        );
+      })
+      .join('');
+    row.querySelectorAll('.chip-remove').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        chipTerms = chipTerms.filter((t) => t !== btn.dataset.term);
+        renderChips();
+        applySpeciesFilter();
+      });
+    });
+  }
+
+  function initSpeciesSearch() {
+    const search = $('speciesSearch');
+    if (!search) return;
+    search.addEventListener('input', applySpeciesFilter);
+    search.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const term = search.value.trim().toLowerCase();
+      if (!term || chipTerms.includes(term)) return;
+      chipTerms.push(term);
+      search.value = '';
+      renderChips();
+      applySpeciesFilter();
+    });
   }
 
   async function boot() {
@@ -228,6 +306,7 @@
     poll();
     pollTimer = setInterval(poll, 5000);
     renderSpeciesGrid(); // independent of the stats poll; a slow schema fetch shouldn't delay it
+    initSpeciesSearch();
   }
 
   // ---- dev-mode mocks, see devpanel.js -----------------------------------

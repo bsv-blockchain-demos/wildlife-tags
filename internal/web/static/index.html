@@ -166,6 +166,9 @@
          "not a crab system" illustration); the full marine game fish
          tagging roster (see dnr.sc.gov/marine/tagfish/tagspecies.html)
          is not. -->
+    <input type="search" id="speciesSearch" class="species-search" placeholder="Search species&hellip; (Enter to pin as a filter)" autocomplete="off" aria-label="Search species" aria-controls="speciesGrid">
+    <div class="chip-row hidden" id="speciesChips" aria-label="Active filters"></div>
+    <p class="note hidden" id="speciesEmpty">No species match your search.</p>
     <div class="grid cards" id="speciesGrid">
       <div class="grad-card" aria-hidden="true">
         <div class="grad-card-header size-sm"></div>

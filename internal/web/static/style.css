@@ -530,8 +530,12 @@ button.grad-card { display: block; width: 100%; text-align: left; padding: 0; bo
    number and label already say everything that matters), so it stays out
    of the way at low opacity and disappears below a size it would just
    crowd. A container query, not a viewport one: whether a given tile has
-   "space" depends on how many share its row, not on the screen it's on. */
-.stat-icon { display: none; position: absolute; top: 8px; right: 8px; width: 34px; height: 34px; color: var(--ink); opacity: 0.1; pointer-events: none; }
+   "space" depends on how many share its row, not on the screen it's on.
+   Stretched top-to-bottom against .stat's own 12px padding (aspect-ratio
+   keeps it square) rather than fixed at one line tall, so it spans the
+   number and the label beneath it as one block instead of just floating
+   over the number. */
+.stat-icon { display: none; position: absolute; top: 12px; right: 8px; bottom: 12px; aspect-ratio: 1; color: var(--ink); opacity: 0.1; pointer-events: none; }
 .stat-icon svg { width: 100%; height: 100%; }
 @container (min-width: 160px) { .stat-icon { display: block; } }
 
@@ -1301,6 +1305,32 @@ footer a { color: var(--ink-dim); }
    solid accent ring rather than changing size or moving, so choosing
    doesn't reflow the grid. */
 .species-search { margin: 0 0 var(--sp-sm); }
+
+/* Pinned search terms (Enter commits whatever's typed), each carrying the
+   icon of a species it matches rather than a generic search glyph -- at
+   this many profiles, recognising a shape reads faster than reading a
+   word. Filtering itself is a plain OR across every pinned chip plus
+   whatever's still being typed, so multiple chips widen the grid rather
+   than narrow it further. */
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 var(--sp-sm); }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 6px 3px 3px; border-radius: var(--radius-full);
+  background: var(--panel-2); border: 1px solid var(--line);
+  font-size: 13px; font-weight: 600; color: var(--ink);
+}
+.chip-icon {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 20px; height: 20px; border-radius: 50%; background: var(--panel);
+}
+.chip-icon img { width: 70%; height: 70%; object-fit: contain; }
+.chip-remove {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 20px; height: 20px; padding: 0; border: none; border-radius: 50%;
+  background: transparent; color: var(--ink-dim); font-size: 16px; line-height: 1; cursor: pointer;
+}
+.chip-remove:hover, .chip-remove:focus-visible { background: var(--line); color: var(--ink); }
+
 .species-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-sm); margin: 0 0 var(--sp-md); }
 .species-card {
   display: block; width: 100%; text-align: left; padding: 0;
