@@ -156,6 +156,15 @@
 
   // ---- the wizard ---------------------------------------------------------
 
+  // releaseTrap undoes window.FocusTrap.activate() from the last time this
+  // veil opened -- see build()/finish(). Module-level rather than local to
+  // build() because finish() is a separate function that needs it too, and
+  // because "Replay first run" (see the dev-mode registration at the bottom
+  // of this file) can call build() again on a veil that never got a
+  // matching finish(), which must release the previous trap before
+  // installing a new one rather than stacking listeners.
+  let releaseTrap = null;
+
   function finish() {
     try {
       localStorage.setItem(STORAGE_KEY, '1');
@@ -165,11 +174,18 @@
       // problem than never being able to close it at all.
     }
     document.documentElement.classList.remove('onboarding-pending');
+    if (releaseTrap) {
+      releaseTrap();
+      releaseTrap = null;
+    }
   }
 
   function build(ctx) {
     const veil = $('onboardVeil');
     if (!veil) return;
+
+    if (releaseTrap) releaseTrap();
+    releaseTrap = window.FocusTrap.activate(veil);
 
     let step = 0;
     const total = STEPS.length + 1; // + the ready screen

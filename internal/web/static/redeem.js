@@ -369,7 +369,13 @@
     const rule = window.Schema.mustRelease(state.profile, meas, attr);
     const disp = $(`f_${dispKey}`);
     if (rule && disp) {
-      banner.textContent = `${capitalise(rule.reason)}. Select "put it back" to continue.`;
+      // Only mutate when the message actually changes: this runs on every
+      // keystroke while a must-release value is entered, and mustRelease is
+      // a live region (see redeem.html) -- re-writing an identical string on
+      // every input event would still count as a mutation and risks a
+      // screen reader re-announcing it once per character typed.
+      const msg = `${capitalise(rule.reason)}. Select "put it back" to continue.`;
+      if (banner.textContent !== msg) banner.textContent = msg;
       banner.classList.remove('hidden');
       disp.value = 'RELEASED';
       const kept = disp.querySelector('option[value="HARVESTED"]');
@@ -396,6 +402,14 @@
 
   function locate() {
     const box = $('fix');
+    // #fix carries data-i18n="waitingFix" in the markup for its initial
+    // "waiting for a position fix" placeholder (see i18n.js). Every branch
+    // below replaces that placeholder with something real -- a spinner, an
+    // actual fix, or an error -- and none of that is the translatable
+    // placeholder string anymore, so the attribute comes off here. Left in
+    // place, switching language after a fix arrives would call I18n.apply()
+    // and silently overwrite real coordinates back to "waiting for a fix".
+    box.removeAttribute('data-i18n');
     if (!navigator.geolocation) {
       box.textContent = 'This browser will not share a location.';
       box.className = 'banner bad';

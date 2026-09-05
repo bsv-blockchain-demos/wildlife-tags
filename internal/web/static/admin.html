@@ -101,7 +101,7 @@
         as a person, so activations made this way are not attributable to a
         named biologist.</p>
     </div>
-    <div id="loginErr" class="err" style="margin-top:12px"></div>
+    <div id="loginErr" class="err" style="margin-top:12px" role="alert" aria-live="assertive"></div>
   </div>
 
   <!-- Arm-first: this is what a field biologist opens the console to do,
@@ -144,7 +144,7 @@
     <div class="tab-panel" id="panel-arm" role="tabpanel" aria-labelledby="tab-arm">
       <div class="card">
         <h2>Arm a tag</h2>
-        <div id="armBanner" class="banner hidden"></div>
+        <div id="armBanner" class="banner hidden" role="status" aria-live="polite"></div>
 
         <div class="field">
           <label id="armSpeciesLabel">Species</label>
@@ -181,10 +181,10 @@
 
         <div class="field">
           <label>Where you are</label>
-          <div id="afix" class="banner">No position fix yet.</div>
+          <div id="afix" class="banner" role="status" aria-live="polite">No position fix yet.</div>
         </div>
 
-        <div id="armErr" class="err"></div>
+        <div id="armErr" class="err" role="alert" aria-live="assertive"></div>
 
         <!-- The secondary action (refresh a fix already being fetched in
              the background) and the primary one (arm), as a pair rather
@@ -206,7 +206,7 @@
              server yet (no signal), or one the server refused and a
              biologist needs to look at. Populated by admin.js's offline
              queue; empty and hidden the rest of the time. -->
-        <div id="armQueue" class="queue-list hidden"></div>
+        <div id="armQueue" class="queue-list hidden" role="status" aria-live="polite"></div>
       </div>
     </div>
 
@@ -240,7 +240,7 @@
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg>
             Create batch
           </button>
-          <div id="mintErr" class="err" style="margin-top:10px"></div>
+          <div id="mintErr" class="err" style="margin-top:10px" role="alert" aria-live="assertive"></div>
           <p class="note" style="margin-top:12px">
             Creating a batch mints keys and tag ids; it does not spend anything.
             Tags carry no money until they are armed on an animal. The species is
@@ -345,12 +345,12 @@
        can offer -- BarcodeDetector where it exists, jsQR (lazy-loaded, see
        vendor/README.md) everywhere else -- so reading a tag never means
        leaving this page for a separate camera app. -->
-  <div class="scanner-overlay" id="scannerOverlay" hidden>
+  <div class="scanner-overlay" id="scannerOverlay" hidden role="dialog" aria-modal="true" aria-label="Scan a tag's QR code">
     <video id="scannerVideo" playsinline muted></video>
     <canvas id="scannerCanvas" class="hidden"></canvas>
     <div class="scanner-frame" aria-hidden="true"></div>
     <p class="scanner-hint">Point the camera at the tag's QR code</p>
-    <div id="scannerErr" class="scanner-err"></div>
+    <div id="scannerErr" class="scanner-err" role="alert" aria-live="assertive"></div>
     <button type="button" id="scannerClose" class="scanner-close" aria-label="Close scanner">&times;</button>
   </div>
 </main>
@@ -368,6 +368,7 @@
 <script src="combobox.js"></script>
 <script src="schema.js"></script>
 <script src="wallet.js"></script>
+<script src="focus-trap.js"></script>
 <script src="admin.js"></script>
 <script src="devpanel.js"></script>
 </body>

@@ -324,9 +324,15 @@
       $('alocateLabel').textContent = 'Use my location';
       return;
     }
+    // aria-live="off" on the age span specifically: it re-renders every 5s
+    // (see the setInterval below) purely as a visual clock, and #afix is
+    // itself a live region -- without this, a screen reader would announce
+    // "just now", "5s ago", "10s ago"... forever, which is worse than saying
+    // nothing. The outer box's own aria-live still covers the fix arriving
+    // or changing, which is the actual news here.
     box.innerHTML =
       `${state.fix.lat.toFixed(5)}, ${state.fix.lon.toFixed(5)} ` +
-      `<span class="note">(&plusmn;${Math.round(state.fix.acc)} m &middot; <span data-fix-age>${ageLabel(state.fixAt)}</span>)</span>`;
+      `<span class="note">(&plusmn;${Math.round(state.fix.acc)} m &middot; <span data-fix-age aria-live="off">${ageLabel(state.fixAt)}</span>)</span>`;
     box.className = 'banner good';
     $('alocateLabel').textContent = 'Refresh location';
   }
@@ -543,7 +549,13 @@
 
     const rule = window.Schema.notTaggable(state.profile, meas, attr);
     if (rule) {
-      banner.textContent = `Do not tag this one: ${rule.reason}.`;
+      // Only actually mutate the text when the message changes: this runs on
+      // every keystroke while a disqualifying value is entered, and armBanner
+      // is a live region (see admin.html) -- writing the same string on every
+      // input event would still count as a DOM mutation and risks a screen
+      // reader re-announcing "do not tag this one" once per character typed.
+      const msg = `Do not tag this one: ${rule.reason}.`;
+      if (banner.textContent !== msg) banner.textContent = msg;
       banner.className = 'banner warn';
       banner.classList.remove('hidden');
     } else if (banner.className.indexOf('good') < 0) {
@@ -592,6 +604,10 @@
       .join('');
   }
 
+  // releaseConfirmTrap undoes whatever window.FocusTrap.activate() did the
+  // last time this sheet opened -- see openConfirm/closeConfirm.
+  let releaseConfirmTrap = null;
+
   function openConfirm() {
     $('confirmBody').innerHTML = armSummaryHTML();
     $('confirmScrim').hidden = false;
@@ -601,12 +617,17 @@
       $('confirmSheet').classList.add('open');
     });
     document.body.style.overflow = 'hidden';
+    releaseConfirmTrap = window.FocusTrap.activate($('confirmSheet'));
   }
 
   function closeConfirm() {
     $('confirmScrim').classList.remove('open');
     $('confirmSheet').classList.remove('open');
     document.body.style.overflow = '';
+    if (releaseConfirmTrap) {
+      releaseConfirmTrap();
+      releaseConfirmTrap = null;
+    }
     window.setTimeout(() => {
       $('confirmScrim').hidden = true;
       $('confirmSheet').hidden = true;
@@ -892,10 +913,14 @@
     scanRAF = requestAnimationFrame(tick);
   }
 
+  // releaseScannerTrap mirrors releaseConfirmTrap, see its comment.
+  let releaseScannerTrap = null;
+
   async function openScanner() {
     $('scannerErr').textContent = '';
     $('scannerOverlay').hidden = false;
     document.body.style.overflow = 'hidden';
+    releaseScannerTrap = window.FocusTrap.activate($('scannerOverlay'));
     try {
       scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
       const video = $('scannerVideo');
@@ -918,6 +943,10 @@
   function closeScanner() {
     $('scannerOverlay').hidden = true;
     document.body.style.overflow = '';
+    if (releaseScannerTrap) {
+      releaseScannerTrap();
+      releaseScannerTrap = null;
+    }
     if (scanRAF) cancelAnimationFrame(scanRAF);
     scanRAF = null;
     if (scanStream) {

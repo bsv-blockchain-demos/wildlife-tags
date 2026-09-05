@@ -106,14 +106,14 @@
 
   <div id="tagState" class="card hidden">
     <h2><span data-i18n="tagLabel">Tag</span> <span id="tagDisplay" class="mono"></span></h2>
-    <div id="tagStatus"></div>
+    <div id="tagStatus" role="status" aria-live="polite"></div>
   </div>
 
   <!-- The report form. -->
   <form id="form" class="card hidden" autocomplete="off">
     <h2 data-i18n="catchTitle">What did you catch?</h2>
 
-    <div id="mustRelease" class="banner warn hidden"></div>
+    <div id="mustRelease" class="banner warn hidden" role="status" aria-live="polite"></div>
 
     <!-- The measurements and choices this species records. Built from
          GET /api/schema rather than written out here: a blue crab has a
@@ -124,7 +124,7 @@
 
     <div class="field">
       <label data-i18n="whereLabel">Where you caught it</label>
-      <div id="fix" class="banner" data-i18n="waitingFix">Waiting for a position fix…</div>
+      <div id="fix" class="banner" role="status" aria-live="polite" data-i18n="waitingFix">Waiting for a position fix…</div>
       <button type="button" id="locate" class="wide" data-i18n="useLocation">Use my location</button>
     </div>
 
@@ -139,7 +139,7 @@
         biologist reading out in ten years.</p>
     </div>
 
-    <div id="formErr" class="err"></div>
+    <div id="formErr" class="err" role="alert" aria-live="assertive"></div>
     <button type="submit" id="submit" class="primary wide" disabled data-i18n="continueBtn">Continue</button>
   </form>
 
@@ -159,7 +159,7 @@
       <li data-step="sign" data-i18n="stepSign">Unlock the tag</li>
       <li data-step="receive" data-i18n="stepReceive">Put it in your wallet</li>
     </ol>
-    <div id="payErr" class="err"></div>
+    <div id="payErr" class="err" role="alert" aria-live="assertive"></div>
     <button type="button" id="retry" class="wide hidden" data-i18n="tryAgain">Try again</button>
   </div>
 
@@ -254,6 +254,7 @@
 <script src="schema.js"></script>
 <script src="wallet.js"></script>
 <script src="redeem.js"></script>
+<script src="focus-trap.js"></script>
 <script src="onboarding.js"></script>
 <script src="devpanel.js"></script>
 <script src="i18n.js"></script>
