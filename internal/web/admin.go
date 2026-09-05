@@ -3,11 +3,13 @@ package web
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/bsv-blockchain-demos/wildlife-tags/internal/auth"
 	"github.com/bsv-blockchain-demos/wildlife-tags/internal/qr"
 	"github.com/bsv-blockchain-demos/wildlife-tags/internal/service"
+	"github.com/bsv-blockchain-demos/wildlife-tags/internal/species"
 	"github.com/bsv-blockchain-demos/wildlife-tags/internal/store"
 	"github.com/bsv-blockchain-demos/wildlife-tags/internal/tagkey"
 )
@@ -333,11 +335,22 @@ func (s *Server) handlePrintSheet(w http.ResponseWriter, r *http.Request, sess *
 		return
 	}
 
+	// The sheet's own label for the species -- see qr.Sheet.SpeciesCommon --
+	// falls back to the raw code rather than failing the print outright if
+	// the profile can't be found, since a bad lookup here should not be able
+	// to block printing a sheet whose codes are otherwise perfectly valid.
+	speciesCommon := batch.Species
+	if profile, perr := species.Get(batch.Species); perr == nil {
+		speciesCommon = profile.Common
+	}
+
 	cfg := s.svc.Config()
 	sheet := qr.Sheet{
-		BatchID:   batch.ID,
-		CreatedAt: batch.CreatedAt.Format(time.RFC1123),
-		PublicURL: cfg.PublicURL,
+		BatchID:       batch.ID,
+		CreatedAt:     batch.CreatedAt.Format(time.RFC1123),
+		PublicURL:     cfg.PublicURL,
+		SpeciesCommon: speciesCommon,
+		SpeciesUpper:  strings.ToUpper(speciesCommon),
 	}
 	for i, t := range tags {
 		secret, serr := s.svc.SecretFor(t.Ordinal)

@@ -112,7 +112,15 @@ type Sheet struct {
 	BatchID   string
 	CreatedAt string
 	PublicURL string
-	Tags      []SheetTag
+	// SpeciesCommon and SpeciesUpper label the sheet and every tag on it --
+	// the common name as written ("Red drum") and in caps for the small
+	// print on the tag face itself ("RED DRUM"). A batch is minted for one
+	// species (see store.Batch.Species), so a sheet naming a different one
+	// is not a decoration mismatch, it is a wrong instrument on a real
+	// animal.
+	SpeciesCommon string
+	SpeciesUpper  string
+	Tags          []SheetTag
 }
 
 // Render writes the printable sheet.
@@ -127,7 +135,7 @@ var sheetTemplate = template.Must(template.New("sheet").Parse(`<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Crab tags &mdash; batch {{.BatchID}}</title>
+<title>{{.SpeciesCommon}} tags: batch {{.BatchID}}</title>
 <style>
   /* This sheet has two jobs with different requirements, so it has two layouts.
      On paper every dimension is physical: each cell is the printable face of a
@@ -210,7 +218,7 @@ var sheetTemplate = template.Must(template.New("sheet").Parse(`<!doctype html>
 </head>
 <body>
 <header>
-  <h1>SCDNR blue crab tags &mdash; batch {{.BatchID}}</h1>
+  <h1>SCDNR {{.SpeciesCommon}} tags: batch {{.BatchID}}</h1>
   <div class="meta">{{len .Tags}} tags &middot; created {{.CreatedAt}} &middot; {{.PublicURL}}</div>
 </header>
 
@@ -219,7 +227,7 @@ var sheetTemplate = template.Must(template.New("sheet").Parse(`<!doctype html>
   enlarged so the codes can be checked on a monitor; a browser renders one inch
   as 96&nbsp;pixels, which would otherwise show each code at about 72&nbsp;pixels
   across. Printing restores the physical 1&times;2&nbsp;inch tag face
-  automatically &mdash; print to PDF first and measure one if you want to be sure
+  automatically: print to PDF first and measure one if you want to be sure
   before committing a sheet of stock.
 </div>
 
@@ -229,7 +237,7 @@ var sheetTemplate = template.Must(template.New("sheet").Parse(`<!doctype html>
     <img src="{{.Code.DataURI}}" alt="QR code for tag {{.Display}}" width="{{.Code.PixelsPerSide}}" height="{{.Code.PixelsPerSide}}">
     <div>
       <div class="id">{{.Display}}</div>
-      <div class="sub">SCDNR BLUE CRAB<br>REWARD &mdash; SCAN OR REPORT</div>
+      <div class="sub">SCDNR {{$.SpeciesUpper}}<br>REWARD: SCAN OR REPORT</div>
     </div>
   </div>
 {{end}}
@@ -242,12 +250,12 @@ var sheetTemplate = template.Must(template.New("sheet").Parse(`<!doctype html>
   is on an animal.
   <br><br>
   Print on waterproof adhesive stock at 600&nbsp;dpi or better, with scaling set
-  to 100% &mdash; &ldquo;fit to page&rdquo; will resize the tags and they will no
+  to 100%: &ldquo;fit to page&rdquo; will resize the tags and they will no
   longer match the plastic. These tags spend months in an estuary; a code printed
   on ordinary paper will not last a season.
   <br><br>
   <strong>Every code here is a bearer instrument.</strong> Anyone who can
-  photograph a tag can redeem it, which is the design &mdash; but it also means a
+  photograph a tag can redeem it, which is the design; but it also means a
   stack of unused tags is a stack of unclaimed rewards, and so is a copy of this
   page left in a printer spool.
 </div>
