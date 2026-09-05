@@ -31,11 +31,39 @@
   } catch (_) {
     document.documentElement.setAttribute('data-theme', 'light');
   }
+  // Same technique, same reason: a first-time visitor should never see this
+  // page for even one frame before the walkthrough covers it -- and for a
+  // page reached by scanning a physical tag, this is very often the first
+  // page of ours anyone opens. See onboarding.js.
+  try {
+    if (!localStorage.getItem('wildtag.onboarded.v1')) {
+      document.documentElement.classList.add('onboarding-pending');
+    }
+  } catch (_) {}
 </script>
 <link rel="stylesheet" href="vendor/leaflet.css">
 <link rel="stylesheet" href="style.css">
 </head>
-<body data-page="redeem">
+<body data-page="redeem" data-onboard="redeem">
+
+<!-- First run. Hidden by default; the inline script in <head> shows it
+     before paint on a first-ever visit. See style.css's ".onboard-*"
+     rules and onboarding.js. -->
+<div class="onboard-veil" id="onboardVeil" role="dialog" aria-modal="true" aria-label="Welcome to SCDNR wildlife tags">
+  <div class="onboard-scene" id="onboardScene" aria-hidden="true"></div>
+  <div class="onboard-form">
+    <div class="onboard-form-inner">
+      <div class="onboard-top">
+        <div class="onboard-dots" id="onboardDots" aria-hidden="true"></div>
+        <button type="button" class="onboard-skip" id="onboardSkip">Skip</button>
+      </div>
+      <p class="onboard-eyebrow" id="onboardEyebrow"></p>
+      <h2 class="onboard-title" id="onboardTitle"></h2>
+      <div class="onboard-body" id="onboardBody"></div>
+      <div class="onboard-actions" id="onboardActions"></div>
+    </div>
+  </div>
+</div>
 
 <!-- No <nav> here, deliberately: this page is one task (scan, report, get
      paid), opened one-handed, and every extra link is a way off it. The
@@ -209,6 +237,7 @@
 <script src="schema.js"></script>
 <script src="wallet.js"></script>
 <script src="redeem.js"></script>
+<script src="onboarding.js"></script>
 <script src="devpanel.js"></script>
 </body>
 </html>

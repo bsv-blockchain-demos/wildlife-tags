@@ -29,10 +29,37 @@
   } catch (_) {
     document.documentElement.setAttribute('data-theme', 'light');
   }
+  // Same technique, same reason: a first-time visitor should never see this
+  // page for even one frame before the walkthrough covers it. See
+  // onboarding.js.
+  try {
+    if (!localStorage.getItem('wildtag.onboarded.v1')) {
+      document.documentElement.classList.add('onboarding-pending');
+    }
+  } catch (_) {}
 </script>
 <link rel="stylesheet" href="style.css">
 </head>
-<body data-page="index">
+<body data-page="index" data-onboard="home">
+
+<!-- First run. Hidden by default; the inline script in <head> shows it
+     before paint on a first-ever visit, and onboarding.js drives it from
+     there. See style.css's ".onboard-*" rules. -->
+<div class="onboard-veil" id="onboardVeil" role="dialog" aria-modal="true" aria-label="Welcome to SCDNR wildlife tags">
+  <div class="onboard-scene" id="onboardScene" aria-hidden="true"></div>
+  <div class="onboard-form">
+    <div class="onboard-form-inner">
+      <div class="onboard-top">
+        <div class="onboard-dots" id="onboardDots" aria-hidden="true"></div>
+        <button type="button" class="onboard-skip" id="onboardSkip">Skip</button>
+      </div>
+      <p class="onboard-eyebrow" id="onboardEyebrow"></p>
+      <h2 class="onboard-title" id="onboardTitle"></h2>
+      <div class="onboard-body" id="onboardBody"></div>
+      <div class="onboard-actions" id="onboardActions"></div>
+    </div>
+  </div>
+</div>
 
 <header class="site">
   <div class="site-inner">
@@ -228,6 +255,7 @@
 <script src="datamenu.js"></script>
 <script src="reveal.js"></script>
 <script src="app.js"></script>
+<script src="onboarding.js"></script>
 <script src="devpanel.js"></script>
 </body>
 </html>

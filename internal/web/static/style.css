@@ -1218,3 +1218,82 @@ footer a { color: var(--ink-dim); }
 .script .op  { color: #5eead4; }
 .script .arg { color: #fbbf24; }
 .script .cmt { color: #93a8b3; }
+
+/* ---- first run --------------------------------------------------------
+   A walkthrough for whoever this page is the very first one of ours they
+   have ever opened -- which, for a QR code wired to a crab, is at least as
+   often /t/{tagID} as it is the dashboard. See onboarding.js.
+
+   Shown before first paint (an inline script in <head> sets
+   html.onboarding-pending from localStorage, the same technique theme.js
+   uses to avoid a light/dark flash) so nobody ever sees the real page
+   half-loaded behind it, then sits above everything on the page except the
+   dev tools -- a developer mid-test should never have to fight this to
+   reach the mock-content panel. */
+.onboard-veil { display: none; position: fixed; inset: 0; z-index: 80; background: var(--bg); flex-direction: column; }
+html.onboarding-pending .onboard-veil { display: flex; }
+@media (min-width: 768px) { .onboard-veil { flex-direction: row-reverse; } } /* art on the right, like the reference's own desktop shape */
+
+.onboard-scene { position: relative; overflow: hidden; flex-shrink: 0; height: 160px; background: var(--panel-2); border-bottom: 1px solid var(--line); }
+@media (min-width: 768px) { .onboard-scene { height: auto; width: 42%; border-bottom: none; border-left: 1px solid var(--line); } }
+.onboard-scene::before {
+  content: ""; position: absolute; inset: 0; opacity: 0.3; pointer-events: none;
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(70% 60% at 50% 40%, black, transparent 75%);
+}
+.onboard-scene::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(70% 55% at 50% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%);
+}
+.onboard-scene-inner { position: relative; height: 100%; display: flex; align-items: center; justify-content: center; padding: var(--sp-lg); }
+
+.onboard-form { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: var(--sp-lg) var(--gutter-mobile) calc(var(--sp-xl) + env(safe-area-inset-bottom)); }
+@media (min-width: 768px) { .onboard-form { padding: var(--sp-2xl); } }
+.onboard-form-inner { margin: 0 auto; width: 100%; max-width: 420px; flex: 1; display: flex; flex-direction: column; }
+
+.onboard-top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-md); }
+.onboard-dots { display: flex; gap: 6px; }
+.onboard-dots span { height: 6px; width: 6px; border-radius: 999px; background: var(--line-strong); transition: width var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out); }
+.onboard-dots span.current { width: 22px; background: var(--accent); }
+.onboard-dots span.done { background: var(--ink-dim); }
+.onboard-skip { font-size: 13px; color: var(--ink-dim); background: none; border: none; padding: 4px; min-height: 0; cursor: pointer; }
+.onboard-skip:hover { color: var(--ink); background: none; }
+
+.onboard-eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-dim); margin: var(--sp-lg) 0 6px; }
+.onboard-title { font-family: var(--font-display); font-size: clamp(22px, 18px + 1.5vw, 28px); font-weight: 700; letter-spacing: -0.01em; margin: 0 0 var(--sp-sm); text-wrap: balance; }
+.onboard-body { font-size: 16px; color: var(--ink-dim); text-wrap: pretty; flex: 1; }
+
+.onboard-actions { display: flex; gap: 8px; margin-top: var(--sp-xl); }
+.onboard-actions button { flex: 1; }
+.onboard-ready-links { display: flex; flex-direction: column; gap: 8px; margin-top: var(--sp-md); }
+.onboard-ready-link {
+  display: flex; align-items: center; gap: 10px; min-height: 0;
+  padding: 12px 14px; border-radius: var(--radius); border: 1px solid var(--line);
+  background: var(--panel-2); color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 600;
+  transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.onboard-ready-link:hover { background: var(--panel); border-color: var(--line-strong); }
+.onboard-ready-link svg { width: 18px; height: 18px; color: var(--accent); flex-shrink: 0; }
+
+/* The scenes: skeleton/ghost shapes with one accent-colored focal element,
+   the same "structure in neutral, meaning in the accent" idea as the rest
+   of this app's iconography. Plain HTML strings rebuilt per step (see
+   onboarding.js), so a fresh DOM node is exactly what restarts these
+   animations -- no replay trick needed, unlike a framework that would
+   diff and reuse the old one. */
+.onboard-ghost { border-radius: 999px; background: color-mix(in srgb, var(--ink) 12%, transparent); }
+.onboard-surface { border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel); box-shadow: var(--shadow-card); }
+.onboard-rise, .onboard-settle, .onboard-sweep { opacity: 0; }
+.onboard-rise { animation: onboard-rise var(--dur-base) var(--ease-out) both; }
+.onboard-settle { animation: onboard-settle var(--dur-base) var(--ease-out) both; }
+.onboard-sweep { animation: onboard-sweep var(--dur-base) var(--ease-out) both; }
+@keyframes onboard-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes onboard-settle { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+@keyframes onboard-sweep { from { opacity: 0; transform: scaleX(0); } to { opacity: 1; transform: scaleX(1); } }
+.onboard-caption { text-align: center; font-size: 13px; font-style: italic; color: var(--ink-dim); margin-top: var(--sp-md); }
+
+@media (prefers-reduced-motion: reduce) {
+  .onboard-rise, .onboard-settle, .onboard-sweep { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .onboard-dots span { transition: none !important; }
+}
