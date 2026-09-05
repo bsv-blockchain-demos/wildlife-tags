@@ -1,0 +1,57 @@
+{
+  "code": "CARPLU",
+  "common": "Sandbar shark",
+  "scientific": "Carcharhinus plumbeus",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR shark nursery survey (COASTSPAN)",
+  "primary_measure": "fl",
+  "sweep_after_days": 5475,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Sandbar sharks give live birth rather than laying eggs, and estuaries like South Carolina's Bulls Bay are literal nurseries: pregnant females drop off their pups there each summer and leave, and the pups stay inshore alone for their first couple of years, avoiding the very adults of their own species that would eat them offshore.",
+    "They're one of the slowest-maturing sharks known: females don't reproduce until around 15 years old, and even then give birth only once every two to three years -- exactly why a population this slow to rebuild was closed to harvest rather than managed with an ordinary catch limit.",
+    "Sandbar sharks carry one of the tallest first dorsal fins relative to body size of any coastal shark, which historically made them one of the most heavily targeted species in the shark fin trade before harvest was prohibited."
+  ],
+  "measures": [
+    { "key": "fl", "label": "Fork length", "unit": "mm", "scale": 1,
+      "min": 400, "max": 1300, "required": true,
+      "help": "Tip of the snout to the fork of the tail, measured in a straight line." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true },
+    { "key": "sal", "label": "Salinity", "unit": "ppt", "scale": 100,
+      "min": 0, "max": 4500, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Males have a pair of claspers on the inner pelvic fins; females do not.",
+      "values": [
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" },
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "help": "Sharks are unusually sensitive to capture stress; how it left the gear matters as much as its size.",
+      "values": [
+        { "code": "GOOD", "label": "Good: swam off strongly" },
+        { "code": "FAIR", "label": "Fair: slow to recover" },
+        { "code": "POOR", "label": "Poor: barely responsive" },
+        { "code": "BLEED", "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "LONGLINE", "label": "Longline", "icon": "gear-line" },
+        { "code": "HANDLINE", "label": "Rod and reel", "icon": "gear-hook" },
+        { "code": "GILLNET",  "label": "Gill net", "icon": "gear-net" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a shark in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "fl", "less_than": 5000,
+      "reason": "sandbar sharks are a prohibited species in US Atlantic waters and must always be released, regardless of size" }
+  ]
+}

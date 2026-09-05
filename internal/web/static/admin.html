@@ -79,29 +79,52 @@
   <!-- Sign in. Identity first, because a biologist doing this in the field has
        wet hands and no patience for a password. -->
   <div id="login" class="card hidden">
-    <h2>Sign in</h2>
-    <p class="note">
-      Signing in with your wallet puts your identity key on every tag you arm,
-      so the record says which biologist made it.
-    </p>
-    <button id="walletLogin" class="primary wide btn-icon">
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/><circle cx="14" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
-      Sign in with my wallet
-    </button>
-    <div id="pwBox" class="hidden" style="margin-top:16px">
-      <div class="field">
-        <label for="pw">Or the operator password</label>
-        <input id="pw" type="password" autocomplete="current-password">
-      </div>
-      <button id="pwLogin" class="wide btn-icon">
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="7" r="3.2"/><path d="M9.3 9.3 16.5 16.5M13 12l1.8 1.8M15.7 9.3 18 11.5"/></svg>
-        Sign in with the password
+    <div class="login-form">
+      <h2>Sign in</h2>
+      <p class="note">
+        Signing in with your wallet puts your identity key on every tag you arm,
+        so the record says which biologist made it.
+      </p>
+      <button id="walletLogin" class="primary wide btn-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/><circle cx="14" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
+        Sign in with my wallet
       </button>
-      <p class="note">A password session is recorded as "operator" rather than
-        as a person, so activations made this way are not attributable to a
-        named biologist.</p>
+      <div id="pwBox" class="hidden" style="margin-top:16px">
+        <div class="field">
+          <label for="pw">Or the operator password</label>
+          <input id="pw" type="password" autocomplete="current-password">
+        </div>
+        <button id="pwLogin" class="wide btn-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="7" r="3.2"/><path d="M9.3 9.3 16.5 16.5M13 12l1.8 1.8M15.7 9.3 18 11.5"/></svg>
+          Sign in with the password
+        </button>
+        <p class="note">A password session is recorded as "operator" rather than
+          as a person, so activations made this way are not attributable to a
+          named biologist.</p>
+      </div>
+      <div id="loginErr" class="err" style="margin-top:12px" role="alert" aria-live="assertive"></div>
     </div>
-    <div id="loginErr" class="err" style="margin-top:12px" role="alert" aria-live="assertive"></div>
+    <!-- Desktop only (see .login-art): the same tag-to-reward motion the
+         onboarding wizard opens with, reused here because signing in is the
+         same shape of "one thing unlocks another" -- a key rather than a
+         tag, an armable console rather than a paid finder. Purely
+         decorative, so it is hidden from assistive tech and never blocks
+         the form next to it from being the first (and only) focus stop. -->
+    <div class="login-art" aria-hidden="true">
+      <div style="display:flex;align-items:center;">
+        <div class="onboard-surface onboard-settle" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <span style="width:28px;height:28px;color:var(--ink-dim);">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/><circle cx="14" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
+          </span>
+        </div>
+        <svg class="onboard-trace-h" viewBox="0 0 40 10" style="width:40px;height:10px;color:var(--accent);"><path d="M1 5 H39" style="animation-delay:140ms"/></svg>
+        <div class="onboard-settle" style="animation-delay:260ms;width:80px;height:80px;border-radius:50%;background:var(--grad-estuary);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-raised);">
+          <span style="width:36px;height:36px;color:#fff;">
+            <svg class="draw-mark" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 8.5 15 16 6" style="animation-delay:460ms"/></svg>
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Arm-first: this is what a field biologist opens the console to do,
@@ -169,7 +192,7 @@
              species be a JSON file rather than a release. Fields marked
              "kept" (see schema.js's stickyBadge) are readings about the
              place, not the animal, and survive being cleared after each arm. -->
-        <div id="armFields"></div>
+        <div id="armFields" class="fields-grid"></div>
 
         <div class="field">
           <label for="aname">Name this animal <span class="note">(optional)</span></label>

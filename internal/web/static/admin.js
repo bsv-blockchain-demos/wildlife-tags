@@ -414,8 +414,8 @@
   // family silhouette rather than a broken image, which is the whole point
   // of the schema being data: a new profile shouldn't need a matching icon
   // shipped in the same release.
-  const SPECIES_ICON = { CALSAP: 'blue-crab.svg', SCIOCE: 'red-drum.svg' };
-  const SPECIES_GRADIENT = { CALSAP: 'estuary', SCIOCE: 'sunset' };
+  const SPECIES_ICON = { CALSAP: 'blue-crab.svg', SCIOCE: 'red-drum.svg', CARCAR: 'sea-turtle.svg', CARPLU: 'shark.svg' };
+  const SPECIES_GRADIENT = { CALSAP: 'estuary', SCIOCE: 'sunset', CARCAR: 'marsh', CARPLU: 'tide' };
   const FALLBACK_ICON = 'crab-generic.svg';
   const FALLBACK_GRADIENT = 'slate';
 

@@ -184,6 +184,13 @@ body::before {
 @media (min-width: 768px) { .wrap { padding: 0 var(--gutter); } }
 .narrow { max-width: var(--container-narrow); }
 
+/* The console is a form and a couple of tables, not a dashboard with wide
+   charts to fill -- at the site's usual 1200px it reads as sparse rather
+   than roomy. Scoped to the admin page only: the dashboard's stat ring and
+   the about page's two-column explainer grid both actually use the extra
+   width. */
+@media (min-width: 900px) { body[data-page="admin"] .wrap { max-width: 880px; } }
+
 h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; }
 
 /* ---- top bar ----------------------------------------------------------- */
@@ -381,6 +388,20 @@ header.site .tagline { color: var(--ink-dim); font-size: 14px; text-wrap: balanc
 @media (min-width: 768px) { .card { padding: var(--sp-lg); } }
 .card h2 { font-family: var(--font-body); font-size: 13px; margin: 0 0 var(--sp-sm);
   text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-dim); font-weight: 700; }
+
+/* The sign-in card, alone on an otherwise empty console before anyone has
+   signed in: full-width like every other card here just leaves the form
+   stranded on the left of a lot of blank panel. Desktop only -- the form
+   itself is unchanged, this only decides how much of the card's own width
+   it has to fill. .login-art is decoration filling the rest, not a second
+   thing to read, so it stays out of the tab order and off narrow screens
+   where there is no spare width to give it. */
+.login-art { display: none; }
+@media (min-width: 768px) {
+  #login.card { display: flex; align-items: center; gap: var(--sp-2xl); width: fit-content; max-width: 100%; }
+  .login-form { flex: none; width: 360px; }
+  .login-art { display: flex; align-items: center; justify-content: center; flex: none; width: 200px; }
+}
 .card p, .card .note, .honesty dd { max-width: 68ch; text-wrap: pretty; }
 
 /* Scroll reveal: see reveal.js. transform/opacity only, so this composites
@@ -512,7 +533,14 @@ button.grad-card { display: block; width: 100%; text-align: left; padding: 0; bo
 .stats-chart { display: none; }
 @media (min-width: 900px) {
   .program-layout { flex-direction: row; align-items: center; gap: var(--sp-xl); }
-  .program-layout .grid.stats { flex: 1; }
+  /* Six tiles, always: auto-fit alone picks however many columns fit the
+     width beside the chart, which at some widths means five in the first
+     row and one stranded alone in the second. Fixed at three so it is
+     always two even rows in this specific layout, reading in the same
+     left-to-right, top-to-bottom order the tiles are written in above --
+     unlike auto-fit, which the narrower single-column layout below 900px
+     still uses, since a lone stat column has no "row" to divide evenly. */
+  .program-layout .grid.stats { flex: 1; grid-template-columns: repeat(3, 1fr); }
   .stats-chart {
     display: flex; align-items: center; gap: var(--sp-lg); flex: none;
     opacity: 0; transform: scale(0.94);
@@ -556,6 +584,19 @@ input, select, textarea {
 .field { margin: 0 0 14px; }
 .row { display: grid; gap: 12px; grid-template-columns: 1fr; }
 @media (min-width: 480px) { .row { grid-template-columns: 1fr 1fr; } }
+
+/* schema.js's renderFields() writes a flat sequence of .field divs -- it
+   knows nothing about layout, only what a species records. Wrapping that
+   output in this pairs short fields (a number, a two-word dropdown) two to
+   a row on desktop instead of letting each one stretch to the full card
+   width; a species with more measurements than another still just adds
+   more fields, not a layout somebody has to touch. Off below 768px on
+   purpose: a phone-width column is already the right shape for a single
+   field per row. */
+@media (min-width: 768px) {
+  .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 var(--sp-lg); }
+  .fields-grid .field { margin-bottom: var(--sp-md); }
+}
 
 /* ---- combobox: a <select> enhanced into a searchable popover ------------
    See combobox.js. The native <select> stays in the DOM (hidden, off to

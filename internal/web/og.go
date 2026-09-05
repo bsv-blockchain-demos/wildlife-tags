@@ -27,6 +27,8 @@ type speciesArt struct {
 var speciesArtByCode = map[string]speciesArt{
 	"CALSAP": {From: "#0f5c56", To: "#2dd4bf", Icon: "blue-crab"},
 	"SCIOCE": {From: "#9a3412", To: "#fb923c", Icon: "red-drum"},
+	"CARCAR": {From: "#14532d", To: "#4ade80", Icon: "sea-turtle"},
+	"CARPLU": {From: "#1e3a8a", To: "#60a5fa", Icon: "shark"},
 }
 
 var fallbackArt = speciesArt{From: "#1e293b", To: "#94a3b8", Icon: "crab-generic"}
