@@ -128,19 +128,38 @@ header.site .tagline {
   color: var(--ink-dim); font-size: 14px; text-wrap: balance;
 }
 
-/* Desktop inline nav; hidden below md, replaced by the hamburger + overlay. */
+/* Desktop inline nav; hidden below md, replaced by the hamburger + overlay.
+   .data-trigger (the "Dataset" popover button) shares this styling with the
+   plain <a> links so it reads as one nav, not a link row with a stray
+   button in it. */
 .site-nav {
   display: none; margin-left: auto; align-items: center; gap: var(--sp-lg);
   font-size: 14px;
 }
 @media (min-width: 768px) { .site-nav { display: flex; } }
-.site-nav a {
+.site-nav a, .site-nav .data-trigger {
+  display: inline-flex; align-items: center; gap: 6px;
   color: var(--ink-dim); text-decoration: none; padding: var(--sp-sm) 0;
   border-bottom: 2px solid transparent;
+  background: none; border-left: none; border-top: none; border-right: none;
+  font: inherit; font-size: 14px; cursor: pointer;
   transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
-.site-nav a:hover, .site-nav a:focus-visible { color: var(--ink); }
+.site-nav a:hover, .site-nav a:focus-visible,
+.site-nav .data-trigger:hover, .site-nav .data-trigger:focus-visible,
+.site-nav .data-trigger[aria-expanded="true"] { color: var(--ink); }
 .site-nav a[aria-current="page"] { color: var(--ink); border-color: var(--accent); }
+
+/* The small line icons in front of every nav label -- hand-drawn inline SVG,
+   same reasoning as the CSS hamburger: no icon font, no external asset. */
+.nav-icon { flex-shrink: 0; width: 16px; height: 16px; }
+.nav-caret {
+  flex-shrink: 0; width: 6px; height: 6px; margin-left: -2px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.data-trigger[aria-expanded="true"] .nav-caret { transform: rotate(-135deg); }
 
 /* Hamburger: three lines drawn in CSS, no icon asset, morphing into an X.
    Hidden at md and up, where the inline nav takes over. */
@@ -186,13 +205,65 @@ header.site .tagline {
   text-align: center; padding: var(--sp-2xl) var(--gutter-mobile);
   padding-top: calc(var(--header-h) + var(--sp-lg));
 }
-.mobile-menu nav a {
-  display: block; padding: var(--sp-sm) var(--sp-lg); min-height: 44px;
+.mobile-menu nav a, .mobile-menu nav .data-trigger {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: var(--sp-sm) var(--sp-lg); min-height: 44px; width: 100%;
   font-size: clamp(20px, 15.5px + 1.5vw, 26px); font-weight: 600; line-height: 1.25;
   color: var(--ink); text-decoration: none; text-wrap: balance;
+  background: none; border: none; font-family: inherit; cursor: pointer;
 }
-.mobile-menu nav a:hover, .mobile-menu nav a:focus-visible { color: var(--accent); }
+.mobile-menu nav a:hover, .mobile-menu nav a:focus-visible,
+.mobile-menu nav .data-trigger:hover, .mobile-menu nav .data-trigger:focus-visible { color: var(--accent); }
+.mobile-menu nav .nav-icon { width: 22px; height: 22px; }
 @media (min-width: 768px) { .mobile-menu { display: none; } }
+
+/* ---- the Dataset popover / bottom sheet --------------------------------
+   One panel, shared by the desktop nav's trigger and the mobile menu's --
+   whichever fired the open call gets recorded so Escape/outside-click know
+   which trigger to restore focus and aria-expanded to. Desktop: a small
+   popover, positioned under the trigger by datamenu.js (no anchor-position
+   support needed). Mobile: a full-width bottom sheet, same shape as the dev
+   panel, layered above even the full-screen mobile menu it was opened from. */
+.data-panel {
+  position: fixed; z-index: 96;
+  left: 0; right: 0; bottom: 0;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: var(--sp-md); padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.35);
+  transform: translateY(12px); opacity: 0; visibility: hidden;
+  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out),
+              visibility 0s linear var(--dur-base);
+}
+.data-panel.open {
+  transform: translateY(0); opacity: 1; visibility: visible;
+  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out);
+}
+.data-panel[hidden] { display: none; }
+@media (min-width: 768px) {
+  .data-panel {
+    left: auto; right: auto; bottom: auto; width: 280px;
+    border-radius: var(--radius-lg); padding-bottom: var(--sp-md);
+  }
+}
+.data-panel-head {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--ink-dim); margin: 0 0 var(--sp-sm);
+}
+.data-panel-item {
+  display: flex; align-items: center; gap: 10px;
+  min-height: 48px; padding: 8px 10px; border-radius: var(--radius);
+  color: var(--ink); text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.data-panel-item:hover, .data-panel-item:focus-visible { background: var(--panel-2); }
+.data-panel-item .nav-icon { width: 20px; height: 20px; color: var(--accent); }
+.data-panel-label { display: block; font-size: 14px; font-weight: 600; }
+.data-panel-note { display: block; font-size: 13px; color: var(--ink-dim); }
+
+@media (prefers-reduced-motion: reduce) {
+  .data-panel, .nav-caret { transition: none !important; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .hamburger-line, .mobile-menu, .dev-panel, .brand-link, .site-nav a { transition: none !important; }
