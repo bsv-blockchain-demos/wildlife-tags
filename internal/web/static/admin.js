@@ -240,8 +240,16 @@
     $('mint').disabled = true;
     try {
       const count = parseInt($('count').value, 10);
-      await api('/api/admin/batches', { count, species: $('mintSpecies').value });
+      const res = await api('/api/admin/batches', { count, species: $('mintSpecies').value });
       await loadBatches();
+      // Minting used to leave no trace of having happened beyond a table
+      // further down the page quietly gaining a row -- easy to miss, and
+      // the print link that matters right now is in that same easy-to-miss
+      // place.
+      window.Toast.success(`Batch created: ${num(res.batch.TagCount)} tags.`, {
+        actionLabel: 'Print',
+        onAction: () => window.open(`/admin/batches/${encodeURIComponent(res.batch.ID)}/print`, '_blank', 'noopener'),
+      });
     } catch (e) {
       $('mintErr').textContent = e.message;
     } finally {
@@ -878,12 +886,18 @@
   }
 
   async function rearm(tagID, button) {
+    const display = button.closest('tr').querySelector('.mono').textContent;
     button.disabled = true;
     try {
       await api('/api/admin/rearm', { tag_id: tagID });
       await loadRearms();
+      window.Toast.success(`Tag ${display} put back in service.`);
     } catch (e) {
-      button.textContent = e.message;
+      // Rather than parking the error as the button's own label -- which
+      // used to leave it stuck disabled with no way to try again short of
+      // reloading the page -- report it and hand the row back.
+      window.Toast.error(`Could not put ${display} back in service: ${e.message}`);
+      button.disabled = false;
     }
   }
 
@@ -1036,6 +1050,15 @@
     },
     'Mint: request failed': () => {
       $('mintErr').textContent = 'create batch: species "SCIOCE" is not configured on this deployment';
+    },
+    'Toast: batch created': () => {
+      window.Toast.success('Batch created: 50 tags.', { actionLabel: 'Print', onAction: () => {} });
+    },
+    'Toast: put back in service': () => {
+      window.Toast.success('Tag K2M-9Q7 put back in service.');
+    },
+    'Toast: rearm failed': () => {
+      window.Toast.error('Could not put K2M-9Q7 back in service: tag is not in cooldown.');
     },
     'Login: wrong password': () => {
       $('login').classList.remove('hidden');

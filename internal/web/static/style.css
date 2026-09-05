@@ -552,6 +552,49 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .confirm-actions { display: flex; flex-direction: column; gap: 8px; margin-top: var(--sp-lg); }
 @media (min-width: 480px) { .confirm-actions { flex-direction: row-reverse; } .confirm-actions button { flex: 1; } }
 
+/* ---- status toasts -------------------------------------------------------
+   This app's stand-in for DESIGN.md's "sonner" toasts: there is no React
+   here for sonner itself to attach to, so this is the same contract --
+   proactive, one per mutation, no duplicate stacking, an inline action
+   where one exists -- hand-rolled the same way the hamburger menu and the
+   wallet client are. See toast.js.
+
+   Positioned top, not bottom: bottom-left is the dev FAB and bottom-right
+   is Agentation's own toolbar in dev mode, and both sheets in this file
+   already anchor to the bottom edge. Colors are fixed rather than drawn
+   from --ink/--bg, which flip in dark mode -- a toast should read the same
+   regardless of which theme the page under it is in. */
+.toast-stack {
+  position: fixed; z-index: 95; left: 0; right: 0;
+  top: calc(var(--header-h) + 12px);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 var(--gutter-mobile); pointer-events: none;
+}
+@media (min-width: 768px) {
+  .toast-stack { left: auto; right: 20px; align-items: flex-end; padding: 0; }
+}
+.toast {
+  pointer-events: auto;
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; max-width: 380px;
+  background: #1a1d21; color: #f3f5f8;
+  border-radius: var(--radius); padding: 12px 12px 12px 16px;
+  box-shadow: var(--shadow-overlay);
+  font-size: 14px;
+  transform: translateY(-8px); opacity: 0;
+  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out);
+}
+.toast.in { transform: translateY(0); opacity: 1; }
+.toast-good { background: var(--good); color: #fff; }
+.toast-bad  { background: var(--bad);  color: #fff; }
+.toast-text { flex: 1; text-wrap: balance; }
+.toast-action, .toast-close {
+  flex-shrink: 0; min-height: 32px; padding: 6px 10px; font-size: 13px;
+  background: rgb(255 255 255 / 0.14); border-color: rgb(255 255 255 / 0.3); color: inherit;
+}
+.toast-close { padding: 6px 9px; font-size: 16px; line-height: 1; }
+@media (prefers-reduced-motion: reduce) { .toast { transition: none !important; } }
+
 /* ---- QR scanner: a camera view standing in for a second app ------------- */
 .scanner-overlay {
   position: fixed; inset: 0; z-index: 99; background: #000;
