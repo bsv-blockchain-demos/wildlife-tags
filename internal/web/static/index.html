@@ -106,18 +106,26 @@
 
 <main class="wrap">
 
-  <p class="page-title">The programme, live</p>
+  <p class="page-title">Report it, get paid</p>
 
   <div class="card">
     <h2>The program</h2>
-    <div class="grid stats" id="stats">
-      <!-- Replaced the instant /api/stats answers; see app.js. -->
-      <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
-      <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
-      <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
-      <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
-      <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
-      <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+    <div class="program-layout">
+      <div class="grid stats" id="stats">
+        <!-- Replaced the instant /api/stats answers; see app.js. -->
+        <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+        <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+        <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+        <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+        <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+        <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+      </div>
+      <!-- Desktop-only: the same four counts on the tiles to the left
+           (minted, active, cooldown, retired), drawn as a ring instead of
+           read as numbers. See app.js's renderStatsChart. Hidden until
+           there is at least one tag printed -- nothing to honestly draw
+           before that. -->
+      <div class="stats-chart hidden" id="statsChart"></div>
     </div>
   </div>
 

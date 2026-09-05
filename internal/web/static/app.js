@@ -35,6 +35,74 @@
       .join('');
   }
 
+  // The four counts a tag can be in, the same ones "tags printed" on the
+  // tile grid already sums -- drawn as a ring instead of read as numbers.
+  // Colors reuse the vocabulary the admin console's status pills already
+  // established (active = good, cooldown = warn, retired = dim), so a
+  // person who has seen either page reads this one without a legend.
+  // "minted" gets a fixed blue rather than --accent: --accent and --good
+  // are both teal-leaning greens (see :root's palette), close enough in
+  // hue that two ring segments in those colors are genuinely hard to tell
+  // apart at this size. Blue has no other meaning on this page to collide
+  // with.
+  const CHART_SEGMENTS = [
+    { key: 'tags_active', label: 'in the water', color: 'var(--good)' },
+    { key: 'tags_cooldown', label: 'cooling down', color: 'var(--warn)' },
+    { key: 'tags_minted', label: 'printed, not yet armed', color: '#3b82f6' },
+    { key: 'tags_retired', label: 'retired', color: 'var(--ink-dim)' },
+  ];
+
+  // renderStatsChart draws exactly what the tiles say and nothing else --
+  // no trend, no history, because this deployment has no time series to
+  // draw one from honestly (see nexus-repo's own price chart, which drops
+  // the same feature for a token with no real closes rather than fake
+  // one). A ring built from four real point-in-time counts is the chart
+  // this data actually supports.
+  function renderStatsChart(s) {
+    const box = $('statsChart');
+    if (!box) return;
+    const total = CHART_SEGMENTS.reduce((sum, seg) => sum + (s[seg.key] || 0), 0);
+    if (!total) {
+      box.classList.add('hidden');
+      box.innerHTML = '';
+      return;
+    }
+
+    const size = 148, stroke = 20, r = (size - stroke) / 2, c = size / 2;
+    const circumference = 2 * Math.PI * r;
+    let drawn = 0;
+    const arcs = CHART_SEGMENTS.filter((seg) => s[seg.key])
+      .map((seg) => {
+        const len = (s[seg.key] / total) * circumference;
+        // Circles start at 3 o'clock; -90deg turns that into 12 o'clock, the
+        // usual top-of-the-clock start for a ring chart.
+        const rotation = (drawn / circumference) * 360 - 90;
+        drawn += len;
+        return (
+          `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="${stroke}" ` +
+          `stroke-dasharray="${len} ${circumference - len}" transform="rotate(${rotation} ${c} ${c})"></circle>`
+        );
+      })
+      .join('');
+
+    const legend = CHART_SEGMENTS.filter((seg) => s[seg.key])
+      .map(
+        (seg) =>
+          `<div class="chart-legend-row"><span class="chart-dot" style="background:${seg.color}"></span>` +
+          `<span>${num(s[seg.key])} ${seg.label}</span></div>`
+      )
+      .join('');
+
+    box.innerHTML =
+      `<div class="chart-ring-wrap">` +
+      `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" role="img" aria-label="Tags by status">${arcs}</svg>` +
+      `<div class="chart-total"><div class="chart-total-n tabular">${num(total)}</div><div class="chart-total-k">printed</div></div>` +
+      `</div>` +
+      `<div class="chart-legend">${legend}</div>`;
+    box.classList.remove('hidden');
+    requestAnimationFrame(() => box.classList.add('in'));
+  }
+
   function eventRows(events) {
     if (!events || !events.length) {
       return emptyRow(6, 'Nothing has happened yet.');
@@ -65,6 +133,7 @@
     try {
       const data = await get('/api/stats');
       $('stats').innerHTML = statTiles(data.stats);
+      renderStatsChart(data.stats);
       $('recent').innerHTML = eventRows(data.recent);
     } catch (e) {
       $('stats').innerHTML = `<div class="stat"><div class="k">${e.message}</div></div>`;
@@ -115,11 +184,13 @@
     'Busy program': () => {
       stopLivePolling();
       $('stats').innerHTML = statTiles(mockStats);
+      renderStatsChart(mockStats);
       $('recent').innerHTML = eventRows(mockRecent);
     },
     'Empty program (day one)': () => {
       stopLivePolling();
       $('stats').innerHTML = statTiles({});
+      renderStatsChart({});
       $('recent').innerHTML = eventRows([]);
     },
   };

@@ -376,6 +376,25 @@ button.grad-card { display: block; width: 100%; text-align: left; padding: 0; bo
 .card-icon-badge img, .card-icon-badge svg { width: 60%; height: 60%; object-fit: contain; }
 .card-icon-badge img { filter: brightness(0) invert(1); } /* PhyloPic silhouettes recolored to white */
 
+/* A little more presence on hover than the card's own lift: the badge
+   itself grows, and the animal inside it grows a touch more and tips,
+   so the two read as one motion rather than a single flat zoom. --dur-fast
+   because this is a hover response (see DESIGN's motion timing table), not
+   the signature interaction -- that stays --ease-spring's only user. */
+.card-icon-badge, .card-icon-badge img, .card-icon-badge svg {
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.grad-card:hover .card-icon-badge, .grad-card:focus-visible .card-icon-badge {
+  transform: scale(1.12);
+}
+.grad-card:hover .card-icon-badge img, .grad-card:hover .card-icon-badge svg,
+.grad-card:focus-visible .card-icon-badge img, .grad-card:focus-visible .card-icon-badge svg {
+  transform: scale(1.14) rotate(-8deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .grad-card, .card-icon-badge, .card-icon-badge img, .card-icon-badge svg { transition: none !important; }
+}
+
 /* A plain circular badge for non-gradient contexts (list rows, timelines):
    a tinted disc instead of a wash of translucent white on white. */
 .icon-badge {
@@ -412,6 +431,39 @@ button.grad-card { display: block; width: 100%; text-align: left; padding: 0; bo
 .grid.cards { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--sp-md); }
 
 .stat { background: var(--panel-2); border-radius: var(--radius); padding: 12px; }
+
+/* ---- "The program" stat breakdown chart ---------------------------------
+   A real composition chart, not a decorative fabrication: the four ring
+   segments are exactly the four counts already on the tiles to their left
+   (minted, active, cooldown, retired), drawn once as a shape instead of
+   only as numbers. Desktop only -- on a narrow screen the tiles already
+   say the same thing, and a chart this size would only push them further
+   down the page. Hand-drawn SVG rather than a charting library, for the
+   same reason nothing else here reaches for one (see app.js): it is four
+   arcs, and the smallest chart bundle is heavier than this whole page. */
+.program-layout { display: flex; flex-direction: column; }
+.stats-chart { display: none; }
+@media (min-width: 900px) {
+  .program-layout { flex-direction: row; align-items: center; gap: var(--sp-xl); }
+  .program-layout .grid.stats { flex: 1; }
+  .stats-chart {
+    display: flex; align-items: center; gap: var(--sp-lg); flex: none;
+    opacity: 0; transform: scale(0.94);
+    transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+  }
+  .stats-chart.in { opacity: 1; transform: scale(1); }
+}
+.stats-chart.hidden { display: none !important; }
+.chart-ring-wrap { position: relative; display: grid; place-items: center; flex-shrink: 0; }
+.chart-ring-wrap svg { display: block; }
+.chart-ring-wrap svg circle { stroke-linecap: butt; }
+.chart-total { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.chart-total-n { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.chart-total-k { font-size: 10px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.06em; text-align: center; }
+.chart-legend { display: flex; flex-direction: column; gap: 8px; }
+.chart-legend-row { display: flex; align-items: center; gap: 8px; font-size: 13px; white-space: nowrap; color: var(--ink); }
+.chart-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+@media (prefers-reduced-motion: reduce) { .stats-chart { transition: none !important; } }
 
 /* Skeleton placeholders: shown in the markup by default, replaced the
    instant real data arrives, so a slow connection sees an intentional
