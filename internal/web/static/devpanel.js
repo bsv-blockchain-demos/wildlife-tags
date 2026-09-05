@@ -109,6 +109,35 @@
     document.body.appendChild(btn);
   }
 
+  // Agentation (agentation.com) is a React devtool overlay for annotating a
+  // running app; DESIGN.md's scaffolding section asks for it on every
+  // project "so the running app is inspectable and steerable by agents
+  // during development." This app has no React anywhere a browser DOM
+  // overlay could mount into -- no bundler, no build step, on purpose (see
+  // the README) -- so there's nothing to `npm install` it into. Loading
+  // React and Agentation as ES modules straight from a CDN at runtime is the
+  // one way to get the toolbar without adding a build step to the rest of
+  // the app. It's gated behind the exact same dev-mode check as the mock
+  // panel above, so it never loads for a real finder on a live deployment,
+  // and a failure (offline, CDN down) is swallowed rather than breaking the
+  // page -- this is a nicety for whoever is coding against this app, not
+  // something the report flow depends on.
+  async function mountAgentation() {
+    try {
+      const [{ default: React }, ReactDOMClient, { Agentation }] = await Promise.all([
+        import('https://esm.sh/react@18'),
+        import('https://esm.sh/react-dom@18/client'),
+        import('https://esm.sh/agentation@3?deps=react@18,react-dom@18'),
+      ]);
+      const host = document.createElement('div');
+      host.id = 'agentation-root';
+      document.body.appendChild(host);
+      ReactDOMClient.createRoot(host).render(React.createElement(Agentation));
+    } catch (e) {
+      console.warn('devpanel: Agentation did not load (dev-only overlay; safe to ignore, e.g. offline)', e);
+    }
+  }
+
   async function boot() {
     const enabled = forcedOn() || (await testNetwork());
     if (!enabled) return;
@@ -116,6 +145,7 @@
     const page = document.body.dataset.page;
     const scenarios = (window.DevMocks && window.DevMocks[page]) || {};
     build(scenarios);
+    mountAgentation();
   }
 
   document.addEventListener('DOMContentLoaded', boot);
