@@ -735,6 +735,177 @@
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
+  // ---- dev-mode mocks, see devpanel.js -----------------------------------
+  //
+  // Every scenario below drives the exact same render functions the real
+  // boot() flow uses, with fabricated data instead of a fetch -- so a mock
+  // screen is pixel-for-pixel what the real one would look like, and a CSS
+  // change that fixes one fixes the other.
+
+  const CHARLESTON = { lat: 32.7765, lon: -79.9311 };
+
+  function resetPanels() {
+    ['loading', 'noSecret', 'tagState', 'form', 'pay', 'paid'].forEach((id) => $(id).classList.add('hidden'));
+    $('formErr').textContent = '';
+    $('payErr').textContent = '';
+    $('retry').classList.add('hidden');
+    document.querySelectorAll('#steps li').forEach((li) => li.classList.remove('doing', 'done'));
+  }
+
+  // baseProvenance is a crab tagged 214 days ago near Charleston, with no
+  // recaptures yet -- the shape every "active" tag starts in.
+  function baseProvenance(overrides) {
+    return Object.assign(
+      {
+        tag_id: 'K2M9Q7C',
+        common_name: 'Blue crab',
+        scientific_name: 'Callinectes sapidus',
+        name: '',
+        named_by: '',
+        tagged_at: new Date(Date.now() - 214 * 86400000).toISOString(),
+        tagged_lat: CHARLESTON.lat,
+        tagged_lon: CHARLESTON.lon,
+        days_at_large: 214,
+        distance_m: 0,
+        total_path_m: 0,
+        recaptures: [],
+        growth: 0,
+        growth_expected: true,
+        primary_scale: 1,
+        primary_unit: 'mm',
+        // facts is filled in by mockBoot() from whatever species schema is
+        // actually loaded -- never hardcoded here, see schemaFacts() below.
+        facts: [],
+      },
+      overrides || {}
+    );
+  }
+
+  // schemaFacts builds a plausible tagging-time fact list purely from the
+  // loaded profile's own field labels, the same way the server would for a
+  // real record. Hardcoding a species' field names here would be exactly the
+  // bug TestSchemaDrivesTheForms exists to catch.
+  function schemaFacts(profile) {
+    if (!profile) return [];
+    const facts = [];
+    for (const m of (profile.measures || []).slice(0, 2)) {
+      const mid = Math.round((m.min + m.max) / 2);
+      const shown = m.scale > 1 ? (mid / m.scale).toFixed(2) : mid;
+      facts.push({ label: m.label, value: `${shown} ${m.unit}` });
+    }
+    const v = (profile.vocabs || [])[0];
+    const val = v && (v.values || [])[0];
+    if (v && val) facts.push({ label: v.label, value: val.label });
+    return facts;
+  }
+
+  // richProvenance is the same crab two sightings later: named, moved, grown.
+  function richProvenance() {
+    return baseProvenance({
+      name: 'Old Bertha',
+      named_by: '03a1b2c3d4e5f60718293a4b5c6d7e8f90123456',
+      days_at_large: 214,
+      distance_m: 6400,
+      total_path_m: 9100,
+      growth: 24,
+      recaptures: [
+        {
+          at: new Date(Date.now() - 140 * 86400000).toISOString(),
+          disposition: 'RELEASED',
+          primary: 148,
+          distance_m: 4200,
+          days_at_large: 74,
+          proven: true,
+          lat: CHARLESTON.lat + 0.06,
+          lon: CHARLESTON.lon + 0.04,
+        },
+        {
+          at: new Date(Date.now() - 30 * 86400000).toISOString(),
+          disposition: 'RELEASED',
+          primary: 156,
+          distance_m: 6400,
+          days_at_large: 184,
+          proven: true,
+          lat: CHARLESTON.lat + 0.1,
+          lon: CHARLESTON.lon + 0.09,
+        },
+      ],
+    });
+  }
+
+  // mockBoot mirrors boot()'s tail: the part that runs once the tag, the
+  // schema, and the provenance are all known.
+  async function mockBoot(status, provenance, displayTag) {
+    resetPanels();
+    await window.Schema.load();
+    state.profile = window.Schema.profile();
+    if (provenance) provenance.facts = schemaFacts(state.profile);
+    state.tagID = (provenance && provenance.tag_id) || 'K2M9Q7C';
+    state.info = {
+      tag: { display: displayTag || 'K2M-9Q7', status },
+      provenance: provenance || {},
+      base_satoshis: 5000,
+      bonus_satoshis: 15000,
+      arcade_url: 'https://arcade-v2-tstn-us-1.bsvblockchain.tech',
+    };
+    state.canName = !!provenance && !provenance.name && status === 'active';
+    $('nameField').classList.toggle('hidden', !state.canName);
+    buildForm();
+    renderTag();
+    if (provenance && provenance.tagged_at) renderProvenance(provenance);
+    else $('prov').classList.add('hidden');
+  }
+
+  window.DevMocks = window.DevMocks || {};
+  window.DevMocks.redeem = {
+    'Missing tag code': () => {
+      resetPanels();
+      $('noSecretTag').textContent = 'K2M-9Q7';
+      $('noSecret').classList.remove('hidden');
+    },
+    'Tag not found': () => {
+      resetPanels();
+      $('loading').classList.remove('hidden');
+      $('loading').innerHTML = '<h2>Tag not found</h2><p class="err">tag K2M9Q7C: no such tag</p>';
+    },
+    'Active — first sighting, unnamed': () => mockBoot('active', baseProvenance()),
+    'Active — with history, named': () => mockBoot('active', richProvenance()),
+    'Cooldown': () => mockBoot('cooldown', richProvenance()),
+    'Redeeming (claim in progress)': () => mockBoot('redeeming', richProvenance()),
+    'Minted, never armed': () => mockBoot('minted', null),
+    'Retired': () => mockBoot('retired', richProvenance()),
+    'Payment: in progress': async () => {
+      await mockBoot('active', baseProvenance());
+      $('form').classList.add('hidden');
+      $('pay').classList.remove('hidden');
+      step('quote', 'done');
+      step('attest', 'done');
+      step('build', 'doing');
+    },
+    'Payment: failed to verify': async () => {
+      await mockBoot('active', baseProvenance());
+      $('form').classList.add('hidden');
+      $('pay').classList.remove('hidden');
+      step('quote', 'done');
+      step('attest', 'done');
+      step('build', 'done');
+      step('verify', 'doing');
+      fail('the payment does not go to your wallet. Nothing has been signed and no money has moved. Do not retry — report this.');
+    },
+    'Paid!': async () => {
+      await mockBoot('active', richProvenance());
+      // showPaid() only touches #pay/#paid, exactly like the real flow where
+      // onSubmit() has already hidden #form by the time it runs.
+      $('form').classList.add('hidden');
+      state.quote = { bonus_satoshis: 15000 };
+      showPaid({
+        payout_satoshis: 5000,
+        retired: false,
+        txid: '4f3c9e8a1b2d5f60718293a4b5c6d7e8f9012345678901234567890abcdef01',
+      });
+    },
+  };
+
   document.addEventListener('DOMContentLoaded', () => {
     wireForm();
     boot();

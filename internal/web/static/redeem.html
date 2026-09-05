@@ -7,11 +7,18 @@
 <link rel="stylesheet" href="vendor/leaflet.css">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-page="redeem">
 
+<!-- No <nav> here, deliberately: this page is one task (scan, report, get
+     paid), opened one-handed, and every extra link is a way off it. The
+     footer still carries a way back to the dashboard and about page. -->
 <header class="site">
-  <h1>SCDNR wildlife tag</h1>
-  <div class="tagline">report a tagged animal, get paid on the spot</div>
+  <div class="site-inner">
+    <div class="brand">
+      <h1><a class="brand-link" href="/"><span class="brand-name">SCDNR wildlife tag</span></a></h1>
+      <p class="tagline">report a tagged animal, get paid on the spot</p>
+    </div>
+  </div>
 </header>
 
 <main class="wrap narrow">
@@ -163,5 +170,6 @@
 <script src="schema.js"></script>
 <script src="wallet.js"></script>
 <script src="redeem.js"></script>
+<script src="devpanel.js"></script>
 </body>
 </html>

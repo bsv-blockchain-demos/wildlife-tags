@@ -51,6 +51,8 @@
       .join('');
   }
 
+  let pollTimer = null;
+
   async function poll() {
     try {
       const data = await get('/api/stats');
@@ -62,6 +64,7 @@
   }
 
   async function boot() {
+    if (!$('stats')) return; // this script only has work to do on the dashboard
     try {
       const info = await get('/api/info');
       $('net').textContent = info.network;
@@ -69,8 +72,49 @@
       // The dashboard is still worth showing without it.
     }
     poll();
-    setInterval(poll, 5000);
+    pollTimer = setInterval(poll, 5000);
   }
+
+  // ---- dev-mode mocks, see devpanel.js -----------------------------------
+
+  const mockStats = {
+    tags_active: 214,
+    recaptures: 96,
+    satoshis_paid: 2_140_000,
+    satoshis_locked: 4_280_000,
+    escrow_owed: 612_000,
+    tags_minted: 40,
+    tags_cooldown: 12,
+    tags_retired: 58,
+  };
+
+  const mockRecent = [
+    { display: 'K2M-9Q7', kind: 'ACT', generation: 1, satoshis: 0, status: 'mined', at: new Date(Date.now() - 1000 * 60 * 4).toISOString() },
+    { display: 'B7X-4RT', kind: 'REC', generation: 2, satoshis: 20000, status: 'mined', at: new Date(Date.now() - 1000 * 60 * 40).toISOString() },
+    { display: 'F1P-2LC', kind: 'REC', generation: 1, satoshis: 5000, status: 'pending', at: new Date(Date.now() - 1000 * 60 * 90).toISOString() },
+    { display: 'H9D-7WX', kind: 'ACT', generation: 1, satoshis: 0, status: 'mined', at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString() },
+    { display: 'Q4Z-1NB', kind: 'REC', generation: 3, satoshis: 5000, status: 'failed', at: new Date(Date.now() - 1000 * 60 * 60 * 22).toISOString() },
+  ];
+
+  // The live 5s poll would otherwise overwrite mock content almost as soon as
+  // it's shown; a mock always wins until the page is reloaded.
+  function stopLivePolling() {
+    if (pollTimer) clearInterval(pollTimer);
+  }
+
+  window.DevMocks = window.DevMocks || {};
+  window.DevMocks.index = {
+    'Busy program': () => {
+      stopLivePolling();
+      $('stats').innerHTML = statTiles(mockStats);
+      $('recent').innerHTML = eventRows(mockRecent);
+    },
+    'Empty program (day one)': () => {
+      stopLivePolling();
+      $('stats').innerHTML = statTiles({});
+      $('recent').innerHTML = eventRows([]);
+    },
+  };
 
   document.addEventListener('DOMContentLoaded', boot);
 })();

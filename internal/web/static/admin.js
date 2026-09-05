@@ -93,6 +93,7 @@
     $('login').classList.add('hidden');
     $('console').classList.remove('hidden');
     $('logout').classList.remove('hidden');
+    $('logoutMobile').classList.remove('hidden');
     const key = state.session.identity_key || '';
     $('who').textContent =
       key === 'operator' ? 'signed in as operator (password)' : `signed in as ${key.slice(0, 16)}…`;
@@ -356,11 +357,13 @@
   document.addEventListener('DOMContentLoaded', () => {
     $('walletLogin').addEventListener('click', walletLogin);
     $('pwLogin').addEventListener('click', passwordLogin);
-    $('logout').addEventListener('click', async (e) => {
+    const doLogout = async (e) => {
       e.preventDefault();
       await api('/api/admin/logout', {});
       location.reload();
-    });
+    };
+    $('logout').addEventListener('click', doLogout);
+    $('logoutMobile').addEventListener('click', doLogout);
     $('mint').addEventListener('click', mint);
     $('alocate').addEventListener('click', locate);
     $('arm').addEventListener('click', arm);
@@ -372,4 +375,90 @@
     });
     boot();
   });
+
+  // ---- dev-mode mocks, see devpanel.js -----------------------------------
+
+  function mockFunding() {
+    $('funding').innerHTML = [
+      ['balance', '1,840,000 sats'],
+      ['per tag', '20,000 sats'],
+      ['activations left', '92'],
+    ].map(([k, v]) => `<div class="stat"><div class="n tabular">${v}</div><div class="k">${k}</div></div>`).join('');
+    $('deposit').textContent = '1EstuaryDemoDepositAddressXXXXXXXX';
+  }
+
+  function mockBatches() {
+    const rows = [
+      ['B20260901-AD87F5', 50, 'a week ago'],
+      ['B20260814-113C02', 100, '3 weeks ago'],
+    ];
+    $('batches').innerHTML = rows.map(([id, n, when]) =>
+      `<tr><td class="mono">${id}</td><td class="tabular">${n}</td>` +
+      `<td class="note">${when}</td><td><a href="#">print</a></td></tr>`).join('');
+  }
+
+  function mockRearms() {
+    const rows = [
+      ['K2M-9Q7', 2, '20,000 sats'],
+      ['B7X-4RT', 1, '5,000 sats'],
+    ];
+    $('rearms').innerHTML = rows.map(([id, gen, sats]) =>
+      `<tr><td class="mono">${id}</td><td class="tabular">${gen}</td>` +
+      `<td class="tabular">${sats}</td><td><button data-rearm="${id}">put back</button></td></tr>`).join('');
+  }
+
+  // Shows the signed-in shell without showConsole()'s call to refresh(),
+  // which would immediately overwrite the mock rows below with the real
+  // (empty, on a fresh dev deployment) API responses.
+  function mockShowConsole(identityKey) {
+    $('login').classList.add('hidden');
+    $('console').classList.remove('hidden');
+    $('logout').classList.remove('hidden');
+    $('logoutMobile').classList.remove('hidden');
+    $('who').textContent =
+      identityKey === 'operator' ? 'signed in as operator (password)' : `signed in as ${identityKey.slice(0, 16)}…`;
+  }
+
+  window.DevMocks = window.DevMocks || {};
+  window.DevMocks.admin = {
+    'Signed out': () => {
+      $('console').classList.add('hidden');
+      $('login').classList.remove('hidden');
+      $('pwBox').classList.remove('hidden');
+      $('logout').classList.add('hidden');
+      $('logoutMobile').classList.add('hidden');
+    },
+    'Signed in — wallet identity': () => {
+      mockShowConsole('02a1b2c3d4e5f60718293a4b5c6d7e8f9012345678');
+      mockFunding();
+      mockBatches();
+      mockRearms();
+    },
+    'Signed in — operator (password)': () => {
+      mockShowConsole('operator');
+      mockFunding();
+      mockBatches();
+      mockRearms();
+    },
+    'Arm: success banner': () => {
+      $('armBanner').className = 'banner good';
+      $('armBanner').textContent = 'Armed with 20,000 sats — 4f3c9e8a1b2d5f60718293a4b5c6d7e8f9012345678901234567890abcdef01';
+      $('armBanner').classList.remove('hidden');
+    },
+    'Arm: not taggable warning': () => {
+      $('armBanner').className = 'banner warn';
+      $('armBanner').textContent = 'Do not tag this one: shell is still soft, it will shed this tag at its next moult.';
+      $('armBanner').classList.remove('hidden');
+    },
+    'Arm: request failed': () => {
+      $('armErr').textContent = 'arm this tag: insufficient funds to cover the reward';
+    },
+    'Mint: request failed': () => {
+      $('mintErr').textContent = 'create batch: species "SCIOCE" is not configured on this deployment';
+    },
+    'Login: wrong password': () => {
+      $('login').classList.remove('hidden');
+      $('loginErr').textContent = 'that password is not recognised';
+    },
+  };
 })();

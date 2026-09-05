@@ -6,16 +6,34 @@
 <title>SCDNR wildlife tag admin</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-page="admin">
 
 <header class="site">
-  <h1>Wildlife tag admin</h1>
-  <div class="tagline" id="who"></div>
-  <nav>
-    <a href="/">dashboard</a>
-    <a href="#" id="logout" class="hidden">sign out</a>
-  </nav>
+  <div class="site-inner">
+    <div class="brand">
+      <h1><a class="brand-link" href="/"><span class="brand-name">Wildlife tag admin</span></a></h1>
+      <p class="tagline" id="who"></p>
+    </div>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/">Dashboard</a>
+      <a href="#" id="logout" class="hidden">Sign out</a>
+    </nav>
+    <button type="button" class="hamburger" id="navToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+      <span class="hamburger-box">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </span>
+    </button>
+  </div>
 </header>
+
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <nav aria-label="Mobile">
+    <a href="/">Dashboard</a>
+    <a href="#" id="logoutMobile" class="hidden">Sign out</a>
+  </nav>
+</div>
 
 <main class="wrap">
 
@@ -148,9 +166,11 @@
 
 <footer>South Carolina Department of Natural Resources</footer>
 
+<script src="nav.js"></script>
 <script src="canonical.js"></script>
 <script src="schema.js"></script>
 <script src="wallet.js"></script>
 <script src="admin.js"></script>
+<script src="devpanel.js"></script>
 </body>
 </html>

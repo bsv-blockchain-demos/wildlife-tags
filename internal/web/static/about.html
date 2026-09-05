@@ -6,17 +6,36 @@
 <title>About &mdash; SCDNR wildlife tag rewards</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-page="about">
 
 <header class="site">
-  <h1>SCDNR wildlife tags</h1>
-  <div class="tagline">what this changes, and what it costs to try</div>
-  <nav>
-    <a href="/">dashboard</a>
-    <a href="/api/export.csv">dataset</a>
-    <a href="/admin">admin</a>
-  </nav>
+  <div class="site-inner">
+    <div class="brand">
+      <h1><a class="brand-link" href="/"><span class="brand-name">SCDNR wildlife tags</span></a></h1>
+      <p class="tagline">what this changes, and what it costs to try</p>
+    </div>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/">Dashboard</a>
+      <a href="/api/export.csv">Dataset</a>
+      <a href="/admin">Admin</a>
+    </nav>
+    <button type="button" class="hamburger" id="navToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+      <span class="hamburger-box">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </span>
+    </button>
+  </div>
 </header>
+
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <nav aria-label="Mobile">
+    <a href="/">Dashboard</a>
+    <a href="/api/export.csv">Dataset</a>
+    <a href="/admin">Admin</a>
+  </nav>
+</div>
 
 <main class="wrap">
 
@@ -398,6 +417,7 @@
   <a href="/api/export.csv">open dataset</a>
 </footer>
 
-<script src="app.js"></script>
+<script src="nav.js"></script>
+<script src="devpanel.js"></script>
 </body>
 </html>

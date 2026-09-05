@@ -6,18 +6,38 @@
 <title>SCDNR wildlife tag program</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-page="index">
 
 <header class="site">
-  <h1>SCDNR wildlife tags</h1>
-  <div class="tagline">tagged animals, reported by whoever finds them, paid on the spot</div>
-  <nav>
-    <a href="/about">about</a>
-    <a href="/api/export.csv">dataset (CSV)</a>
-    <a href="/api/export.json">JSON</a>
-    <a href="/admin">admin</a>
-  </nav>
+  <div class="site-inner">
+    <div class="brand">
+      <h1><a class="brand-link" href="/"><span class="brand-name">SCDNR wildlife tags</span></a></h1>
+      <p class="tagline">tagged animals, reported by whoever finds them, paid on the spot</p>
+    </div>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/about">About</a>
+      <a href="/api/export.csv">Dataset (CSV)</a>
+      <a href="/api/export.json">JSON</a>
+      <a href="/admin">Admin</a>
+    </nav>
+    <button type="button" class="hamburger" id="navToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+      <span class="hamburger-box">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </span>
+    </button>
+  </div>
 </header>
+
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <nav aria-label="Mobile">
+    <a href="/about">About</a>
+    <a href="/api/export.csv">Dataset (CSV)</a>
+    <a href="/api/export.json">JSON</a>
+    <a href="/admin">Admin</a>
+  </nav>
+</div>
 
 <main class="wrap">
 
@@ -98,6 +118,8 @@
   network <span id="net" class="mono"></span>
 </footer>
 
+<script src="nav.js"></script>
 <script src="app.js"></script>
+<script src="devpanel.js"></script>
 </body>
 </html>

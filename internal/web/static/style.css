@@ -1,6 +1,12 @@
 /* One stylesheet for three pages. Mobile-first, because the page that matters
    most is opened one-handed on a boat in bright sun with the other hand
-   holding a crab. */
+   holding a crab.
+
+   Token layout follows DESIGN.md's system: color pairs are chosen to hold
+   WCAG AA (4.5:1 body, 3:1 large text/UI) in both themes, spacing is a 4px
+   scale, and motion only ever touches transform/opacity. The palette itself
+   (the "estuary" dark teal identity) is this project's own theme layer and is
+   kept as-is; what changed here is making every pairing measurably legible. */
 
 :root {
   color-scheme: light dark;
@@ -8,7 +14,8 @@
   --bg: #0e1418;
   --panel: #161f25;
   --panel-2: #1d282f;
-  --line: #2a3a44;
+  --line: #2a3a44;        /* decorative dividers: card/table borders */
+  --line-strong: #4e6c7f; /* interactive boundaries: inputs, buttons, focus */
   --ink: #e8f0f3;
   --ink-dim: #93a8b3;
   --accent: #37b3a0;      /* estuary green */
@@ -17,6 +24,33 @@
   --bad: #e06c5a;
   --good: #59c08a;
   --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 16px;
+
+  /* Spacing, 4px scale. */
+  --sp-xs: 4px;
+  --sp-sm: 8px;
+  --sp-md: 16px;
+  --sp-lg: 24px;
+  --sp-xl: 32px;
+  --sp-2xl: 48px;
+  --sp-3xl: 64px;
+
+  /* Layout: the same container width grounds the header bar and the content
+     column, so the nav and the page it sits above line up on wide screens
+     instead of the bar running edge-to-edge while content floats in the
+     middle. */
+  --container: 1200px;
+  --container-narrow: 640px;
+  --gutter: 24px;
+  --gutter-mobile: 16px;
+  --header-h: 64px;
+
+  /* Motion: only transform and opacity animate anywhere in this app. */
+  --dur-fast: 150ms;
+  --dur-base: 250ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 @media (prefers-color-scheme: light) {
@@ -25,14 +59,23 @@
     --panel: #ffffff;
     --panel-2: #eef3f5;
     --line: #d3dde2;
+    --line-strong: #7b99a8;
     --ink: #121c22;
     --ink-dim: #5a6f7a;
-    --accent: #1c7d6d;
+    --accent: #186b5d;
     --accent-ink: #ffffff;
+    /* Darkened from the dark-theme hues so text set in these colors clears
+       4.5:1 on both white cards and the --panel-2 tint; the originals read
+       fine on the dark background but fall to ~2:1 on a light one. */
+    --warn: #8a5c12;
+    --bad: #bf3a22;
+    --good: #2a7550;
   }
 }
 
 * { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
@@ -43,65 +86,187 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-.wrap { max-width: 900px; margin: 0 auto; padding: 16px; }
-.narrow { max-width: 560px; }
+/* A visible focus ring everywhere, once, rather than relying on each
+   browser's own outline (inconsistent, and easy to lose under a rounded
+   border). Mouse/touch clicks don't get the ring; keyboard focus always
+   does. */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.wrap { max-width: var(--container); margin: 0 auto; padding: 0 var(--gutter-mobile); }
+@media (min-width: 768px) { .wrap { padding: 0 var(--gutter); } }
+.narrow { max-width: var(--container-narrow); }
+
+/* ---- top bar --------------------------------------------------------- */
 
 header.site {
-  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
-  padding: 16px; border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 70;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
 }
-header.site h1 { font-size: 18px; margin: 0; letter-spacing: -0.2px; }
-header.site .tagline { color: var(--ink-dim); font-size: 13px; }
-header.site nav { margin-left: auto; display: flex; gap: 14px; font-size: 14px; }
-header.site nav a { color: var(--ink-dim); text-decoration: none; }
-header.site nav a:hover { color: var(--ink); }
+.site-inner {
+  display: flex; align-items: center; gap: var(--sp-md);
+  min-height: var(--header-h);
+  max-width: var(--container); margin: 0 auto;
+  padding: var(--sp-sm) var(--gutter-mobile);
+}
+@media (min-width: 768px) { .site-inner { padding: var(--sp-sm) var(--gutter); } }
+
+.brand { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.brand h1, .brand .tagline { margin: 0; }
+.brand-link { color: inherit; text-decoration: none; }
+.brand-link:hover .brand-name, .brand-link:focus-visible .brand-name { color: var(--accent); }
+.brand-name {
+  display: block; font-size: 17px; font-weight: 700; letter-spacing: -0.2px;
+  color: var(--ink); transition: color var(--dur-fast) var(--ease-out);
+}
+header.site .tagline {
+  color: var(--ink-dim); font-size: 14px; text-wrap: balance;
+}
+
+/* Desktop inline nav; hidden below md, replaced by the hamburger + overlay. */
+.site-nav {
+  display: none; margin-left: auto; align-items: center; gap: var(--sp-lg);
+  font-size: 14px;
+}
+@media (min-width: 768px) { .site-nav { display: flex; } }
+.site-nav a {
+  color: var(--ink-dim); text-decoration: none; padding: var(--sp-sm) 0;
+  border-bottom: 2px solid transparent;
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.site-nav a:hover, .site-nav a:focus-visible { color: var(--ink); }
+.site-nav a[aria-current="page"] { color: var(--ink); border-color: var(--accent); }
+
+/* Hamburger: three lines drawn in CSS, no icon asset, morphing into an X.
+   Hidden at md and up, where the inline nav takes over. */
+.hamburger {
+  display: inline-flex; margin-left: auto; flex-shrink: 0;
+  align-items: center; justify-content: center;
+  width: 44px; height: 44px; padding: 0;
+  background: transparent; border: none; border-radius: var(--radius-sm);
+  color: var(--ink);
+}
+@media (min-width: 768px) { .hamburger { display: none; } }
+.hamburger-box { position: relative; width: 22px; height: 14px; display: block; }
+.hamburger-line {
+  position: absolute; left: 0; width: 100%; height: 2px; border-radius: 2px;
+  background: currentColor;
+  transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
+}
+.hamburger-line:nth-child(1) { top: 0; }
+.hamburger-line:nth-child(2) { top: 6px; }
+.hamburger-line:nth-child(3) { top: 12px; }
+.hamburger[aria-expanded="true"] .hamburger-line:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.hamburger[aria-expanded="true"] .hamburger-line:nth-child(2) { opacity: 0; }
+.hamburger[aria-expanded="true"] .hamburger-line:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* Mobile menu: full-screen overlay on the page background, options centered
+   both ways, one per line. Sits *below* the header in stacking order so the
+   header (and the X inside it) stays visibly fixed in place while it's open. */
+.mobile-menu {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg);
+  opacity: 0; visibility: hidden; transform: translateY(-8px);
+  transition: opacity var(--dur-base) var(--ease-out),
+              transform var(--dur-base) var(--ease-out),
+              visibility 0s linear var(--dur-base);
+}
+.mobile-menu.open {
+  opacity: 1; visibility: visible; transform: translateY(0);
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+.mobile-menu nav {
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-sm);
+  text-align: center; padding: var(--sp-2xl) var(--gutter-mobile);
+  padding-top: calc(var(--header-h) + var(--sp-lg));
+}
+.mobile-menu nav a {
+  display: block; padding: var(--sp-sm) var(--sp-lg); min-height: 44px;
+  font-size: clamp(20px, 15.5px + 1.5vw, 26px); font-weight: 600; line-height: 1.25;
+  color: var(--ink); text-decoration: none; text-wrap: balance;
+}
+.mobile-menu nav a:hover, .mobile-menu nav a:focus-visible { color: var(--accent); }
+@media (min-width: 768px) { .mobile-menu { display: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hamburger-line, .mobile-menu, .dev-panel, .brand-link, .site-nav a { transition: none !important; }
+}
+
+/* ---- headings & text -------------------------------------------------- */
+
+h1, h2, h3 { text-wrap: balance; }
 
 .card {
   background: var(--panel); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: 16px; margin: 0 0 16px;
+  border-radius: var(--radius); padding: var(--sp-md); margin: 0 0 var(--sp-md);
 }
-.card h2 { font-size: 14px; margin: 0 0 12px; text-transform: uppercase;
+@media (min-width: 768px) { .card { padding: var(--sp-lg); } }
+.card h2 { font-size: 14px; margin: 0 0 var(--sp-sm); text-transform: uppercase;
   letter-spacing: 0.08em; color: var(--ink-dim); font-weight: 600; }
 
-.grid { display: grid; gap: 12px; }
+/* Paragraph measure: the container is wide, but a line of prose stretched
+   edge to edge in a 1200px card is hard to read. Cap it independently of
+   layout width; two-column grids are already narrower than this. */
+.card > p, .card .note, .honesty dd { max-width: 68ch; text-wrap: pretty; }
+
+.grid { display: grid; gap: var(--sp-sm); }
 .grid.stats { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
 .grid.two { grid-template-columns: 1fr; }
 @media (min-width: 640px) { .grid.two { grid-template-columns: 1fr 1fr; } }
 
 .stat { background: var(--panel-2); border-radius: var(--radius); padding: 12px; }
 .stat .n { font-size: 26px; font-weight: 650; letter-spacing: -0.5px; }
-.stat .k { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.07em; }
+.stat .k { font-size: 12px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.07em; }
 
-label { display: block; font-size: 13px; color: var(--ink-dim); margin: 0 0 4px; }
+label { display: block; font-size: 14px; color: var(--ink-dim); margin: 0 0 4px; }
 input, select, textarea {
   width: 100%; padding: 12px; font-size: 16px; /* 16px stops iOS zooming on focus */
   background: var(--panel-2); color: var(--ink);
-  border: 1px solid var(--line); border-radius: var(--radius);
+  border: 1px solid var(--line-strong); border-radius: var(--radius);
 }
 .field { margin: 0 0 14px; }
-.row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+.row { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 480px) { .row { grid-template-columns: 1fr 1fr; } }
 
 button {
-  font: inherit; font-weight: 600; cursor: pointer;
+  font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
   padding: 14px 18px; min-height: 48px;  /* a thumb, not a mouse */
-  border-radius: var(--radius); border: 1px solid var(--line);
+  border-radius: var(--radius); border: 1px solid var(--line-strong);
   background: var(--panel-2); color: var(--ink);
+  white-space: nowrap;
+  transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
 }
+button:active { transform: scale(0.98); }
 button.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+
+/* .wide is full-width on a phone, where a thumb-width target beats a
+   floating one -- but left unconstrained it stretches a "Continue" button
+   across a 1200px desktop card, which reads as broken rather than
+   confident. From md up it shrinks back to its content. */
 button.wide { width: 100%; }
+@media (min-width: 768px) {
+  button.wide { width: auto; min-width: 240px; }
+}
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.note { font-size: 13px; color: var(--ink-dim); }
-.sub-head { font-size: 14px; margin: 0 0 6px; font-weight: 650; color: var(--ink); }
+.note { font-size: 16px; color: var(--ink-dim); text-wrap: pretty; }
+.sub-head { font-size: 16px; margin: 0 0 6px; font-weight: 650; color: var(--ink); text-wrap: balance; }
 .card h3 + p { margin-top: 0; }
 .card table th:first-child { width: 26%; }
-.err  { color: var(--bad); font-size: 14px; }
+.err  { color: var(--bad); font-size: 14px; text-wrap: pretty; }
 .ok   { color: var(--good); }
 .warn { color: var(--warn); }
 
 .banner {
   border-radius: var(--radius); padding: 12px 14px; font-size: 14px;
   border: 1px solid var(--line); background: var(--panel-2); margin: 0 0 14px;
+  text-wrap: pretty;
 }
 .banner.bad  { border-color: var(--bad);  color: var(--bad); }
 .banner.warn { border-color: var(--warn); color: var(--warn); }
@@ -117,8 +282,8 @@ th { color: var(--ink-dim); font-weight: 600; font-size: 12px;
 .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 .pill {
-  display: inline-block; padding: 2px 8px; border-radius: 999px;
-  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  display: inline-block; padding: 3px 8px; border-radius: 999px;
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;
   background: var(--panel-2); border: 1px solid var(--line); color: var(--ink-dim);
 }
 .pill.active   { color: var(--good); border-color: var(--good); }
@@ -127,7 +292,7 @@ th { color: var(--ink-dim); font-weight: 600; font-size: 12px;
 .pill.minted   { color: var(--ink-dim); }
 .pill.proven   { color: var(--good); border-color: var(--good); }
 
-.reward { font-size: 34px; font-weight: 700; letter-spacing: -1px; }
+.reward { font-size: 34px; font-weight: 700; letter-spacing: -1px; text-wrap: balance; }
 
 /* The provenance receipt: the thing SCDNR observed people actually come back
    for, so it gets the visual weight rather than the payment confirmation. */
@@ -153,8 +318,8 @@ th { color: var(--ink-dim); font-weight: 600; font-size: 12px;
 
 /* The honesty panel. Every page that makes a claim about what the chain proves
    carries one, and a test scans these pages for claims the chain cannot back. */
-.honesty { font-size: 13px; line-height: 1.6; }
-.honesty dt { font-weight: 650; margin-top: 10px; }
+.honesty { font-size: 14px; line-height: 1.6; }
+.honesty dt { font-weight: 650; margin-top: 10px; text-wrap: balance; }
 .honesty dd { margin: 2px 0 0; color: var(--ink-dim); }
 .honesty .yes::before { content: "✓ "; color: var(--good); }
 .honesty .no::before  { content: "✕ "; color: var(--warn); }
@@ -166,7 +331,7 @@ th { color: var(--ink-dim); font-weight: 600; font-size: 12px;
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
 
-footer { color: var(--ink-dim); font-size: 12px; padding: 24px 16px 40px; text-align: center; }
+footer { color: var(--ink-dim); font-size: 13px; padding: 24px 16px 40px; text-align: center; }
 footer a { color: var(--ink-dim); }
 
 /* ---- the crab's story -------------------------------------------------
@@ -177,11 +342,11 @@ footer a { color: var(--ink-dim); }
 
 .crab-hero { text-align: center; padding: 4px 0 18px; }
 .crab-name {
-  font-size: clamp(28px, 9vw, 44px); font-weight: 750; letter-spacing: -1px;
-  line-height: 1.05; color: var(--ink);
+  font-size: clamp(30px, 22px + 4vw, 48px); font-weight: 750; letter-spacing: -1px;
+  line-height: 1.1; color: var(--ink); text-wrap: balance;
 }
 .crab-name.unnamed { color: var(--ink-dim); font-style: italic; font-weight: 600; }
-.crab-sub { font-size: 13px; color: var(--ink-dim); margin-top: 6px; }
+.crab-sub { font-size: 14px; color: var(--ink-dim); margin-top: 6px; }
 
 /* The journey figures. Big numbers, plain words underneath. */
 .journey { display: grid; gap: 10px; grid-template-columns: repeat(3, 1fr); margin: 0 0 16px; }
@@ -191,8 +356,8 @@ footer a { color: var(--ink-dim); }
   font-size: clamp(20px, 6.5vw, 30px); font-weight: 700;
   letter-spacing: -0.5px; font-variant-numeric: tabular-nums; line-height: 1.1;
 }
-.jstat .u { font-size: 11px; color: var(--ink-dim); margin-top: 3px; }
-.jstat .k { font-size: 10px; color: var(--ink-dim); text-transform: uppercase;
+.jstat .u { font-size: 12px; color: var(--ink-dim); margin-top: 3px; }
+.jstat .k { font-size: 11px; color: var(--ink-dim); text-transform: uppercase;
   letter-spacing: 0.07em; margin-top: 6px; }
 .jstat.hero { grid-column: 1 / -1; background: var(--accent); color: var(--accent-ink); }
 .jstat.hero .u, .jstat.hero .k { color: var(--accent-ink); opacity: 0.85; }
@@ -233,15 +398,15 @@ footer a { color: var(--ink-dim); }
 .tl li.tagged::before { border-color: var(--accent); }
 .tl li.caught::before { border-color: var(--warn); }
 .tl li.now::before { border-color: var(--good); background: var(--good); }
-.tl .when { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.06em; }
-.tl .what { font-size: 14px; margin-top: 2px; }
-.tl .detail { font-size: 12px; color: var(--ink-dim); margin-top: 2px; }
+.tl .when { font-size: 12px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.06em; }
+.tl .what { font-size: 15px; margin-top: 2px; }
+.tl .detail { font-size: 13px; color: var(--ink-dim); margin-top: 2px; }
 
 /* One-line observations that make the numbers mean something. */
 .facts { display: grid; gap: 8px; }
 .fact {
   background: var(--panel-2); border-radius: var(--radius);
-  padding: 10px 12px; font-size: 13px; line-height: 1.45;
+  padding: 10px 12px; font-size: 14px; line-height: 1.5; text-wrap: pretty;
 }
 .fact b { color: var(--ink); }
 
@@ -263,3 +428,54 @@ footer a { color: var(--ink-dim); }
 .script .op  { color: var(--accent); }
 .script .arg { color: var(--warn); }
 .script .cmt { color: var(--ink-dim); }
+
+/* ---- dev-mode mock content trigger ------------------------------------
+   Only ever built by devpanel.js when the server reports network=test or the
+   page is loaded with ?dev=1 -- see that file. Bottom-right FAB; a bottom
+   sheet on mobile, a popover anchored above the button on desktop, per the
+   sheet-vs-popover split used everywhere else in this app. */
+.dev-fab {
+  position: fixed; right: 16px; bottom: 16px; z-index: 90;
+  min-height: 44px; padding: 0 16px;
+  border-radius: 999px; border: 1px solid var(--line-strong);
+  background: var(--panel); color: var(--ink);
+  font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.35);
+}
+.dev-fab::before {
+  content: "\1F41E"; margin-right: 6px; /* a small bug -- this button exists to summon fake ones */
+}
+.dev-panel {
+  position: fixed; z-index: 89;
+  left: 0; right: 0; bottom: 0;
+  max-height: 70svh; overflow-y: auto;
+  background: var(--panel); border: 1px solid var(--line); border-top: 1px solid var(--line);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: var(--sp-md); padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.35);
+  transform: translateY(12px); opacity: 0; visibility: hidden;
+  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out),
+              visibility 0s linear var(--dur-base);
+}
+.dev-panel.open {
+  transform: translateY(0); opacity: 1; visibility: visible;
+  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out);
+}
+@media (min-width: 768px) {
+  .dev-panel {
+    left: auto; right: 16px; bottom: 72px; width: 320px;
+    border-radius: var(--radius-lg); padding-bottom: var(--sp-md);
+  }
+}
+.dev-panel-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--ink-dim); margin-bottom: var(--sp-sm);
+}
+.dev-panel-list { display: grid; gap: 6px; }
+.dev-panel-item {
+  text-align: left; min-height: 40px; padding: 8px 12px;
+  background: var(--panel-2); border: 1px solid var(--line);
+  font-size: 14px; font-weight: 500; white-space: normal;
+}
+.dev-panel-empty { font-size: 13px; color: var(--ink-dim); }
