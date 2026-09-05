@@ -841,6 +841,28 @@ button.btn-icon svg { width: 18px; height: 18px; flex-shrink: 0; }
 .cta-row { display: flex; flex-direction: column; gap: 8px; margin-top: var(--sp-md); }
 @media (min-width: 480px) { .cta-row { flex-direction: row; } .cta-row button { flex: 1; } }
 
+/* The arm form's own cta-row, and only that one -- scoped by #panel-arm
+   rather than a new class, so the mint form's identical-looking pair
+   below is untouched. This is the button pair a field biologist reaches
+   for after every single measurement, on a form long enough (species,
+   tag id, several fields, a position fix) that it can scroll well past
+   the bottom of the screen; pinning it removes the "scroll down, arm,
+   scroll back up for the next one" round trip from what is meant to be
+   the fast, repeated part of the job. Left as normal inline flow at
+   >=480px, the same breakpoint .cta-row itself already switches on,
+   because there the row sits at a natural reading position without a
+   phone's cramped vertical budget forcing the question. */
+@media (max-width: 479px) {
+  #panel-arm .card { padding-bottom: 160px; }
+  #panel-arm .cta-row {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    margin: 0; gap: 8px;
+    background: var(--panel); border-top: 1px solid var(--line);
+    padding: var(--sp-sm) var(--gutter-mobile) calc(var(--sp-sm) + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 16px rgb(20 30 45 / 0.08);
+  }
+}
+
 /* ---- status toasts -------------------------------------------------------
    This app's stand-in for DESIGN.md's "sonner" toasts: there is no React
    here for sonner itself to attach to, so this is the same contract --
@@ -1159,7 +1181,14 @@ footer a { color: var(--ink-dim); }
 .tab-btn[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 .tab-panel[hidden] { display: none; }
 .tab-panel { opacity: 0; transform: translateY(4px); }
-.tab-panel.in { opacity: 1; transform: translateY(0); transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); }
+/* transform: none, not translateY(0) -- a transition can interpolate to
+   "none" exactly as if it were the identity matrix, so the settle motion
+   looks identical, but only an explicit non-none transform value creates
+   a new containing block for a fixed-position descendant. A lingering
+   translateY(0) here was silently turning the arm form's sticky cta-row
+   (position: fixed) into something scoped to this panel instead of the
+   viewport, which defeated the whole point of pinning it. */
+.tab-panel.in { opacity: 1; transform: none; transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); }
 @media (prefers-reduced-motion: reduce) { .tab-panel { transition: none !important; transform: none !important; } }
 
 /* ---- species picker -----------------------------------------------------
