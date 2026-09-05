@@ -25,8 +25,9 @@
   function svg(inner, opts) {
     opts = opts || {};
     const stroke = opts.stroke !== false;
+    const cls = opts.className ? ` class="${opts.className}"` : '';
     return (
-      `<svg viewBox="0 0 20 20" fill="${opts.fill || 'none'}" ${stroke ? 'stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"' : ''} aria-hidden="true">${inner}</svg>`
+      `<svg${cls} viewBox="0 0 20 20" fill="${opts.fill || 'none'}" ${stroke ? 'stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"' : ''} aria-hidden="true">${inner}</svg>`
     );
   }
 
@@ -55,7 +56,11 @@
       `</div>` +
       `<span class="onboard-rise" style="animation-delay:120ms;color:var(--ink-dim);width:20px;height:20px;">${svg('<path d="M4 10h12M11 5l5 5-5 5"/>')}</span>` +
       `<div class="onboard-surface onboard-settle" style="animation-delay:220ms;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--good);">` +
-      `<span style="width:22px;height:22px;color:#fff;">${svg(`<path d="${CHECK_PATH}" stroke-width="2.2"/>`)}</span>` +
+      // draw-mark (see style.css): the circle settles at 220ms + --dur-base
+      // (roughly 470ms all in); the check waits for that rather than
+      // riding along already drawn, so "the scan lands" and "it's good"
+      // read as two beats, not one.
+      `<span style="width:22px;height:22px;color:#fff;">${svg(`<path d="${CHECK_PATH}" stroke-width="2.2" style="animation-delay:470ms"/>`, { className: 'draw-mark' })}</span>` +
       `</div>` +
       `</div>`
     );
@@ -84,10 +89,18 @@
   }
 
   function honestyScene() {
+    // draw-mark (see style.css): each row rises in over --dur-base, so its
+    // own mark -- the check or the cross this row exists to draw attention
+    // to -- waits until that settles before drawing itself, rather than
+    // riding in already formed.
     const row = (ok, delay) =>
       `<div class="onboard-surface onboard-rise" style="animation-delay:${delay}ms;display:flex;align-items:center;gap:8px;padding:9px 12px;">` +
       `<span style="width:16px;height:16px;flex-shrink:0;color:${ok ? 'var(--good)' : 'var(--warn)'};">` +
-      svg(ok ? `<path d="${CHECK_PATH}" stroke-width="2.2"/>` : '<path d="M6 6l8 8M14 6l-8 8" stroke-width="2.2"/>') +
+      svg(
+        (ok ? `<path d="${CHECK_PATH}"` : '<path d="M6 6l8 8M14 6l-8 8"') +
+          ` stroke-width="2.2" style="animation-delay:${delay + 250}ms"/>`,
+        { className: 'draw-mark' }
+      ) +
       `</span>` +
       `<span class="onboard-ghost" style="height:6px;flex:1;"></span>` +
       `</div>`;
@@ -97,7 +110,10 @@
   function readyScene() {
     return (
       `<div class="onboard-surface onboard-settle" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;">` +
-      `<span style="width:28px;height:28px;color:var(--good);">${svg(`<path d="${CHECK_PATH}" stroke-width="2.4"/>`)}</span>` +
+      // draw-mark (see style.css): drawn after the circle's own --dur-base
+      // settle, the same "arrives, then confirmed" beat as everywhere else
+      // this app uses the technique.
+      `<span style="width:28px;height:28px;color:var(--good);">${svg(`<path d="${CHECK_PATH}" stroke-width="2.4" style="animation-delay:250ms"/>`, { className: 'draw-mark' })}</span>` +
       `</div>`
     );
   }

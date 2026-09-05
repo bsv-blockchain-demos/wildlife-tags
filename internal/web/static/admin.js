@@ -778,7 +778,7 @@
       `<svg class="arm-confirm-trace" viewBox="0 0 32 12" aria-hidden="true"><path d="M1 6 H31"/></svg>` +
       `<span class="arm-confirm-badge icon-badge ${tone}">` +
       `<img src="/vendor/animals/${icon}" alt="">` +
-      `<svg class="arm-confirm-tick" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5 8.5 15 16 6"/></svg>` +
+      `<svg class="arm-confirm-tick draw-mark" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5 8.5 15 16 6"/></svg>` +
       `</span>` +
       `<span class="arm-confirm-text">${escHTML(text)}</span>` +
       `</div>`

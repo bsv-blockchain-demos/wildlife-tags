@@ -165,7 +165,13 @@
 
   <div id="paid" class="card hidden" data-no-reveal>
     <div class="paid-badge" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6"/></svg>
+      <!-- The circle's own spring-in is this app's one reserved signature
+           motion (see --dur-slow in style.css); the checkmark inside it
+           still draws rather than just riding along already-formed, so the
+           two read as one continuous "arriving, then confirmed" gesture
+           instead of a badge that happens to have a tick printed on it.
+           See .draw-mark in style.css. -->
+      <svg class="draw-mark" viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6" style="animation-delay:260ms"/></svg>
     </div>
     <h2 data-i18n="paidTitle">Paid</h2>
     <div class="reward" id="paidAmount"></div>

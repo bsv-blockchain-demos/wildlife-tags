@@ -72,7 +72,12 @@
       const icon = document.createElement('span');
       icon.className = 'toast-icon';
       icon.setAttribute('aria-hidden', 'true');
-      icon.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="${iconPath}"/></svg>`;
+      // draw-mark (see style.css): the check or the X draws itself rather
+      // than just appearing inside the circle, a beat after the toast
+      // itself starts sliding in so the two don't compete for the eye.
+      icon.innerHTML =
+        `<svg class="draw-mark" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">` +
+        `<path d="${iconPath}" style="animation-delay:100ms"/></svg>`;
       el.appendChild(icon);
     }
 

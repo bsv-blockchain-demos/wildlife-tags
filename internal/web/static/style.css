@@ -677,14 +677,43 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   border-radius: 50%; background: var(--good); color: #fff; padding: 2px;
   box-shadow: 0 0 0 2px var(--panel-2);
 }
-.arm-confirm-tick path {
-  fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
-  stroke-dasharray: 20; stroke-dashoffset: 20;
-  animation: arm-confirm-draw var(--dur-fast) var(--ease-out) 260ms forwards;
-}
+.arm-confirm-tick path { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+/* Faster and later than .draw-mark's own default: this tick is the last
+   thing in an already-brief flourish (see the comment above), not its own
+   moment, so it neither gets the full --dur-base nor starts until the
+   badge it sits on has finished popping in at 140ms. */
+.arm-confirm-tick.draw-mark path { animation-duration: var(--dur-fast); animation-delay: 260ms; }
 @keyframes arm-confirm-in   { to { opacity: 1; } }
 @keyframes arm-confirm-pop  { to { opacity: 1; transform: scale(1); } }
 @keyframes arm-confirm-draw { to { stroke-dashoffset: 0; } }
+
+/* ---- draw-mark: a confirmation mark that draws itself ------------------
+   The same "certificate" motion language as .arm-confirm above, made
+   reusable: dpp-app/motion's own Tick and Cross primitives exist because a
+   mark that draws via stroke-dashoffset reads as evidence -- the thing was
+   just verified -- where one that pops or fades in reads as decoration.
+   This app draws that exact pair (a check, an X) in enough places --
+   arming a tag, getting paid, every toast, the onboarding walkthrough's own
+   explanation of what is and isn't proven -- that it earns one shared rule
+   rather than five bespoke ones, the same argument dpp-app/motion's own
+   theme.ts makes about colour and timing, applied here to this one motion.
+
+   30 covers every path shape currently drawn under this class with margin
+   to spare (the longest today, the Paid badge's own checkmark, measures
+   about 24 units); a shape that needs more should raise it explicitly
+   rather than silently draw with a visible jump at the end. Per-instance
+   delay is set on the <path> itself via inline style where a caller needs
+   to wait for something else to settle first -- see redeem.html's
+   .paid-badge and onboarding.js's scenes for examples. */
+.draw-mark path {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: draw-mark var(--dur-base) var(--ease-out) both;
+}
+@keyframes draw-mark { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .draw-mark path { animation: none; stroke-dashoffset: 0; }
+}
 @media (prefers-reduced-motion: reduce) {
   .arm-confirm-glyph, .arm-confirm-badge { animation: none; opacity: 1; transform: none; }
   .arm-confirm-trace path, .arm-confirm-tick path { animation: none; stroke-dashoffset: 0; }
