@@ -123,6 +123,10 @@
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 10a6.5 6.5 0 1 1-2-4.7"/><path d="M16.5 3v4h-4"/></svg>
         Waiting to re-arm
       </button>
+      <button type="button" class="tab-btn" role="tab" id="tab-audit" aria-selected="false" aria-controls="panel-audit" data-tab="audit">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3.5h6.5L15 7v9.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"/><path d="M11.5 3.5V7H15"/><path d="M6.5 10h6M6.5 12.5h6M6.5 15h3.5"/></svg>
+        Audit log
+      </button>
     </div>
 
     <!-- Signal and pace, at a glance, on every tab: whether a request made
@@ -270,10 +274,44 @@
           claimed again. That window is the one chance to look at a report before
           the tag becomes claimable, so putting it back is a deliberate act.
         </p>
+        <!-- Selecting rows and re-arming them together, rather than one
+             button press per tag: a busy day can leave a dozen tags sitting
+             here at once, and confirming each individually is exactly the
+             kind of friction a console meant to be used standing up should
+             not add. -->
+        <div class="bulk-bar hidden" id="rearmBulkBar">
+          <span class="note" id="rearmBulkCount"></span>
+          <button type="button" class="btn-icon" id="rearmBulkGo">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 10a6.5 6.5 0 1 1-2-4.7"/><path d="M16.5 3v4h-4"/></svg>
+            Put back selected
+          </button>
+        </div>
         <div class="scroll-x">
           <table>
-            <thead><tr><th>Tag</th><th>Gen</th><th>Holds</th><th></th></tr></thead>
+            <thead><tr><th><input type="checkbox" id="rearmSelectAll" aria-label="Select all"></th><th>Tag</th><th>Gen</th><th>Holds</th><th></th></tr></thead>
             <tbody id="rearms">
+              <tr><td colspan="5"><div class="skel-line cell"></div></td></tr>
+              <tr><td colspan="5"><div class="skel-line cell"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="panel-audit" role="tabpanel" aria-labelledby="tab-audit" hidden>
+      <div class="card">
+        <h2>Audit log</h2>
+        <p class="note">
+          Every administrative action -- signing in, minting a batch, printing a
+          sheet, arming a tag, putting one back in service -- lands here, newest
+          first. This is the record of who did what before any of it ever
+          touches the chain.
+        </p>
+        <div class="scroll-x">
+          <table>
+            <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Detail</th></tr></thead>
+            <tbody id="audit">
+              <tr><td colspan="4"><div class="skel-line cell"></div></td></tr>
               <tr><td colspan="4"><div class="skel-line cell"></div></td></tr>
               <tr><td colspan="4"><div class="skel-line cell"></div></td></tr>
             </tbody>

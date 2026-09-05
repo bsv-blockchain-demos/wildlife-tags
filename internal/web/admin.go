@@ -145,6 +145,25 @@ func (s *Server) handleFunding(w http.ResponseWriter, r *http.Request, _ *store.
 	})
 }
 
+// handleAuditTrail lists recent administrative actions -- signing in,
+// minting a batch, arming a tag, printing a sheet, putting one back in
+// service -- newest first. store.Audit has been writing these all along
+// (see its own doc comment); nothing has ever read them back until now,
+// which meant "who did this and when" lived only in a database column
+// nobody looked at.
+//
+// No filter or pagination: this is meant to be glanced at, not queried, and
+// a fixed limit keeps a slow query from ever being the reason it is slow to
+// load.
+func (s *Server) handleAuditTrail(w http.ResponseWriter, r *http.Request, _ *store.Session) {
+	entries, err := s.svc.Store().AuditTrail(r.Context(), 200)
+	if err != nil {
+		s.writeErr(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"entries": entries})
+}
+
 func (s *Server) handleBatches(w http.ResponseWriter, r *http.Request, _ *store.Session) {
 	batches, err := s.svc.Store().ListBatches(r.Context(), 50)
 	if err != nil {

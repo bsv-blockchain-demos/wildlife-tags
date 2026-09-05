@@ -72,37 +72,46 @@
   <div class="site-inner">
     <div class="brand">
       <h1><a class="brand-link" href="/"><span class="brand-name">SCDNR wildlife tag</span></a></h1>
-      <p class="tagline">report a tagged animal, get paid on the spot</p>
+      <p class="tagline" data-i18n="tagline">report a tagged animal, get paid on the spot</p>
+    </div>
+    <!-- Not a menu, and not a way off this page -- see the comment below on
+         why this page has no <nav>. Just which language the static copy on
+         it reads in; see i18n.js. -->
+    <div class="lang-toggle" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="es" aria-pressed="false">ES</button>
     </div>
   </div>
 </header>
 
 <main class="wrap narrow">
 
-  <div id="loading" class="card">
-    <p><span class="spin"></span> Reading the tag…</p>
+  <div id="loading" class="card" data-no-reveal>
+    <div class="skel-line n" style="width:44%;"></div>
+    <div class="skel-line k" style="width:92%;margin-top:12px;"></div>
+    <div class="skel-line k" style="width:68%;margin-top:8px;"></div>
   </div>
 
   <!-- No secret in the URL fragment: somebody typed or shared the address. -->
   <div id="noSecret" class="card hidden">
-    <h2>This link is missing its tag code</h2>
-    <p class="note">
+    <h2 data-i18n="noSecretTitle">This link is missing its tag code</h2>
+    <p class="note" data-i18n="noSecretBody">
       The QR code on the tag carries a code that this page needs, and it only
       travels when the code is scanned directly. If you typed the address by
       hand, or someone forwarded you the link, scan the tag itself with your
       phone's camera instead.
     </p>
-    <p class="note">Tag <span id="noSecretTag" class="mono"></span></p>
+    <p class="note"><span data-i18n="tagLabel">Tag</span> <span id="noSecretTag" class="mono"></span></p>
   </div>
 
   <div id="tagState" class="card hidden">
-    <h2>Tag <span id="tagDisplay" class="mono"></span></h2>
+    <h2><span data-i18n="tagLabel">Tag</span> <span id="tagDisplay" class="mono"></span></h2>
     <div id="tagStatus"></div>
   </div>
 
   <!-- The report form. -->
   <form id="form" class="card hidden" autocomplete="off">
-    <h2>What did you catch?</h2>
+    <h2 data-i18n="catchTitle">What did you catch?</h2>
 
     <div id="mustRelease" class="banner warn hidden"></div>
 
@@ -114,24 +123,24 @@
     <div id="fields"></div>
 
     <div class="field">
-      <label>Where you caught it</label>
-      <div id="fix" class="banner">Waiting for a position fix…</div>
-      <button type="button" id="locate" class="wide">Use my location</button>
+      <label data-i18n="whereLabel">Where you caught it</label>
+      <div id="fix" class="banner" data-i18n="waitingFix">Waiting for a position fix…</div>
+      <button type="button" id="locate" class="wide" data-i18n="useLocation">Use my location</button>
     </div>
 
     <!-- Naming. Shown only when the crab has none: a name is chosen once, by
          whoever gets there first, and never changed. -->
     <div class="field hidden" id="nameField">
-      <label for="animalname">Name this animal <span class="note">(optional)</span></label>
-      <input id="animalname" type="text" maxlength="24" placeholder="e.g. Old Bertha" autocomplete="off">
-      <p class="note">Nobody has named this one yet, so it is yours to name. The
+      <label for="animalname"><span data-i18n="nameLabel">Name this animal</span> <span class="note" data-i18n="optional">(optional)</span></label>
+      <input id="animalname" type="text" maxlength="24" placeholder="e.g. Old Bertha" data-i18n-placeholder="namePlaceholder" autocomplete="off">
+      <p class="note" data-i18n="nameNote">Nobody has named this one yet, so it is yours to name. The
         name goes on the public record permanently and cannot be changed
         (by you or by anyone else), so pick something you would not mind a
         biologist reading out in ten years.</p>
     </div>
 
     <div id="formErr" class="err"></div>
-    <button type="submit" id="submit" class="primary wide" disabled>Continue</button>
+    <button type="submit" id="submit" class="primary wide" disabled data-i18n="continueBtn">Continue</button>
   </form>
 
   <!-- The payment flow, step by step, because it takes a few seconds and three
@@ -141,27 +150,34 @@
        (see .paid-badge in style.css) -- the generic scroll reveal would
        otherwise start it at opacity 0 and flash it in late. -->
   <div id="pay" class="card hidden" data-no-reveal>
-    <h2>Getting you paid</h2>
+    <h2 data-i18n="payingTitle">Getting you paid</h2>
     <ol class="steps" id="steps">
-      <li data-step="quote">Work out what you're owed</li>
-      <li data-step="attest">Sign your report with your wallet</li>
-      <li data-step="build">Build the payment</li>
-      <li data-step="verify">Check the payment really pays you</li>
-      <li data-step="sign">Unlock the tag</li>
-      <li data-step="receive">Put it in your wallet</li>
+      <li data-step="quote" data-i18n="stepQuote">Work out what you're owed</li>
+      <li data-step="attest" data-i18n="stepAttest">Sign your report with your wallet</li>
+      <li data-step="build" data-i18n="stepBuild">Build the payment</li>
+      <li data-step="verify" data-i18n="stepVerify">Check the payment really pays you</li>
+      <li data-step="sign" data-i18n="stepSign">Unlock the tag</li>
+      <li data-step="receive" data-i18n="stepReceive">Put it in your wallet</li>
     </ol>
     <div id="payErr" class="err"></div>
-    <button type="button" id="retry" class="wide hidden">Try again</button>
+    <button type="button" id="retry" class="wide hidden" data-i18n="tryAgain">Try again</button>
   </div>
 
   <div id="paid" class="card hidden" data-no-reveal>
     <div class="paid-badge" aria-hidden="true">
       <svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6"/></svg>
     </div>
-    <h2>Paid</h2>
+    <h2 data-i18n="paidTitle">Paid</h2>
     <div class="reward" id="paidAmount"></div>
     <p class="note" id="paidNote"></p>
-    <p class="note">Transaction <a id="paidTx" class="mono" target="_blank" rel="noopener"></a></p>
+    <p class="note"><span data-i18n="txLabel">Transaction</span> <a id="paidTx" class="mono" target="_blank" rel="noopener"></a></p>
+    <!-- The OG image on this exact URL was generated for exactly this moment
+         -- see handleRedeemPage -- so sharing it is sharing something that
+         actually looks like something when it lands in a chat. -->
+    <button type="button" id="share" class="wide btn-icon">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v9M6.5 6.5 10 3l3.5 3.5"/><path d="M4 10v5.5A1.5 1.5 0 0 0 5.5 17h9a1.5 1.5 0 0 0 1.5-1.5V10"/></svg>
+      <span data-i18n="shareBtn">Share this animal's story</span>
+    </button>
   </div>
 
   <!-- The animal's story. SCDNR's own account of running a tagging programme is
@@ -180,8 +196,8 @@
       <div id="map" class="map"></div>
       <svg id="track" class="track hidden" viewBox="0 0 600 260" role="img" aria-labelledby="trackTitle"></svg>
       <div id="mapNote" class="note maplegend">
-        <span class="dot tagged"></span> tagged
-        <span class="dot caught"></span> found
+        <span class="dot tagged"></span> <span data-i18n="legendTagged">tagged</span>
+        <span class="dot caught"></span> <span data-i18n="legendFound">found</span>
         <span id="mapAttrib"></span>
       </div>
     </div>
@@ -191,29 +207,29 @@
   </div>
 
   <div class="card">
-    <h2>What this record does and doesn't prove</h2>
+    <h2 data-i18n="honestyTitle">What this record does and doesn't prove</h2>
     <dl class="honesty">
-      <dt class="yes">The time</dt>
-      <dd>Your report is written into a Bitcoin transaction. Once a block
+      <dt class="yes" data-i18n="honestyTimeDt">The time</dt>
+      <dd data-i18n="honestyTimeDd">Your report is written into a Bitcoin transaction. Once a block
         carries it, the record cannot be backdated or altered: not by you, not
         by SCDNR, not by us.</dd>
 
-      <dt class="yes">That you had the tag</dt>
-      <dd>The reward can only be unlocked with the key printed on the tag
+      <dt class="yes" data-i18n="honestyTagDt">That you had the tag</dt>
+      <dd data-i18n="honestyTagDd">The reward can only be unlocked with the key printed on the tag
         itself, so the record can only have come from someone holding it.</dd>
 
-      <dt class="yes">That it pays once</dt>
-      <dd>The reward is a single coin. A second claim on the same tag is a
+      <dt class="yes" data-i18n="honestyOnceDt">That it pays once</dt>
+      <dd data-i18n="honestyOnceDd">The reward is a single coin. A second claim on the same tag is a
         double-spend and simply fails.</dd>
 
-      <dt class="no">Where you were</dt>
-      <dd>The position comes from this phone and is taken on trust. We record
+      <dt class="no" data-i18n="honestyWhereDt">Where you were</dt>
+      <dd data-i18n="honestyWhereDd">The position comes from this phone and is taken on trust. We record
         how accurate the phone claims to be, and we tie the fix to your report
         so it cannot be edited afterwards, but none of that establishes
         where anyone actually stood, and we will not pretend otherwise.</dd>
 
-      <dt class="no">That you released it</dt>
-      <dd>Also taken on trust. The bonus for putting an animal back is held rather
+      <dt class="no" data-i18n="honestyReleaseDt">That you released it</dt>
+      <dd data-i18n="honestyReleaseDd">Also taken on trust. The bonus for putting an animal back is held rather
         than paid, and released to you only if this tag is reported again,
         which is the closest thing to evidence a release can have.</dd>
     </dl>
@@ -223,15 +239,16 @@
 
 <footer>
   <img class="footer-logo" src="/vendor/logos/dnr-logo-white.png" width="20" height="20" alt="South Carolina DNR seal">
-  South Carolina Department of Natural Resources &middot;
-  <a href="/">program dashboard</a> &middot;
-  <a href="/about">about this program</a> &middot;
-  <a href="/api/export.csv">open dataset</a>
+  <span data-i18n="footerOrg">South Carolina Department of Natural Resources</span> &middot;
+  <a href="/" data-i18n="footerDashboard">program dashboard</a> &middot;
+  <a href="/about" data-i18n="footerAbout">about this program</a> &middot;
+  <a href="/api/export.csv" data-i18n="footerDataset">open dataset</a>
 </footer>
 
 <script src="vendor/bsv-sdk.js"></script>
 <script src="vendor/leaflet.js"></script>
 <script src="canonical.js"></script>
+<script src="toast.js"></script>
 <script src="reveal.js"></script>
 <script src="combobox.js"></script>
 <script src="schema.js"></script>
@@ -239,5 +256,6 @@
 <script src="redeem.js"></script>
 <script src="onboarding.js"></script>
 <script src="devpanel.js"></script>
+<script src="i18n.js"></script>
 </body>
 </html>

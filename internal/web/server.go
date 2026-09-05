@@ -111,6 +111,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /api/admin/session", s.requireAdmin(s.handleSession))
 	mux.HandleFunc("GET /api/admin/funding", s.requireAdmin(s.handleFunding))
 	mux.HandleFunc("GET /api/admin/batches", s.requireAdmin(s.handleBatches))
+	mux.HandleFunc("GET /api/admin/audit", s.requireAdmin(s.handleAuditTrail))
 	mux.HandleFunc("POST /api/admin/batches", s.requireAdmin(s.handleMintBatch))
 	mux.HandleFunc("GET /api/admin/tags", s.requireAdmin(s.handleAdminTags))
 	mux.HandleFunc("POST /api/admin/activate/prepare", s.requireAdmin(s.handleActivatePrepare))

@@ -37,6 +37,21 @@
     // profile is the species this tag was armed for, fetched from
     // /api/schema. Every field on the form comes from it.
     profile: null,
+    // walletAvailable is checked once at boot, in parallel with the tag
+    // fetch, so a finder with no compatible wallet learns that before
+    // filling out the whole form -- not at the moment they hit submit,
+    // which is where this used to surface and is the worst possible time
+    // for it.
+    walletAvailable: true,
+    // receipt is set the instant /api/redeem/complete returns. From that
+    // point the payment has already broadcast; see redeem()'s own comment
+    // on why nothing downstream may ever repeat steps 1-5 once this is set.
+    receipt: null,
+    pendingBonusSats: null,
+    // retryGoesToForm/pendingRetry decide what the "Try again" button (and
+    // the automatic retry on reconnect) actually do -- see fail().
+    retryGoesToForm: true,
+    pendingRetry: false,
   };
 
   // ---- tag identity, out of the URL fragment ----------------------------
@@ -83,6 +98,13 @@
 
   const sats = (n) => `${Number(n).toLocaleString()} sats`;
 
+  // t reaches into i18n.js's dictionary for the handful of strings this file
+  // builds itself rather than leaves as static markup (see i18n.js's own
+  // comment on why coverage stops at data-i18n). Guarded rather than assumed
+  // present: i18n.js is the last script on the page, but a page that somehow
+  // loaded without it should still read correctly in English.
+  const t = (key, fallback) => (window.I18n ? window.I18n.t(key) : fallback);
+
   async function api(path, body) {
     const res = await fetch(path, {
       method: body ? 'POST' : 'GET',
@@ -92,6 +114,58 @@
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || `request failed (${res.status})`);
     return data;
+  }
+
+  // isNetworkError distinguishes "the network itself is the problem" from
+  // "the request reached the server and the server said no" -- identical to
+  // admin.js's own isNetworkError, and for the same reason: fetch() rejects
+  // with a TypeError when it cannot reach anything at all, and api() above
+  // throws a plain Error once a request has actually completed. The
+  // distinction decides whether a failed step retries itself once there is
+  // a signal, or sits there asking a person to look at it.
+  const isNetworkError = (e) => e instanceof TypeError;
+
+  // ---- resuming an interrupted payment -----------------------------------
+  //
+  // /api/redeem/complete broadcasts the payment. Once that call returns, the
+  // reward has moved on chain no matter what happens next -- so the receipt
+  // is written here, to disk, before the wallet handoff (step 6) is even
+  // attempted. If that handoff fails, or the tab is closed before it
+  // finishes, the next visit to this exact tag resumes at the one step left
+  // instead of asking an already-redeemed tag for a fresh quote, which the
+  // server would refuse in a way that reads as "something is wrong" to
+  // someone who has, in fact, already been paid.
+  const PENDING_KEY = 'wildtag.pendingReceipt.v1';
+  const PENDING_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+  function persistPendingReceipt(tagID, receipt, bonusSats) {
+    try {
+      localStorage.setItem(PENDING_KEY, JSON.stringify({ tagID, receipt, bonusSats, at: Date.now() }));
+    } catch (_) {
+      // Private window, or storage blocked. The in-memory state.receipt still
+      // covers this page load; only a reload before the handoff finishes
+      // would be unrecoverable, and that was already true before this existed.
+    }
+  }
+  function readPendingReceipt(tagID) {
+    try {
+      const raw = JSON.parse(localStorage.getItem(PENDING_KEY) || 'null');
+      if (!raw || raw.tagID !== tagID) return null;
+      // Past a day, whatever happened has almost certainly already been
+      // resolved one way or another (or needs a person, not a silent
+      // auto-resume) -- stale entries are dropped rather than replayed.
+      if (Date.now() - raw.at > PENDING_MAX_AGE_MS) return null;
+      return raw;
+    } catch (_) {
+      return null;
+    }
+  }
+  function clearPendingReceipt() {
+    try {
+      localStorage.removeItem(PENDING_KEY);
+    } catch (_) {
+      /* as above */
+    }
   }
 
   function step(name, cls) {
@@ -121,6 +195,14 @@
     state.secret = secret;
     state.tagKey = tagKeyFrom(secret);
 
+    // Kicked off now, in parallel with the tag fetch, rather than waited on
+    // at the moment of submission: "there is no wallet here" used to surface
+    // only after a finder had already filled in every field, which is the
+    // single worst place to learn it. availability() never rejects on its
+    // own, but the catch is cheap insurance against a provider that does.
+    const walletCheck = window.Wallet.available().catch(() => false);
+    const pending = readPendingReceipt(state.tagID);
+
     try {
       state.info = await api(`/api/tag/${encodeURIComponent(state.tagID)}`);
     } catch (e) {
@@ -142,6 +224,8 @@
       return;
     }
 
+    state.walletAvailable = await walletCheck;
+
     $('loading').classList.add('hidden');
     // Naming is offered only when nobody has done it, and only while the tag is
     // still claimable -- offering it on a retired tag would be a dead end.
@@ -150,6 +234,19 @@
     buildForm();
     renderTag();
     renderProvenance(state.info.provenance);
+
+    // A previous visit got as far as broadcasting the payment and never
+    // finished handing it to the wallet. Resume there directly: showing the
+    // form again would let the tag be "reported" a second time, which the
+    // server will now refuse since it is no longer active, and that refusal
+    // would read as a failure to someone who has, in fact, already been paid.
+    if (pending) {
+      state.receipt = pending.receipt;
+      state.pendingBonusSats = pending.bonusSats;
+      $('form').classList.add('hidden');
+      $('pay').classList.remove('hidden');
+      attemptRedeem();
+    }
   }
 
   // buildForm renders the profile's fields and wires them up.
@@ -175,7 +272,8 @@
         status.innerHTML =
           `<p>This tag is live. Reporting it pays <strong>${sats(state.info.base_satoshis)}</strong>` +
           `, and putting the ${animal()} back with the tag on is worth ` +
-          `<strong>${sats(state.info.bonus_satoshis)}</strong> more.</p>`;
+          `<strong>${sats(state.info.bonus_satoshis)}</strong> more.</p>` +
+          (state.walletAvailable ? '' : noWalletBannerHTML());
         $('form').classList.remove('hidden');
         break;
       case 'cooldown':
@@ -198,17 +296,55 @@
     }
   }
 
+  // noWalletBannerHTML is shown up front, above the form, rather than
+  // waiting until submit to say so -- which is where this notice used to
+  // live, as a single line inside redeem()'s own thrown error, discovered
+  // only after a finder had already filled in every field. It does not
+  // block filling the form in now: a finder might open a compatible wallet
+  // mid-visit, or share the link to finish on another device, and either way
+  // redeem() checks again for real at the moment it matters.
+  function noWalletBannerHTML() {
+    const title = t('noWalletTitle', 'No compatible wallet detected on this device.');
+    const body = t(
+      'noWalletBody',
+      'Collecting the reward needs a BRC-100 wallet open in this browser tab -- the BSV Browser app ' +
+        'on a phone, or a desktop wallet running locally. You can still fill this in now; it will be ' +
+        'checked again when you submit.'
+    );
+    return `<div class="banner warn"><strong>${title}</strong> ${body}</div>`;
+  }
+
   // ---- the form ---------------------------------------------------------
 
   function wireForm() {
     $('locate').addEventListener('click', locate);
     $('form').addEventListener('submit', onSubmit);
     $('animalname').addEventListener('input', checkRules);
+    $('share').addEventListener('click', share);
+    // What "Try again" does depends on why the last attempt stopped -- see
+    // fail(). A real failure sends a finder back to the form, in case
+    // something needs fixing; a dropped signal has nothing to fix, so it
+    // just retries the network call directly.
     $('retry').addEventListener('click', () => {
-      $('pay').classList.add('hidden');
       $('payErr').textContent = '';
       $('retry').classList.add('hidden');
-      $('form').classList.remove('hidden');
+      state.pendingRetry = false;
+      if (state.retryGoesToForm) {
+        $('pay').classList.add('hidden');
+        $('form').classList.remove('hidden');
+      } else {
+        attemptRedeem();
+      }
+    });
+    // The marsh case: signal comes back on its own, and a finder should not
+    // have to notice and tap a button for that -- see admin.js's identical
+    // reasoning for its own offline queue.
+    window.addEventListener('online', () => {
+      if (!state.pendingRetry) return;
+      state.pendingRetry = false;
+      $('payErr').textContent = '';
+      $('retry').classList.add('hidden');
+      attemptRedeem();
     });
   }
 
@@ -314,11 +450,28 @@
     $('pay').classList.remove('hidden');
     $('payErr').textContent = '';
     $('retry').classList.add('hidden');
+    await attemptRedeem();
+  }
 
+  // attemptRedeem is the one place redeem() is ever called from, so a
+  // dropped signal and a real failure are always sorted the same way
+  // regardless of whether this is the first attempt, a tap on "Try again",
+  // or an automatic retry once the network comes back.
+  async function attemptRedeem() {
     try {
       await redeem();
     } catch (e) {
-      fail(e.message);
+      const network = isNetworkError(e);
+      state.retryGoesToForm = !network;
+      state.pendingRetry = network;
+      fail(
+        network
+          ? t(
+              'networkRetry',
+              'No signal right now. Nothing has been lost -- this will retry automatically the moment you have one, or tap Try again.'
+            )
+          : e.message
+      );
     }
   }
 
@@ -327,8 +480,27 @@
   async function redeem() {
     if (!(await window.Wallet.available())) {
       throw new Error(
-        'No BSV wallet found on this device. Open this page in BSV Browser to collect the reward.'
+        t('noWalletSubmitError', 'No BSV wallet found on this device. Open this page in BSV Browser to collect the reward.')
       );
+    }
+
+    // A previous attempt on this device already got as far as step 5 below
+    // and only failed handing the payment to the wallet -- a local step, not
+    // a network one. The reward has already moved at that point (see
+    // persistPendingReceipt's comment), so resume there directly rather than
+    // repeating steps that would now fail against an already-redeemed tag.
+    if (state.receipt) {
+      step('quote', 'done');
+      step('attest', 'done');
+      step('build', 'done');
+      step('verify', 'done');
+      step('sign', 'done');
+      step('receive', 'doing');
+      await internalizeReceipt(state.receipt);
+      step('receive', 'done');
+      clearPendingReceipt();
+      showPaid(state.receipt, state.pendingBonusSats);
+      return;
     }
 
     // 1. What are we owed, and what exactly does the wallet sign?
@@ -383,17 +555,34 @@
     await verifyPayout(tx, draft);
     step('verify', 'done');
 
-    // 5. Unlock the tag with the key printed on it.
+    // 5. Unlock the tag with the key printed on it, and broadcast. Once this
+    //    call returns, the payment has moved on chain no matter what happens
+    //    next -- so the receipt is cached, in memory and on disk, before the
+    //    wallet handoff below is even attempted. See persistPendingReceipt.
     step('sign', 'doing');
     const tagSig = signTagInput(tx, draft.input_index);
     const receipt = await api('/api/redeem/complete', {
       reference: draft.reference,
       tag_sig: bytesToHex(tagSig),
     });
+    state.receipt = receipt;
+    state.pendingBonusSats = quote.bonus_satoshis;
+    persistPendingReceipt(canonicalTagID, receipt, quote.bonus_satoshis);
     step('sign', 'done');
 
     // 6. Hand the payment to the finder's wallet so it shows in their balance.
     step('receive', 'doing');
+    await internalizeReceipt(receipt);
+    step('receive', 'done');
+    clearPendingReceipt();
+
+    showPaid(receipt, quote.bonus_satoshis);
+  }
+
+  // internalizeReceipt is the one place step 6 happens, so both the normal
+  // path and the resume-after-interruption path above hand the payment to
+  // the wallet exactly the same way.
+  async function internalizeReceipt(receipt) {
     await window.Wallet.internalizeAction({
       tx: hexToBytes(receipt.atomic_beef),
       outputIndex: receipt.payout_index,
@@ -402,9 +591,6 @@
       senderIdentityKey: receipt.sender_identity_key,
       description: `SCDNR wildlife tag ${state.tagID}`,
     });
-    step('receive', 'done');
-
-    showPaid(receipt);
   }
 
   // verifyPayout is the reason this page signs in the browser at all.
@@ -493,7 +679,11 @@
     return new Uint8Array(new TransactionSignature(raw.r, raw.s, scope).toChecksigFormat());
   }
 
-  function showPaid(receipt) {
+  // showPaid takes bonusSats explicitly rather than reading state.quote
+  // itself, because a payment resumed after a reload (see redeem()'s
+  // state.receipt branch) never ran the quote step this session -- the
+  // number has to come from wherever the caller actually has it.
+  function showPaid(receipt, bonusSats) {
     $('pay').classList.add('hidden');
     $('paid').classList.remove('hidden');
     $('paidAmount').textContent = sats(receipt.payout_satoshis);
@@ -505,11 +695,45 @@
     }
     $('paidNote').textContent = receipt.retired
       ? 'This tag is now retired. Thank you for reporting it.'
-      : `Your ${sats(state.quote.bonus_satoshis)} bonus is held until this ${animal()} is caught again. ` +
-        'If it is, you get paid automatically: no need to come back.';
+      : bonusSats != null
+        ? `Your ${sats(bonusSats)} bonus is held until this ${animal()} is caught again. ` +
+          'If it is, you get paid automatically: no need to come back.'
+        : `Your bonus is held until this ${animal()} is caught again. If it is, you get paid automatically: no need to come back.`;
     const link = $('paidTx');
     link.textContent = receipt.txid;
     link.href = `${(state.info && state.info.arcade_url) || ''}/tx/${receipt.txid}`;
+  }
+
+  // ---- sharing ------------------------------------------------------------
+  //
+  // This page's whole reason to generate an OG image per tag (see
+  // handleRedeemPage) was so a link to it looks like something worth
+  // opening when shared -- and until now there was no way to actually share
+  // one from here short of copying the address bar by hand. The link shared
+  // is this exact page, secret fragment and all: the fragment never reaches
+  // the server (see readFragment), so it is what makes the link open this
+  // animal's story for whoever it is sent to rather than a dead end asking
+  // for a tag code nobody but the finder has.
+  async function share() {
+    const url = location.href;
+    const name = state.info && state.info.provenance && state.info.provenance.name;
+    const title = name ? `${name} · SCDNR wildlife tag` : 'SCDNR wildlife tag';
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+      } catch (e) {
+        // AbortError is the person closing the share sheet without picking
+        // anything -- not a failure worth telling them about.
+        if (e.name !== 'AbortError' && window.Toast) window.Toast.error('Could not open the share sheet.');
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      if (window.Toast) window.Toast.success('Link copied.');
+    } catch (e) {
+      if (window.Toast) window.Toast.error('Could not copy the link.');
+    }
   }
 
   // ---- the animal's story ----------------------------------------------
@@ -798,6 +1022,11 @@
     $('payErr').textContent = '';
     $('retry').classList.add('hidden');
     document.querySelectorAll('#steps li').forEach((li) => li.classList.remove('doing', 'done'));
+    state.receipt = null;
+    state.pendingBonusSats = null;
+    state.retryGoesToForm = true;
+    state.pendingRetry = false;
+    state.walletAvailable = true;
   }
 
   // baseProvenance is a crab tagged 214 days ago near Charleston, with no
@@ -946,12 +1175,30 @@
       // showPaid() only touches #pay/#paid, exactly like the real flow where
       // onSubmit() has already hidden #form by the time it runs.
       $('form').classList.add('hidden');
-      state.quote = { bonus_satoshis: 15000 };
-      showPaid({
-        payout_satoshis: 5000,
-        retired: false,
-        txid: '4f3c9e8a1b2d5f60718293a4b5c6d7e8f9012345678901234567890abcdef01',
-      });
+      showPaid(
+        {
+          payout_satoshis: 5000,
+          retired: false,
+          txid: '4f3c9e8a1b2d5f60718293a4b5c6d7e8f9012345678901234567890abcdef01',
+        },
+        15000
+      );
+    },
+    'No wallet on this device': async () => {
+      await mockBoot('active', baseProvenance());
+      state.walletAvailable = false;
+      renderTag();
+    },
+    'Payment: dropped signal (auto-retries)': async () => {
+      await mockBoot('active', baseProvenance());
+      $('form').classList.add('hidden');
+      $('pay').classList.remove('hidden');
+      step('quote', 'done');
+      step('attest', 'done');
+      step('build', 'doing');
+      state.retryGoesToForm = false;
+      state.pendingRetry = true;
+      fail('No signal right now. Nothing has been lost -- this will retry automatically the moment you have one, or tap Try again.');
     },
   };
 

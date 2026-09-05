@@ -44,7 +44,18 @@
   const QUEUE_KEY = 'wildtag.armqueue.v1';
   const IDENTITY_CACHE_KEY = 'wildtag.lastIdentity';
 
-  const state = { info: null, fix: null, fixAt: 0, session: null, profile: null, watchId: null, armedCount: 0 };
+  const state = {
+    info: null,
+    fix: null,
+    fixAt: 0,
+    session: null,
+    profile: null,
+    watchId: null,
+    armedCount: 0,
+    // rearmSelected is a Set of tag ids checked in the "waiting to re-arm"
+    // table -- see the bulk-select bar built around it below.
+    rearmSelected: new Set(),
+  };
 
   async function api(path, body) {
     const res = await fetch(path, {
@@ -205,7 +216,7 @@
   }
 
   async function refresh() {
-    await Promise.all([loadFunding(), loadBatches(), loadRearms()]);
+    await Promise.all([loadFunding(), loadBatches(), loadRearms(), loadAuditTrail()]);
   }
 
   // ---- signal and pace -----------------------------------------------------
@@ -918,19 +929,27 @@
   // ---- re-arming --------------------------------------------------------
 
   async function loadRearms() {
+    // Whatever was checked belonged to the previous render's rows; a fresh
+    // load starts clean rather than carrying stale ids nothing on screen
+    // still refers to.
+    state.rearmSelected.clear();
+    renderRearmBulkBar();
+    const selectAll = $('rearmSelectAll');
+    if (selectAll) selectAll.checked = false;
     try {
       const data = await api('/api/admin/tags?status=cooldown&limit=200');
       const rows = (data.tags || []).map(
         (t) =>
-          `<tr><td class="mono">${t.display}</td><td class="tabular">${t.generation}</td>` +
+          `<tr><td><input type="checkbox" class="rearm-check" data-id="${t.tag_id}" aria-label="Select tag ${t.display}"></td>` +
+          `<td class="mono">${t.display}</td><td class="tabular">${t.generation}</td>` +
           `<td class="tabular">${num(t.satoshis)} sats</td>` +
           `<td><button class="btn-icon" data-rearm="${t.tag_id}">${REARM_ICON}put back</button></td></tr>`
       );
       $('rearms').innerHTML = rows.length
         ? rows.join('')
-        : emptyRow(4, 'Nothing is waiting.');
+        : emptyRow(5, 'Nothing is waiting.');
     } catch (e) {
-      $('rearms').innerHTML = `<tr><td colspan="4" class="err">${e.message}</td></tr>`;
+      $('rearms').innerHTML = `<tr><td colspan="5" class="err">${e.message}</td></tr>`;
     }
   }
 
@@ -947,6 +966,68 @@
       // reloading the page -- report it and hand the row back.
       window.Toast.error(`Could not put ${display} back in service: ${e.message}`);
       button.disabled = false;
+    }
+  }
+
+  // ---- bulk re-arm --------------------------------------------------------
+
+  function renderRearmBulkBar() {
+    const bar = $('rearmBulkBar');
+    if (!bar) return;
+    const n = state.rearmSelected.size;
+    bar.classList.toggle('hidden', n === 0);
+    $('rearmBulkCount').textContent = n ? `${n} selected` : '';
+  }
+
+  // bulkRearm sends the same single-tag request loadRearms()'s individual
+  // buttons already use, one at a time rather than in parallel -- a burst of
+  // simultaneous re-arms is exactly the kind of load spike a console meant
+  // to be reached for from a boat with one bar of signal should not create
+  // -- and reports one summary rather than one toast per tag.
+  async function bulkRearm(ids) {
+    const btn = $('rearmBulkGo');
+    if (btn) btn.disabled = true;
+    let ok = 0;
+    const failures = [];
+    for (const id of ids) {
+      try {
+        await api('/api/admin/rearm', { tag_id: id });
+        ok++;
+      } catch (e) {
+        failures.push(e.message);
+      }
+    }
+    await loadRearms();
+    if (btn) btn.disabled = false;
+    if (failures.length === 0) {
+      window.Toast.success(`Put ${ok} tag${ok === 1 ? '' : 's'} back in service.`);
+    } else if (ok === 0) {
+      window.Toast.error(`Could not put any tags back in service: ${failures[0]}`);
+    } else {
+      window.Toast.error(`Put ${ok} back in service; ${failures.length} failed. First error: ${failures[0]}`);
+    }
+  }
+
+  // ---- audit trail --------------------------------------------------------
+
+  // actorLabel mid-truncates an identity key the same way the "signed in
+  // as" line does, but leaves the password-login actor's literal name alone
+  // -- "operator" mid-truncated would just be confusing.
+  const actorLabel = (a) => (a === 'operator' ? 'operator' : midTruncate(a));
+
+  async function loadAuditTrail() {
+    try {
+      const data = await api('/api/admin/audit');
+      const rows = (data.entries || []).map(
+        (e) =>
+          `<tr><td class="note">${new Date(e.At).toLocaleString()}</td>` +
+          `<td class="mono">${escHTML(actorLabel(e.Actor))}</td>` +
+          `<td>${escHTML(e.Action)}</td>` +
+          `<td class="note">${escHTML(e.Detail || '')}</td></tr>`
+      );
+      $('audit').innerHTML = rows.length ? rows.join('') : emptyRow(4, 'Nothing recorded yet.');
+    } catch (e) {
+      $('audit').innerHTML = `<tr><td colspan="4" class="err">${e.message}</td></tr>`;
     }
   }
 
@@ -985,6 +1066,26 @@
       // carries the data attribute.
       const button = e.target.closest && e.target.closest('[data-rearm]');
       if (button) rearm(button.getAttribute('data-rearm'), button);
+    });
+    $('rearms').addEventListener('change', (e) => {
+      const cb = e.target.closest && e.target.closest('.rearm-check');
+      if (!cb) return;
+      if (cb.checked) state.rearmSelected.add(cb.dataset.id);
+      else state.rearmSelected.delete(cb.dataset.id);
+      renderRearmBulkBar();
+    });
+    $('rearmSelectAll').addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      document.querySelectorAll('#rearms .rearm-check').forEach((cb) => {
+        cb.checked = checked;
+        if (checked) state.rearmSelected.add(cb.dataset.id);
+        else state.rearmSelected.delete(cb.dataset.id);
+      });
+      renderRearmBulkBar();
+    });
+    $('rearmBulkGo').addEventListener('click', () => {
+      const ids = Array.from(state.rearmSelected);
+      if (ids.length) bulkRearm(ids);
     });
     $('armQueue').addEventListener('click', (e) => {
       const discard = e.target.getAttribute && e.target.getAttribute('data-discard');
@@ -1039,8 +1140,27 @@
       ['B7X-4RT', 1, '5,000 sats'],
     ];
     $('rearms').innerHTML = rows.map(([id, gen, sats]) =>
-      `<tr><td class="mono">${id}</td><td class="tabular">${gen}</td>` +
+      `<tr><td><input type="checkbox" class="rearm-check" data-id="${id}" aria-label="Select tag ${id}"></td>` +
+      `<td class="mono">${id}</td><td class="tabular">${gen}</td>` +
       `<td class="tabular">${sats}</td><td><button class="btn-icon" data-rearm="${id}">${REARM_ICON}put back</button></td></tr>`).join('');
+  }
+
+  function mockAudit() {
+    const now = Date.now();
+    const rows = [
+      [now - 2 * 60000, '02a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', 'tag.activate', 'K2M-9Q7 · Atlantic blue crab'],
+      [now - 40 * 60000, 'operator', 'batch.print', 'B20260901-AD87F5'],
+      [now - 3 * 3600000, 'operator', 'batch.mint', '50 tags · Atlantic blue crab'],
+      [now - 26 * 3600000, '02a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', 'tag.rearm', 'B7X-4RT'],
+    ];
+    $('audit').innerHTML = rows
+      .map(
+        ([at, actor, action, detail]) =>
+          `<tr><td class="note">${new Date(at).toLocaleString()}</td>` +
+          `<td class="mono">${escHTML(actorLabel(actor))}</td><td>${escHTML(action)}</td>` +
+          `<td class="note">${escHTML(detail)}</td></tr>`
+      )
+      .join('');
   }
 
   // Shows the signed-in shell without showConsole()'s call to refresh(),
@@ -1070,12 +1190,14 @@
       mockFunding();
       mockBatches();
       mockRearms();
+      mockAudit();
     },
     'Signed in: operator (password)': () => {
       mockShowConsole('operator');
       mockFunding();
       mockBatches();
       mockRearms();
+      mockAudit();
     },
     'Arm: success banner': () => {
       $('armBanner').className = 'banner good';

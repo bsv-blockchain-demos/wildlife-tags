@@ -250,6 +250,23 @@ header.site .tagline { color: var(--ink-dim); font-size: 14px; text-wrap: balanc
 :root[data-theme="dark"] .theme-toggle .icon-moon,
 :root[data-theme="system"] .theme-toggle .icon-moon { display: block; }
 
+/* The redeem page's language switcher. It sits where a nav would on any
+   other page, but this page deliberately has none (see its own comment on
+   why), so this is the one control in the header and it stays put on
+   mobile rather than hiding above 768px the way .theme-toggle does. */
+.lang-toggle {
+  display: inline-flex; gap: 2px; margin-left: auto; flex-shrink: 0;
+  padding: 2px; border-radius: var(--radius-full); background: var(--panel-2);
+}
+.lang-toggle button {
+  min-height: 0; padding: 6px 10px; border: none; border-radius: var(--radius-full);
+  background: transparent; color: var(--ink-dim);
+  font: inherit; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+}
+.lang-toggle button[aria-pressed="true"] { background: var(--panel); color: var(--ink); }
+.lang-toggle button:hover, .lang-toggle button:focus-visible { color: var(--ink); }
+
 /* Hamburger: three lines drawn in CSS, no icon asset, morphing into an X. */
 .hamburger {
   display: inline-flex; margin-left: auto; flex-shrink: 0;
@@ -666,6 +683,16 @@ button.btn-icon svg { width: 18px; height: 18px; flex-shrink: 0; }
 .queue-actions { display: flex; gap: 6px; flex-shrink: 0; }
 .queue-actions button { padding: 8px 12px; min-height: 36px; font-size: 13px; }
 .err-inline { color: var(--bad); }
+
+/* The rearm table's bulk-select bar -- same shape as .queue-item above
+   (a row with a status on the left and an action on the right), shown only
+   once something is actually selected. */
+.bulk-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: var(--sp-sm); padding: 10px 12px;
+  border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel-2);
+}
+.bulk-bar button { padding: 8px 12px; min-height: 36px; font-size: 13px; }
 
 /* ---- confirm-before-arm: a review, not another form --------------------- */
 .modal-scrim {
