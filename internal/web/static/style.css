@@ -137,6 +137,15 @@ body {
   -webkit-text-size-adjust: 100%;
   padding-bottom: env(safe-area-inset-bottom);
   transition: background-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+  /* A nested overflow-x:auto strip (the admin tabbar, a .scroll-x table)
+     clips and scrolls its own content correctly on its own, but an
+     un-scrolled child sitting past its container's edge still counts
+     toward *this* element's own scrollable area unless something stops
+     it -- which on a narrow phone meant the whole page could be dragged
+     sideways by up to a tab's width, not just the tabbar itself. This is
+     the stop: nothing here is meant to scroll horizontally except the
+     handful of elements that opt into it deliberately. */
+  overflow-x: hidden;
 }
 
 /* Lake Jocassee behind everything, tinted back to this theme's own --bg so
@@ -326,7 +335,7 @@ header.site .tagline { color: var(--ink-dim); font-size: 14px; text-wrap: balanc
 .mobile-theme-row {
   display: flex; align-items: center; justify-content: space-between; gap: var(--sp-md);
   width: 100%; max-width: 320px; margin-top: var(--sp-xl);
-  padding: var(--sp-md) var(--sp-lg);
+  padding: var(--sp-md) var(--sp-lg); cursor: pointer;
   background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
 }
 .mobile-theme-row span { font-family: var(--font-body); font-size: 15px; font-weight: 500; color: var(--ink); }

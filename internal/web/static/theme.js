@@ -50,5 +50,18 @@
     document.querySelectorAll('[data-theme-toggle]').forEach((el) => {
       el.addEventListener('click', toggle);
     });
+    // The mobile menu's switch is a small, precise 48x28 target sitting
+    // inside a row that visually reads as one tappable settings item (a
+    // background, a border, a label right next to it) -- see
+    // .mobile-theme-row. This extends the tap area to match that read:
+    // a tap anywhere on the row toggles, except on the switch itself,
+    // which already has its own listener above and would otherwise fire
+    // this twice.
+    document.querySelectorAll('.mobile-theme-row').forEach((row) => {
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('[data-theme-toggle]')) return;
+        toggle();
+      });
+    });
   });
 })();
