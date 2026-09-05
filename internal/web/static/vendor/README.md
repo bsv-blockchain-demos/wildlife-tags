@@ -90,3 +90,13 @@ only on a browser that needs it, so a biologist who never taps "Scan" never
 pays for it. Fetched from `https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js`
 with the jsDelivr banner comment and its source-map reference stripped (we do
 not vendor the map).
+
+## logos/
+
+The South Carolina DNR's own seal, fetched from `dnr.sc.gov/assets/logos/` --
+`dnr-logo-white.png` (`DNR_White.png`, a flat white silhouette, used in every
+page's footer) and `dnr-logo-color.png` (`DNR_Color.png`, the full-color
+seal, resized to 200x200 and used as the center of the orbiting-icons visual
+on `/about`). Both keep their original alpha channel: the color seal is
+already circular with a transparent surround, so it needs no backing shape
+of its own to sit cleanly on a gradient.
