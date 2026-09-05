@@ -131,12 +131,37 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  background: var(--bg);
+  background-color: var(--bg);
   color: var(--ink);
   font: 16px/1.55 var(--font-body);
   -webkit-text-size-adjust: 100%;
   padding-bottom: env(safe-area-inset-bottom);
   transition: background-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+}
+
+/* Lake Jocassee behind everything, tinted back to this theme's own --bg so
+   it reads as texture, not a competing hero image -- see the credit at the
+   foot of /about for the photo itself. color-mix against transparent
+   rather than a fixed rgba(): the tint has to be exactly --bg's color at
+   partial strength in both themes, and --bg is a token, not a constant.
+
+   A fixed, viewport-sized pseudo-element rather than body's own
+   background-image: "cover" on a plain background sizes against the
+   element's own box, and body is as tall as the page, so on anything
+   longer than one screen the photo would be blown up to cover thousands
+   of scroll pixels instead of the viewport. background-attachment: fixed
+   would fix that sizing problem but is unreliable on mobile Safari and
+   repaints on every scroll frame where it does work; a position: fixed
+   element sidesteps both. */
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: -1;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--bg) 82%, transparent), color-mix(in srgb, var(--bg) 82%, transparent)),
+    url('/vendor/photos/jocassee-lake.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 :focus { outline: none; }
@@ -936,6 +961,8 @@ th { color: var(--ink-dim); font-weight: 700; font-size: 12px;
 
 footer { color: var(--ink-dim); font-size: 13px; padding: 24px 16px 40px; text-align: center; }
 footer a { color: var(--ink-dim); }
+.photo-credit { margin: 10px 0 0; font-size: 12px; opacity: 0.8; }
+.photo-credit [data-photo-credit] { font-style: italic; }
 /* The seal ships white (for a dark badge); light mode's footer is on a pale
    background, so it's inverted to read as ink instead of vanishing. */
 .footer-logo { width: 20px; height: 20px; vertical-align: -5px; margin-right: 6px; filter: invert(1); }
