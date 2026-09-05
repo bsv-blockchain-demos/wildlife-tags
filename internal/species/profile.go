@@ -44,8 +44,15 @@ type Measure struct {
 	Required bool   `json:"required"`
 	// TaggingOnly marks a field a tagger records and a finder is not asked
 	// for. See the note on Vocab.TaggingOnly.
-	TaggingOnly bool   `json:"tagging_only,omitempty"`
-	Help        string `json:"help,omitempty"`
+	TaggingOnly bool `json:"tagging_only,omitempty"`
+	// Sticky marks a value that describes the place and moment, not the
+	// animal: a water temperature or salinity reading is the same for
+	// every crab pulled from one trap haul. The console carries a sticky
+	// value forward from one tagging to the next rather than clearing it,
+	// so a biologist tagging a dozen animals off one haul types it once.
+	// A per-animal measurement like carapace width is never sticky.
+	Sticky bool   `json:"sticky,omitempty"`
+	Help   string `json:"help,omitempty"`
 }
 
 // VocabValue is one allowed answer.
@@ -70,8 +77,12 @@ type Vocab struct {
 	// never gets filed, which costs the programme the data point it exists for.
 	//
 	// The field is still accepted on a report if it is offered.
-	TaggingOnly bool   `json:"tagging_only,omitempty"`
-	Help        string `json:"help,omitempty"`
+	TaggingOnly bool `json:"tagging_only,omitempty"`
+	// Sticky: see Measure.Sticky. Gear is the usual case for a vocabulary --
+	// a trap haul is pulled with one kind of gear, not a different one per
+	// crab.
+	Sticky bool   `json:"sticky,omitempty"`
+	Help   string `json:"help,omitempty"`
 }
 
 // Label returns the human form of a code, or the code itself if unknown.

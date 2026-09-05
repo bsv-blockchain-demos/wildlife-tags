@@ -480,6 +480,109 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .banner.warn { border-color: var(--warn); color: var(--warn); }
 .banner.good { border-color: var(--good); color: var(--good); }
 
+/* ---- field console: status row, sticky fields, scan, queue -------------- */
+
+/* Signal and pace, shown on every tab of the console (see admin.html). */
+.console-status { display: flex; align-items: center; gap: var(--sp-md); flex-wrap: wrap; margin: 0 0 var(--sp-md); }
+.net-status { font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.net-status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-dim); }
+.net-status.good { color: var(--good); }
+.net-status.good::before { background: var(--good); }
+.net-status.bad { color: var(--warn); }
+.net-status.bad::before { background: var(--warn); }
+
+/* A field the console carries forward instead of clearing after each arm --
+   see species.Measure.Sticky. Same tone as a pill, quieter than a banner:
+   this is a reassurance, not a warning. */
+.sticky-badge {
+  display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--panel));
+  border-radius: var(--radius-full); padding: 2px 8px; vertical-align: 1px; margin-left: 4px;
+}
+
+.row-inline { display: flex; gap: 8px; align-items: stretch; }
+.row-inline input { flex: 1; }
+.icon-btn { display: inline-flex; align-items: center; gap: 6px; padding: 12px 16px; white-space: nowrap; }
+.icon-btn svg { width: 18px; height: 18px; }
+
+/* Queued arms: a submission with nowhere to go yet (no signal) or one the
+   server refused and a person needs to look at. Nothing here is "done" --
+   a successful submission is removed, not shown, so this list is only ever
+   the work still outstanding. */
+.queue-list { margin-top: var(--sp-md); display: flex; flex-direction: column; gap: 8px; }
+.queue-list.hidden { display: none; }
+.queue-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel-2);
+}
+.queue-item strong { font-size: 14px; }
+.queue-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.queue-actions button { padding: 8px 12px; min-height: 36px; font-size: 13px; }
+.err-inline { color: var(--bad); }
+
+/* ---- confirm-before-arm: a review, not another form --------------------- */
+.modal-scrim {
+  position: fixed; inset: 0; z-index: 97; background: rgb(10 14 18 / 0.4);
+  opacity: 0; transition: opacity var(--dur-base) var(--ease-out);
+}
+.modal-scrim.open { opacity: 1; }
+.modal-scrim[hidden] { display: none; }
+.confirm-sheet {
+  position: fixed; z-index: 98; left: 0; right: 0; bottom: 0;
+  background: var(--panel); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: var(--sp-lg); padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  box-shadow: var(--shadow-overlay);
+  transform: translateY(16px); opacity: 0; visibility: hidden;
+  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out), visibility 0s linear var(--dur-base);
+  max-height: 80vh; overflow-y: auto;
+}
+.confirm-sheet.open { transform: translateY(0); opacity: 1; visibility: visible; transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out); }
+.confirm-sheet[hidden] { display: none; }
+@media (min-width: 640px) {
+  .confirm-sheet {
+    left: 50%; right: auto; bottom: auto; top: 50%; width: min(440px, calc(100vw - 48px));
+    transform: translate(-50%, calc(-50% + 16px)); border-radius: var(--radius-lg);
+  }
+  .confirm-sheet.open { transform: translate(-50%, -50%); }
+}
+.confirm-row { display: flex; justify-content: space-between; gap: var(--sp-md); padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.confirm-row:last-child { border-bottom: none; }
+.confirm-k { color: var(--ink-dim); }
+.confirm-v { font-weight: 600; text-align: right; }
+.confirm-actions { display: flex; flex-direction: column; gap: 8px; margin-top: var(--sp-lg); }
+@media (min-width: 480px) { .confirm-actions { flex-direction: row-reverse; } .confirm-actions button { flex: 1; } }
+
+/* ---- QR scanner: a camera view standing in for a second app ------------- */
+.scanner-overlay {
+  position: fixed; inset: 0; z-index: 99; background: #000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.scanner-overlay[hidden] { display: none; }
+.scanner-overlay video { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.scanner-frame {
+  position: relative; width: min(70vw, 320px); aspect-ratio: 1; border-radius: var(--radius-lg);
+  box-shadow: 0 0 0 2000px rgb(0 0 0 / 0.45), inset 0 0 0 3px rgb(255 255 255 / 0.85);
+}
+.scanner-hint {
+  position: relative; margin-top: var(--sp-lg); color: #fff; font-size: 15px; text-align: center;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.6); padding: 0 var(--sp-lg);
+}
+.scanner-err {
+  position: absolute; bottom: calc(32px + env(safe-area-inset-bottom)); left: var(--sp-lg); right: var(--sp-lg);
+  color: #fff; background: rgb(191 58 34 / 0.9); border-radius: var(--radius); padding: 10px 14px;
+  font-size: 14px; text-align: center;
+}
+.scanner-err:empty { display: none; }
+.scanner-close {
+  position: absolute; top: calc(16px + env(safe-area-inset-top)); right: 16px;
+  width: 44px; height: 44px; min-height: 44px; padding: 0; border-radius: 50%;
+  background: rgb(255 255 255 / 0.15); border-color: rgb(255 255 255 / 0.3); color: #fff;
+  font-size: 24px; line-height: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-scrim, .confirm-sheet { transition: none !important; }
+}
+
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
 th, td { text-align: left; padding: 10px 6px; border-bottom: 1px solid var(--line); }
 th { color: var(--ink-dim); font-weight: 700; font-size: 12px;

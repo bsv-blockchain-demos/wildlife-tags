@@ -13,9 +13,9 @@
       "min": 50, "max": 260, "required": true,
       "help": "Measured from the tip of one lateral spine straight across the back of the shell to the tip of the opposite spine." },
     { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
-      "min": -200, "max": 4000, "required": false },
+      "min": -200, "max": 4000, "required": false, "sticky": true },
     { "key": "sal", "label": "Salinity", "unit": "ppt", "scale": 100,
-      "min": 0, "max": 4500, "required": false }
+      "min": 0, "max": 4500, "required": false, "sticky": true }
   ],
   "vocabs": [
     { "key": "sex", "label": "Sex", "required": true,
@@ -36,7 +36,7 @@
         { "code": "SOFT",         "label": "Soft shell" },
         { "code": "PAPER",        "label": "Paper shell" }
       ]},
-    { "key": "gear", "label": "Gear", "required": true,
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
       "values": [
         { "code": "TRAP",     "label": "Crab pot / trap" },
         { "code": "TROTLINE", "label": "Trotline" },

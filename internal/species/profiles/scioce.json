@@ -13,9 +13,9 @@
       "min": 100, "max": 1600, "required": true,
       "help": "Tip of the lower jaw to the tip of the tail." },
     { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
-      "min": -200, "max": 4000, "required": false },
+      "min": -200, "max": 4000, "required": false, "sticky": true },
     { "key": "sal", "label": "Salinity", "unit": "ppt", "scale": 100,
-      "min": 0, "max": 4500, "required": false }
+      "min": 0, "max": 4500, "required": false, "sticky": true }
   ],
   "vocabs": [
     { "key": "sex", "label": "Sex", "required": true,
@@ -27,12 +27,12 @@
       ]},
     { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
       "values": [
-        { "code": "GOOD",    "label": "Good — swam off strongly" },
-        { "code": "FAIR",    "label": "Fair — slow to recover" },
-        { "code": "POOR",    "label": "Poor — barely responsive" },
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
         { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
       ]},
-    { "key": "gear", "label": "Gear", "required": true,
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
       "values": [
         { "code": "HANDLINE", "label": "Rod and reel" },
         { "code": "FLY",      "label": "Fly" },

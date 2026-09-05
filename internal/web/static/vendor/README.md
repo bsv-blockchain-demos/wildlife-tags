@@ -76,3 +76,17 @@ Species and family-level silhouette icons from [PhyloPic](https://www.phylopic.o
 used as the icon on a card's ambient-gradient header. See `animals/ATTRIBUTION.md`
 for the contributor and license of each -- PhyloPic silhouettes are
 individually contributed and individually licensed, and most require credit.
+
+## jsqr.min.js
+
+[jsQR](https://github.com/cozmo/jsQR) 1.4.0, minified, Apache License 2.0 (see
+`jsqr-LICENSE`). A pure-JS QR decoder, used by the admin console's tag scanner
+as the fallback on browsers with no native `BarcodeDetector` -- most desktops,
+and, as of this writing, iOS Safari.
+
+Unlike everything else in this directory it is not loaded by any `<script>`
+tag; `admin.js` injects it on demand, only once the scanner actually opens and
+only on a browser that needs it, so a biologist who never taps "Scan" never
+pays for it. Fetched from `https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js`
+with the jsDelivr banner comment and its source-map reference stripped (we do
+not vendor the map).

@@ -119,6 +119,14 @@
       </button>
     </div>
 
+    <!-- Signal and pace, at a glance, on every tab: whether a request made
+         right now would go anywhere, and how much has actually been armed
+         and confirmed this session. -->
+    <div class="console-status">
+      <span id="netStatus" class="net-status"></span>
+      <span id="armTally" class="note"></span>
+    </div>
+
     <!-- Arming a tag. This form is used standing up, in a boat, so the fields
          are ordered the way the work happens: pick the species, pick the
          tag, measure, then fix the position last because that is the
@@ -136,13 +144,21 @@
 
         <div class="field">
           <label for="tag">Tag id</label>
-          <input id="tag" class="mono" placeholder="K2M-9Q7" autocapitalize="characters">
-          <p class="note">Read it off the tag, or scan the QR and copy the code shown.</p>
+          <div class="row-inline">
+            <input id="tag" class="mono" placeholder="K2M-9Q7" autocapitalize="characters">
+            <button type="button" id="scanTag" class="icon-btn" aria-label="Scan the tag's QR code">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V4.5A1.5 1.5 0 0 1 4.5 3H7M13 3h2.5A1.5 1.5 0 0 1 17 4.5V7M17 13v2.5a1.5 1.5 0 0 1-1.5 1.5H13M7 17H4.5A1.5 1.5 0 0 1 3 15.5V13"/><path d="M3 10h14"/></svg>
+              Scan
+            </button>
+          </div>
+          <p class="note">Scan the tag's QR code, or read the id off the tag and type it.</p>
         </div>
 
         <!-- What this species records. Built from GET /api/schema: the console
              does not know what a carapace width is, which is what lets a new
-             species be a JSON file rather than a release. -->
+             species be a JSON file rather than a release. Fields marked
+             "kept" (see schema.js's stickyBadge) are readings about the
+             place, not the animal, and survive being cleared after each arm. -->
         <div id="armFields"></div>
 
         <div class="field">
@@ -161,6 +177,12 @@
 
         <div id="armErr" class="err"></div>
         <button id="arm" class="primary wide" disabled>Arm this tag</button>
+
+        <!-- Submissions queued locally: an arm that could not reach the
+             server yet (no signal), or one the server refused and a
+             biologist needs to look at. Populated by admin.js's offline
+             queue; empty and hidden the rest of the time. -->
+        <div id="armQueue" class="queue-list hidden"></div>
       </div>
     </div>
 
@@ -237,6 +259,32 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- A one-tap review before an on-chain, unchangeable record is queued.
+       Populated by admin.js's armSummaryHTML(); "Confirm & arm" is the only
+       action that actually queues anything. -->
+  <div class="modal-scrim" id="confirmScrim" hidden></div>
+  <div class="confirm-sheet" id="confirmSheet" hidden role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <h2 id="confirmTitle">Confirm this tagging</h2>
+    <div id="confirmBody"></div>
+    <div class="confirm-actions">
+      <button type="button" id="confirmBack" class="wide">Keep editing</button>
+      <button type="button" id="confirmGo" class="primary wide">Confirm &amp; arm</button>
+    </div>
+  </div>
+
+  <!-- The QR scanner. A live camera view plus whichever decoder the browser
+       can offer -- BarcodeDetector where it exists, jsQR (lazy-loaded, see
+       vendor/README.md) everywhere else -- so reading a tag never means
+       leaving this page for a separate camera app. -->
+  <div class="scanner-overlay" id="scannerOverlay" hidden>
+    <video id="scannerVideo" playsinline muted></video>
+    <canvas id="scannerCanvas" class="hidden"></canvas>
+    <div class="scanner-frame" aria-hidden="true"></div>
+    <p class="scanner-hint">Point the camera at the tag's QR code</p>
+    <div id="scannerErr" class="scanner-err"></div>
+    <button type="button" id="scannerClose" class="scanner-close" aria-label="Close scanner">&times;</button>
   </div>
 </main>
 

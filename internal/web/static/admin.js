@@ -5,6 +5,8 @@
 
   const $ = (id) => document.getElementById(id);
   const num = (n) => Number(n || 0).toLocaleString();
+  const escHTML = (s) =>
+    String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   // The same tag mark as the wordmark and favicon, drawn as an outline
   // rather than filled -- a table with nothing in it yet, not an error.
@@ -15,8 +17,10 @@
     `<tr><td colspan="${colspan}"><div class="empty-state"><span class="icon-badge">${EMPTY_ICON}</span><span>${text}</span></div></td></tr>`;
 
   const ATTEST_PROTOCOL = [2, 'wildtag observation'];
+  const QUEUE_KEY = 'wildtag.armqueue.v1';
+  const IDENTITY_CACHE_KEY = 'wildtag.lastIdentity';
 
-  const state = { info: null, fix: null, session: null, profile: null };
+  const state = { info: null, fix: null, fixAt: 0, session: null, profile: null, watchId: null, armedCount: 0 };
 
   async function api(path, body) {
     const res = await fetch(path, {
@@ -29,6 +33,15 @@
     return data;
   }
 
+  // isNetworkError distinguishes "the network itself is the problem" from
+  // "the request reached the server and the server said no". fetch() rejects
+  // with a TypeError when it cannot reach anything at all (offline, DNS
+  // failure, connection refused); api() above throws a plain Error, built
+  // from the server's own response, once a request has actually completed.
+  // The distinction decides whether a failed arm goes back in the queue to
+  // retry itself, or sits there asking a person to look at it.
+  const isNetworkError = (e) => e instanceof TypeError;
+
   const bytesToHex = (b) => Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
   const hexToBytes = (h) => {
     const out = new Uint8Array(h.length / 2);
@@ -36,7 +49,22 @@
     return out;
   };
 
-  // ---- session ----------------------------------------------------------
+  // buzz gives an arm's outcome a channel that does not depend on somebody
+  // looking at the screen at the right moment -- a boat in bright sun, wet
+  // hands mid-catch. Silently a no-op wherever the Vibration API does not
+  // exist (iOS Safari, most desktops), which is every reason to guard it and
+  // no reason to feature-detect around it.
+  const BUZZ_OK = [40];
+  const BUZZ_ERR = [40, 80, 40];
+  function buzz(pattern) {
+    try {
+      if (navigator.vibrate) navigator.vibrate(pattern);
+    } catch (_) {
+      /* not available; the visual feedback still stands on its own */
+    }
+  }
+
+  // ---- session ------------------------------------------------------------
 
   async function boot() {
     state.info = await api('/api/info').catch(() => null);
@@ -48,10 +76,45 @@
     }
     if (state.info && state.info.password_login) $('pwBox').classList.remove('hidden');
 
+    setOnline(navigator.onLine);
+    window.addEventListener('online', () => {
+      setOnline(true);
+      flushQueue();
+    });
+    window.addEventListener('offline', () => setOnline(false));
+    // A radio can say "online" while still too weak to reach this specific
+    // server -- the 'online' event alone is not enough of a signal (so to
+    // speak) to lean on.
+    setInterval(() => {
+      if (navigator.onLine) flushQueue();
+    }, 30000);
+
+    if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
+      $('scanTag').classList.add('hidden');
+    }
+
     try {
       state.session = await api('/api/admin/session');
       showConsole();
-    } catch (_) {
+    } catch (e) {
+      if (isNetworkError(e)) {
+        // No signal at boot is not the same fact as "not signed in", and a
+        // field session should not be bounced to the login screen just
+        // because the phone has no bars right now. Proceed as whoever was
+        // last signed in here; individual requests queue or fail on their
+        // own once there is something concrete to say about them.
+        let cached = '';
+        try {
+          cached = localStorage.getItem(IDENTITY_CACHE_KEY) || '';
+        } catch (_) {
+          /* private window; there is nothing to fall back on */
+        }
+        if (cached) {
+          state.session = { identity_key: cached };
+          showConsole();
+          return;
+        }
+      }
       $('login').classList.remove('hidden');
     }
   }
@@ -105,11 +168,34 @@
     const key = state.session.identity_key || '';
     $('who').textContent =
       key === 'operator' ? 'signed in as operator (password)' : `signed in as ${key.slice(0, 16)}…`;
+    try {
+      localStorage.setItem(IDENTITY_CACHE_KEY, key);
+    } catch (_) {
+      /* as above */
+    }
+    startLocationWatch();
+    renderQueue();
+    renderTally();
     refresh();
+    flushQueue();
   }
 
   async function refresh() {
     await Promise.all([loadFunding(), loadBatches(), loadRearms()]);
+  }
+
+  // ---- signal and pace -----------------------------------------------------
+
+  function setOnline(isOnline) {
+    const el = $('netStatus');
+    if (!el) return;
+    el.textContent = isOnline ? 'online' : 'offline · will retry';
+    el.className = 'net-status' + (isOnline ? ' good' : ' bad');
+  }
+
+  function renderTally() {
+    const el = $('armTally');
+    if (el) el.textContent = state.armedCount ? `${state.armedCount} armed this session` : '';
   }
 
   // ---- funding ----------------------------------------------------------
@@ -163,33 +249,97 @@
     }
   }
 
-  // ---- arming a tag -----------------------------------------------------
+  // ---- position -----------------------------------------------------------
+  //
+  // A fix used to be fetched on demand, at the very end of the form, with
+  // nothing running until a biologist tapped "Use my location" and stood
+  // still for up to 20 seconds. It is now requested the moment the console
+  // is up -- in the background, while species, tag id and measurements are
+  // still being entered -- so by the time position is the field left to
+  // fill, a fix is usually already sitting there. The button becomes a
+  // manual refresh rather than the only way to ask.
 
-  function locate() {
+  function ageLabel(ts) {
+    const s = Math.round((Date.now() - ts) / 1000);
+    if (s < 5) return 'just now';
+    if (s < 60) return `${s}s ago`;
+    return `${Math.round(s / 60)}m ago`;
+  }
+
+  function renderFix() {
     const box = $('afix');
-    if (!navigator.geolocation) {
-      box.textContent = 'This browser will not share a location.';
-      box.className = 'banner bad';
+    if (!state.fix) {
+      box.textContent = 'No position fix yet.';
+      box.className = 'banner';
+      $('alocate').textContent = 'Use my location';
       return;
     }
-    box.innerHTML = '<span class="spin"></span> Getting a fix…';
-    box.className = 'banner';
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        state.fix = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy || 0 };
-        box.innerHTML =
-          `${state.fix.lat.toFixed(5)}, ${state.fix.lon.toFixed(5)} ` +
-          `<span class="note">(&plusmn;${Math.round(state.fix.acc)} m)</span>`;
-        box.className = 'banner good';
-        checkArmable();
-      },
+    box.innerHTML =
+      `${state.fix.lat.toFixed(5)}, ${state.fix.lon.toFixed(5)} ` +
+      `<span class="note">(&plusmn;${Math.round(state.fix.acc)} m &middot; <span data-fix-age>${ageLabel(state.fixAt)}</span>)</span>`;
+    box.className = 'banner good';
+    $('alocate').textContent = 'Refresh location';
+  }
+
+  // A fix taken minutes ago and quietly reused for the next animal in the
+  // same haul is exactly the point (see the sticky fields below); a fix
+  // taken an hour ago and reused without anyone noticing is a mistake. This
+  // keeps the age visible without forcing a re-fetch, so the choice to
+  // refresh stays a person's.
+  setInterval(() => {
+    const el = document.querySelector('[data-fix-age]');
+    if (el && state.fixAt) el.textContent = ageLabel(state.fixAt);
+  }, 5000);
+
+  function setFix(pos) {
+    state.fix = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy || 0 };
+    state.fixAt = Date.now();
+    renderFix();
+    checkArmable();
+  }
+
+  function startLocationWatch() {
+    if (state.watchId !== null || !navigator.geolocation) return;
+    state.watchId = navigator.geolocation.watchPosition(
+      setFix,
       (err) => {
-        box.textContent = `Could not get a fix: ${err.message}`;
-        box.className = 'banner bad';
+        // A watch that hiccups once after already producing a good fix
+        // should not alarm somebody mid-form; only report a failure if
+        // there is nothing on screen yet.
+        if (!state.fix) {
+          $('afix').textContent = `Could not get a fix: ${err.message}`;
+          $('afix').className = 'banner bad';
+        }
       },
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 }
     );
   }
+
+  function refreshLocationNow() {
+    if (!navigator.geolocation) {
+      $('afix').textContent = 'This browser will not share a location.';
+      $('afix').className = 'banner bad';
+      return;
+    }
+    if (!state.fix) {
+      $('afix').innerHTML = '<span class="spin"></span> Getting a fix…';
+      $('afix').className = 'banner';
+    }
+    navigator.geolocation.getCurrentPosition(
+      setFix,
+      (err) => {
+        if (!state.fix) {
+          $('afix').textContent = `Could not get a fix: ${err.message}`;
+          $('afix').className = 'banner bad';
+        } else {
+          renderFix(); // still have the older fix; nothing to alarm over
+        }
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }
+
+  // ---- arming a tag -----------------------------------------------------
 
   // Species icon and gradient are keyed by code so a given species always
   // gets the same card everywhere it appears. Anything not in the map --
@@ -267,10 +417,48 @@
     // tagging: true, so the tagger-only fields appear and the disposition does
     // not -- a tagger is releasing the animal by definition.
     window.Schema.renderFields(state.profile, $('armFields'), { tagging: true });
+    addBlankOptions();
     for (const el of $('armFields').querySelectorAll('input, select')) {
       el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', checkArmable);
     }
     checkArmable();
+  }
+
+  // Vocab <select>s render with no blank option (schema.js is shared with
+  // the one-shot redemption form, which has no need of one). The arm form
+  // submits many animals in a row, so a per-animal choice like sex needs a
+  // genuine blank state to return to after each arm -- a native <select>
+  // cannot be shown blank by script alone unless a blank option actually
+  // exists among its choices, and without one a "cleared" field would
+  // either keep displaying the last animal's answer or silently snap back
+  // to whichever option is listed first, which reads as an answer nobody
+  // gave. Sticky fields (see clearAnimalFields) are exempt: they are
+  // supposed to keep their value.
+  function addBlankOptions() {
+    for (const el of $('armFields').querySelectorAll('select[data-attr]')) {
+      if (el.hasAttribute('data-sticky')) continue;
+      if (!el.querySelector('option[value=""]')) {
+        const blank = document.createElement('option');
+        blank.value = '';
+        blank.textContent = 'Choose…';
+        blank.disabled = true;
+        el.insertBefore(blank, el.firstChild);
+      }
+      el.value = '';
+    }
+  }
+
+  // clearAnimalFields resets everything about the arm form that describes
+  // the animal just tagged, and leaves alone everything that describes the
+  // place and moment (see species.Measure.Sticky / Vocab.Sticky) -- a water
+  // temperature or the gear a trap haul was pulled with does not change
+  // crab to crab, and re-typing it a dozen times in a row is exactly the
+  // friction sticky fields exist to remove.
+  function clearAnimalFields() {
+    for (const el of $('armFields').querySelectorAll('input, select')) {
+      if (el.hasAttribute('data-sticky')) continue;
+      el.value = '';
+    }
   }
 
   // checkArmable refuses an animal the profile says should not carry a tag, and
@@ -302,83 +490,371 @@
     $('arm').disabled = !ready;
   }
 
-  function armForm() {
+  // ---- confirm before it becomes permanent ---------------------------------
+  //
+  // Once an arm is queued it will submit itself the moment there is signal,
+  // with nobody in the loop -- so the one human checkpoint against a fumbled
+  // decimal point moves to here, before queueing, rather than after a
+  // network round trip a person cannot see happening.
+
+  function armSummaryHTML() {
+    const p = state.profile;
     const { meas, attr } = window.Schema.read($('armFields'));
-    return {
-      tag_id: $('tag').value.trim(),
+    const rows = [];
+    rows.push(['Species', p.common]);
+    rows.push(['Tag', $('tag').value.trim() || '(not entered)']);
+    const name = $('aname').value.trim();
+    if (name) rows.push(['Name', name]);
+    for (const m of p.measures || []) {
+      if (meas[m.key] === undefined) continue;
+      rows.push([m.label, window.Schema.show(p, m.key, meas[m.key])]);
+    }
+    for (const v of p.vocabs || []) {
+      if (!attr[v.key]) continue;
+      rows.push([v.label, window.Schema.label(p, v.key, attr[v.key])]);
+    }
+    rows.push([
+      'Position',
+      state.fix
+        ? `${state.fix.lat.toFixed(5)}, ${state.fix.lon.toFixed(5)} (&plusmn;${Math.round(state.fix.acc)} m, ${ageLabel(state.fixAt)})`
+        : 'no fix',
+    ]);
+    return rows
+      .map(([k, v]) => `<div class="confirm-row"><span class="confirm-k">${escHTML(k)}</span><span class="confirm-v">${v}</span></div>`)
+      .join('');
+  }
+
+  function openConfirm() {
+    $('confirmBody').innerHTML = armSummaryHTML();
+    $('confirmScrim').hidden = false;
+    $('confirmSheet').hidden = false;
+    requestAnimationFrame(() => {
+      $('confirmScrim').classList.add('open');
+      $('confirmSheet').classList.add('open');
+    });
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeConfirm() {
+    $('confirmScrim').classList.remove('open');
+    $('confirmSheet').classList.remove('open');
+    document.body.style.overflow = '';
+    window.setTimeout(() => {
+      $('confirmScrim').hidden = true;
+      $('confirmSheet').hidden = true;
+    }, 250);
+  }
+
+  // ---- the offline queue ----------------------------------------------------
+  //
+  // "Arm this tag" no longer waits on a network round trip: it always queues
+  // the record locally first, then tries to send it. The common case (there
+  // is signal) clears the queue entry almost immediately and is
+  // indistinguishable from the old synchronous behaviour; the marsh case
+  // (there is not) leaves it sitting there, visible, and retried
+  // automatically the moment signal returns -- rather than a tap that just
+  // silently failed and cost a biologist a filled-out form.
+
+  function readQueue() {
+    try {
+      return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
+    } catch (_) {
+      return [];
+    }
+  }
+  function writeQueue(q) {
+    try {
+      localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
+    } catch (_) {
+      /* a private window, or storage full -- the in-memory copy still works
+         for this page load, it just will not survive a reload offline */
+    }
+  }
+
+  function queueAndArm() {
+    if (!state.profile || !state.fix) return;
+    const { meas, attr } = window.Schema.read($('armFields'));
+    const entry = {
+      localId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      tagInput: $('tag').value.trim(),
       species: state.profile.code,
+      speciesCommon: state.profile.common,
       lat: state.fix.lat,
       lon: state.fix.lon,
-      accuracy_m: state.fix.acc,
+      acc: state.fix.acc,
       meas,
       attr,
       name: $('aname').value.trim(),
+      queuedAt: Date.now(),
+      status: 'queued',
     };
+    const q = readQueue();
+    q.push(entry);
+    writeQueue(q);
+
+    // Clear the per-animal part of the form immediately, whether or not
+    // this ever reaches the server this second: the biologist's next crab
+    // does not wait on this one's round trip.
+    $('tag').value = '';
+    $('aname').value = '';
+    clearAnimalFields();
+    checkArmable();
+    renderQueue();
+    flushQueue();
   }
 
-  async function arm() {
-    $('armErr').textContent = '';
-    $('arm').disabled = true;
+  async function submitArm(entry) {
+    if (!(await window.Wallet.available())) {
+      throw new Error('A wallet is required to attest a tagging record. Open this page in BSV Browser.');
+    }
+
+    // The identity key comes first, before the record is requested: the
+    // tagger's key is written *inside* the bytes they are asked to sign,
+    // so asking for the record without it would produce one record to sign
+    // and a different one to submit.
+    const attestPub = await window.Wallet.identityKey();
+    const form = {
+      tag_id: entry.tagInput,
+      species: entry.species,
+      lat: entry.lat,
+      lon: entry.lon,
+      accuracy_m: entry.acc,
+      meas: entry.meas,
+      attr: entry.attr,
+      name: entry.name,
+      attest_pub: attestPub,
+    };
+
+    // Two round trips: the server assembles the canonical record, the
+    // tagger's wallet signs those exact bytes, and only then is the tag
+    // armed. Signing server-side instead would make every activation
+    // attributable to whoever runs the server rather than to a person.
+    const preview = await api('/api/admin/activate/prepare', form);
+
+    // Sign under the canonical tag id the server just handed back, not the
+    // string that was typed. A biologist enters the displayed form with a
+    // dash; the server strips it. Deriving under the typed value produces a
+    // different key and an attestation that cannot verify.
+    const canonicalTagID = preview.tag_id || form.tag_id;
+
+    // The payload itself, not a hash of it: createSignature applies
+    // SHA-256 to `data` before signing, and the server verifies against
+    // sha256(payload). Passing a digest signs it twice and the attestation
+    // fails with nothing on screen to explain why.
+    const sig = await window.Wallet.createSignature({
+      protocolID: ATTEST_PROTOCOL,
+      keyID: canonicalTagID,
+      // 'anyone', so a third party can re-derive this key from the
+      // tagger's published identity key and check the attestation.
+      counterparty: 'anyone',
+      data: Array.from(hexToBytes(preview.observation)),
+    });
+    const attestSig = bytesToHex(new Uint8Array(sig));
+
+    const res = await api('/api/admin/activate', {
+      ...form,
+      tag_id: canonicalTagID,
+      observation: preview.observation,
+      attest_sig: attestSig,
+      attest_pub: attestPub,
+    });
+    return { ...res, tag_id: canonicalTagID };
+  }
+
+  function announceArmed(entry, res) {
+    const who = entry.name ? `"${entry.name}"` : entry.speciesCommon || 'the animal';
+    $('armBanner').className = 'banner good';
+    $('armBanner').textContent = `Armed ${who} (tag ${res.tag_id}) with ${num(res.satoshis)} sats. Transaction ${res.txid}`;
+    $('armBanner').classList.remove('hidden');
+  }
+
+  let flushing = false;
+  async function flushQueue() {
+    if (flushing) return;
+    flushing = true;
     try {
-      if (!(await window.Wallet.available())) {
-        throw new Error('A wallet is required to attest a tagging record. Open this page in BSV Browser.');
+      const q = readQueue();
+      for (const entry of q) {
+        if (entry.status === 'error') continue; // needs a person, not a retry loop
+        entry.status = 'sending';
+        writeQueue(q);
+        renderQueue();
+        try {
+          const res = await submitArm(entry);
+          entry.status = 'done';
+          state.armedCount++;
+          renderTally();
+          buzz(BUZZ_OK);
+          announceArmed(entry, res);
+          loadFunding();
+        } catch (e) {
+          if (isNetworkError(e)) {
+            entry.status = 'queued';
+            writeQueue(q);
+            renderQueue();
+            setOnline(false);
+            break; // stop here; the rest would fail the same way right now
+          }
+          entry.status = 'error';
+          entry.error = e.message;
+          buzz(BUZZ_ERR);
+        }
       }
-
-      // The identity key comes first, before the record is requested: the
-      // tagger's key is written *inside* the bytes they are asked to sign,
-      // so asking for the record without it would produce one record to sign
-      // and a different one to submit.
-      const attestPub = await window.Wallet.identityKey();
-      const form = { ...armForm(), attest_pub: attestPub };
-
-      // Two round trips: the server assembles the canonical record, the
-      // tagger's wallet signs those exact bytes, and only then is the tag
-      // armed. Signing server-side instead would make every activation
-      // attributable to whoever runs the server rather than to a person.
-      const preview = await api('/api/admin/activate/prepare', form);
-
-      // Sign under the canonical tag id the server just handed back, not the
-      // string that was typed. A biologist enters the displayed form with a
-      // dash; the server strips it. Deriving under the typed value produces a
-      // different key and an attestation that cannot verify.
-      const canonicalTagID = preview.tag_id || form.tag_id;
-
-      let attestSig = '';
-      {
-        // The payload itself, not a hash of it: createSignature applies
-        // SHA-256 to `data` before signing, and the server verifies against
-        // sha256(payload). Passing a digest signs it twice and the attestation
-        // fails with nothing on screen to explain why.
-        const sig = await window.Wallet.createSignature({
-          protocolID: ATTEST_PROTOCOL,
-          keyID: canonicalTagID,
-          // 'anyone', so a third party can re-derive this key from the
-          // tagger's published identity key and check the attestation.
-          counterparty: 'anyone',
-          data: Array.from(hexToBytes(preview.observation)),
-        });
-        attestSig = bytesToHex(new Uint8Array(sig));
-      }
-
-      const res = await api('/api/admin/activate', {
-        ...form,
-        tag_id: canonicalTagID,
-        observation: preview.observation,
-        attest_sig: attestSig,
-        attest_pub: attestPub,
-      });
-
-      $('armBanner').className = 'banner good';
-      $('armBanner').textContent = `Armed with ${num(res.satoshis)} sats. Transaction ${res.txid}`;
-      $('armBanner').classList.remove('hidden');
-      $('tag').value = '';
-      $('aname').value = '';
-      for (const el of $('armFields').querySelectorAll('input')) el.value = '';
-      await loadFunding();
-    } catch (e) {
-      $('armErr').textContent = e.message;
+      writeQueue(q.filter((e) => e.status !== 'done'));
+      renderQueue();
     } finally {
-      checkArmable();
+      flushing = false;
+    }
+  }
+
+  function renderQueue() {
+    const box = $('armQueue');
+    if (!box) return;
+    const q = readQueue();
+    if (!q.length) {
+      box.innerHTML = '';
+      box.classList.add('hidden');
+      return;
+    }
+    box.classList.remove('hidden');
+    box.innerHTML = q
+      .map((e) => {
+        const label = `${e.speciesCommon || e.species} · tag ${e.tagInput || '(no id)'}`;
+        let status, actions;
+        if (e.status === 'sending') {
+          status = '<span class="spin"></span> sending…';
+          actions = '';
+        } else if (e.status === 'error') {
+          status = `<span class="err-inline">${escHTML(e.error || 'failed')}</span>`;
+          actions =
+            `<button type="button" data-retry="${e.localId}">retry</button>` +
+            `<button type="button" data-discard="${e.localId}">discard</button>`;
+        } else {
+          status = 'waiting for signal…';
+          actions = `<button type="button" data-discard="${e.localId}">discard</button>`;
+        }
+        return (
+          `<div class="queue-item"><div><strong>${escHTML(label)}</strong><div class="note">${status}</div></div>` +
+          `<div class="queue-actions">${actions}</div></div>`
+        );
+      })
+      .join('');
+  }
+
+  // ---- QR scanner -----------------------------------------------------------
+  //
+  // A tag id used to mean leaving this page for a separate camera or QR app,
+  // reading the code, and typing it in with wet or gloved hands. The camera
+  // is already in the phone; this puts it in the same view as the field it
+  // fills.
+
+  let scanStream = null;
+  let scanRAF = null;
+  let jsQRLoading = null;
+
+  function loadJsQR() {
+    if (window.jsQR) return Promise.resolve();
+    if (jsQRLoading) return jsQRLoading;
+    jsQRLoading = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = '/vendor/jsqr.min.js';
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('could not load the QR scanner'));
+      document.head.appendChild(s);
+    });
+    return jsQRLoading;
+  }
+
+  // extractTagID pulls the tag id out of a scanned QR payload. A tag's QR
+  // encodes the full redemption URL with the secret in the fragment (see
+  // tagkey.QRPayload) -- arming needs none of that, only the id between the
+  // last "/t/" and the "#". The secret is never read or stored here.
+  function extractTagID(text) {
+    const m = /\/t\/([0-9A-Za-z]+)(?:#|$)/.exec(text);
+    if (m) return m[1];
+    if (/^[0-9A-Za-z-]{6,10}$/.test(text.trim())) return text.trim().replace(/-/g, '');
+    return null;
+  }
+
+  function onScanned(text) {
+    const id = extractTagID(text);
+    if (!id) return; // not a wildtag QR; keep scanning rather than fail loudly
+    closeScanner();
+    $('tag').value = id;
+    buzz(BUZZ_OK);
+    checkArmable();
+  }
+
+  function scanNativeLoop(video) {
+    const detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+    const tick = async () => {
+      if (!scanStream) return;
+      try {
+        const codes = await detector.detect(video);
+        if (codes.length) {
+          onScanned(codes[0].rawValue);
+          return;
+        }
+      } catch (_) {
+        // A frame with nothing decodable in it is not an error.
+      }
+      scanRAF = requestAnimationFrame(tick);
+    };
+    scanRAF = requestAnimationFrame(tick);
+  }
+
+  function scanJsQRLoop(video) {
+    const canvas = $('scannerCanvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const tick = () => {
+      if (!scanStream) return;
+      if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = window.jsQR(frame.data, frame.width, frame.height);
+        if (code) {
+          onScanned(code.data);
+          return;
+        }
+      }
+      scanRAF = requestAnimationFrame(tick);
+    };
+    scanRAF = requestAnimationFrame(tick);
+  }
+
+  async function openScanner() {
+    $('scannerErr').textContent = '';
+    $('scannerOverlay').hidden = false;
+    document.body.style.overflow = 'hidden';
+    try {
+      scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      const video = $('scannerVideo');
+      video.srcObject = scanStream;
+      await video.play();
+      if ('BarcodeDetector' in window) {
+        scanNativeLoop(video);
+      } else {
+        await loadJsQR();
+        scanJsQRLoop(video);
+      }
+    } catch (e) {
+      $('scannerErr').textContent =
+        e.name === 'NotAllowedError'
+          ? 'Camera permission was refused. Allow it in the browser settings, or type the tag id.'
+          : `Could not start the camera: ${e.message}`;
+    }
+  }
+
+  function closeScanner() {
+    $('scannerOverlay').hidden = true;
+    document.body.style.overflow = '';
+    if (scanRAF) cancelAnimationFrame(scanRAF);
+    scanRAF = null;
+    if (scanStream) {
+      scanStream.getTracks().forEach((t) => t.stop());
+      scanStream = null;
     }
   }
 
@@ -418,18 +894,49 @@
     $('pwLogin').addEventListener('click', passwordLogin);
     const doLogout = async (e) => {
       e.preventDefault();
+      if (state.watchId !== null) navigator.geolocation.clearWatch(state.watchId);
       await api('/api/admin/logout', {});
       location.reload();
     };
     $('logout').addEventListener('click', doLogout);
     $('logoutMobile').addEventListener('click', doLogout);
     $('mint').addEventListener('click', mint);
-    $('alocate').addEventListener('click', locate);
-    $('arm').addEventListener('click', arm);
+    $('alocate').addEventListener('click', refreshLocationNow);
+    $('arm').addEventListener('click', openConfirm);
+    $('confirmBack').addEventListener('click', closeConfirm);
+    $('confirmGo').addEventListener('click', () => {
+      closeConfirm();
+      queueAndArm();
+    });
     $('tag').addEventListener('input', checkArmable);
+    $('scanTag').addEventListener('click', openScanner);
+    $('scannerClose').addEventListener('click', closeScanner);
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      if (!$('scannerOverlay').hidden) closeScanner();
+      else if (!$('confirmSheet').hidden) closeConfirm();
+    });
     $('rearms').addEventListener('click', (e) => {
       const id = e.target.getAttribute && e.target.getAttribute('data-rearm');
       if (id) rearm(id, e.target);
+    });
+    $('armQueue').addEventListener('click', (e) => {
+      const discard = e.target.getAttribute && e.target.getAttribute('data-discard');
+      const retry = e.target.getAttribute && e.target.getAttribute('data-retry');
+      if (discard) {
+        writeQueue(readQueue().filter((x) => x.localId !== discard));
+        renderQueue();
+      } else if (retry) {
+        const q = readQueue();
+        const item = q.find((x) => x.localId === retry);
+        if (item) {
+          item.status = 'queued';
+          delete item.error;
+          writeQueue(q);
+          renderQueue();
+          flushQueue();
+        }
+      }
     });
     boot();
   });
@@ -475,6 +982,7 @@
     $('logoutMobile').classList.remove('hidden');
     $('who').textContent =
       identityKey === 'operator' ? 'signed in as operator (password)' : `signed in as ${identityKey.slice(0, 16)}…`;
+    setOnline(navigator.onLine);
   }
 
   window.DevMocks = window.DevMocks || {};
@@ -507,6 +1015,21 @@
       $('armBanner').className = 'banner warn';
       $('armBanner').textContent = 'Do not tag this one: shell is still soft, it will shed this tag at its next moult.';
       $('armBanner').classList.remove('hidden');
+    },
+    'Arm: queued, no signal': () => {
+      $('armQueue').classList.remove('hidden');
+      $('armQueue').innerHTML =
+        '<div class="queue-item"><div><strong>Atlantic blue crab · tag K2M-9Q7</strong>' +
+        '<div class="note">waiting for signal…</div></div>' +
+        '<div class="queue-actions"><button type="button">discard</button></div></div>';
+      setOnline(false);
+    },
+    'Arm: needs attention': () => {
+      $('armQueue').classList.remove('hidden');
+      $('armQueue').innerHTML =
+        '<div class="queue-item"><div><strong>Atlantic blue crab · tag K2M-9Q7</strong>' +
+        '<div class="note"><span class="err-inline">arm this tag: insufficient funds to cover the reward</span></div></div>' +
+        '<div class="queue-actions"><button type="button">retry</button><button type="button">discard</button></div></div>';
     },
     'Arm: request failed': () => {
       $('armErr').textContent = 'arm this tag: insufficient funds to cover the reward';
