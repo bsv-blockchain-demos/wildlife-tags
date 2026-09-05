@@ -209,6 +209,17 @@ type Profile struct {
 	// GrowthExpected says whether a non-zero growth between sightings is normal.
 	// False for anything that sheds its tag when it grows.
 	GrowthExpected bool `json:"growth_expected"`
+
+	// FunFacts are shown one at a time, picked at random, the moment a tag on
+	// this species is armed -- see admin.js's armConfirmHTML. Optional: a
+	// species with none here just shows the confirmation without one, same as
+	// any other schema-driven field a new profile hasn't filled in yet.
+	//
+	// The bar is "genuinely surprising to someone who already knows this is a
+	// blue crab or a red drum", not trivia a field guide would open with --
+	// the whole point is a biologist arming their fortieth tag of the
+	// afternoon reads something they didn't already know.
+	FunFacts []string `json:"fun_facts,omitempty"`
 }
 
 var (

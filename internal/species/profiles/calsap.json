@@ -8,6 +8,11 @@
   "sweep_after_days": 540,
   "qr_version_max": 5,
   "growth_expected": false,
+  "fun_facts": [
+    "Its blood runs blue, not red: blue crabs carry oxygen with a copper-based protein called hemocyanin instead of hemoglobin, and it only turns blue once it touches the air.",
+    "Its rearmost pair of legs isn't for walking. They're flattened into paddles, which is what lets a blue crab swim sideways through open water instead of just scuttling along the bottom.",
+    "A female blue crab mates exactly once in her life, then stores that sperm and uses it to fertilize several broods of up to two million eggs each over the rest of her life."
+  ],
   "measures": [
     { "key": "cw", "label": "Carapace width", "unit": "mm", "scale": 1,
       "min": 50, "max": 260, "required": true,

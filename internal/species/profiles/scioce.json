@@ -8,6 +8,11 @@
   "sweep_after_days": 1095,
   "qr_version_max": 5,
   "growth_expected": true,
+  "fun_facts": [
+    "Almost every red drum has one or more black eyespots near its tail. They're decoys: a predator strikes the tail instead of the head, and the fish escapes in the wrong direction.",
+    "Males can drum. They flex a muscle against their swim bladder to make a croaking sound, especially at spawning time, loud enough to hear from above the water.",
+    "A red drum can live past 40 years and top 90 pounds, but the biggest ones leave the shallow water where they hatched: adults move offshore to spawn, which is part of why tagging the ones that stay behind matters."
+  ],
   "measures": [
     { "key": "tl", "label": "Total length", "unit": "mm", "scale": 1,
       "min": 100, "max": 1600, "required": true,

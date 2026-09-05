@@ -766,12 +766,26 @@
   // second species-to-colour table in step with the first by hand.
   const TONE_BY_GRADIENT = { estuary: 'tone-estuary', sunset: 'tone-sunset', slate: 'tone-slate' };
 
+  // pickFunFact returns one of the species profile's own fun_facts, chosen
+  // at random -- looked up by the entry's own species code rather than
+  // read off state.profile, since the form may already have moved on to a
+  // different species by the time a queued arm actually completes. A
+  // profile with none defined yet (see species.Profile.FunFacts) simply
+  // gets no fact line, the same as any other schema-driven field a species
+  // hasn't filled in.
+  function pickFunFact(speciesCode) {
+    const profile = window.Schema.profile(speciesCode);
+    const facts = profile && profile.fun_facts;
+    return facts && facts.length ? facts[Math.floor(Math.random() * facts.length)] : null;
+  }
+
   function armConfirmHTML(entry, res) {
     const who = entry.name ? `"${entry.name}"` : entry.speciesCommon || 'the animal';
     const text = `Armed ${who} (tag ${res.tag_id}) with ${num(res.satoshis)} sats. Transaction ${res.txid}`;
     const grad = SPECIES_GRADIENT[entry.species] || FALLBACK_GRADIENT;
     const icon = SPECIES_ICON[entry.species] || FALLBACK_ICON;
     const tone = TONE_BY_GRADIENT[grad] || 'tone-slate';
+    const fact = pickFunFact(entry.species);
     return (
       `<div class="arm-confirm">` +
       `<svg class="arm-confirm-glyph" viewBox="0 0 20 20" aria-hidden="true">${TAG_GLYPH}</svg>` +
@@ -781,7 +795,15 @@
       `<svg class="arm-confirm-tick draw-mark" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5 8.5 15 16 6"/></svg>` +
       `</span>` +
       `<span class="arm-confirm-text">${escHTML(text)}</span>` +
-      `</div>`
+      `</div>` +
+      // Held back until the tick above has finished drawing (see
+      // .arm-confirm-fact's own delay in style.css), so this reads as the
+      // sequence's last beat -- a small reward for actually reading the
+      // banner -- rather than competing with the record itself for
+      // attention.
+      (fact
+        ? `<p class="arm-confirm-fact"><span class="arm-confirm-fact-label">Did you know?</span>${escHTML(fact)}</p>`
+        : '')
     );
   }
 

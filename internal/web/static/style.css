@@ -687,6 +687,25 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 @keyframes arm-confirm-pop  { to { opacity: 1; transform: scale(1); } }
 @keyframes arm-confirm-draw { to { stroke-dashoffset: 0; } }
 
+/* The species fact line: held back until the tick above has finished
+   drawing (380ms clears its 260ms delay + --dur-fast), so it lands as the
+   sequence's last beat rather than competing with the record for
+   attention. See armConfirmHTML in admin.js and species.Profile.FunFacts. */
+.arm-confirm-fact {
+  margin: 10px 0 0; padding-top: 10px; border-top: 1px solid var(--line);
+  font-size: 13px; color: var(--ink-dim);
+  opacity: 0; transform: translateY(6px);
+  animation: arm-confirm-fact-in var(--dur-base) var(--ease-out) 380ms forwards;
+}
+.arm-confirm-fact-label {
+  display: block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--accent); margin-bottom: 3px;
+}
+@keyframes arm-confirm-fact-in { to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .arm-confirm-fact { animation: none; opacity: 1; transform: none; }
+}
+
 /* ---- draw-mark: a confirmation mark that draws itself ------------------
    The same "certificate" motion language as .arm-confirm above, made
    reusable: dpp-app/motion's own Tick and Cross primitives exist because a
