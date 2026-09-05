@@ -171,7 +171,16 @@
 
         <div class="field">
           <label id="armSpeciesLabel">Species</label>
+          <!-- Filters the grid below by typing, not a separate control with
+               its own selection: the programme's roster is long enough now
+               (see dnr.sc.gov/marine/tagfish/tagspecies.html) that scrolling
+               to find one card among dozens is real friction. Hidden rather
+               than removed when it has no matches, so the currently-armed
+               species stays selected and visible if a search momentarily
+               filters it out. -->
+          <input type="search" id="armSpeciesSearch" class="species-search" placeholder="Search species…" autocomplete="off" aria-label="Search species" aria-controls="armSpeciesGrid">
           <div class="species-grid" id="armSpeciesGrid" role="radiogroup" aria-labelledby="armSpeciesLabel"></div>
+          <p class="note hidden" id="armSpeciesEmpty">No species match "<span id="armSpeciesEmptyQuery"></span>".</p>
           <p class="note" id="armSpeciesNote"></p>
         </div>
 
@@ -390,6 +399,7 @@
 <script src="toast.js"></script>
 <script src="combobox.js"></script>
 <script src="schema.js"></script>
+<script src="avatar.js"></script>
 <script src="wallet.js"></script>
 <script src="focus-trap.js"></script>
 <script src="admin.js"></script>

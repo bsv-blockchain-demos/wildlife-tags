@@ -220,6 +220,13 @@ header.site {
 }
 header.site .tagline { color: var(--ink-dim); font-size: 14px; text-wrap: balance; }
 
+/* #who's own "signed in as ..." avatar (see admin.js's renderWho / avatar.js).
+   Inline-flex on the .tagline itself, not a wrapper: .brand's own column
+   layout is untouched, this only arranges #who's two children side by side. */
+#who { display: inline-flex; align-items: center; gap: 6px; }
+.user-avatar { flex-shrink: 0; display: flex; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px var(--line); }
+.user-avatar svg { display: block; }
+
 .site-nav {
   display: none; margin-left: auto; align-items: center; gap: var(--sp-lg);
   font-size: 14px;
@@ -1271,6 +1278,7 @@ footer a { color: var(--ink-dim); }
    Selection is a radiogroup of gradient cards; the selected one gets a
    solid accent ring rather than changing size or moving, so choosing
    doesn't reflow the grid. */
+.species-search { margin: 0 0 var(--sp-sm); }
 .species-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-sm); margin: 0 0 var(--sp-md); }
 .species-card {
   display: block; width: 100%; text-align: left; padding: 0;

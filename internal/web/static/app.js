@@ -206,7 +206,12 @@
     if (!grid) return;
     try {
       await window.Schema.load();
-      grid.innerHTML = window.Schema.profiles().map(speciesCard).join('');
+      // By common name, not by the code species.All() sorts by on the Go
+      // side (see registry.go) -- "Red drum" reads next to "Sandbar shark"
+      // by name, not scattered by an internal code nobody visiting this
+      // page has any reason to know.
+      const profiles = window.Schema.profiles().slice().sort((a, b) => a.common.localeCompare(b.common));
+      grid.innerHTML = profiles.map(speciesCard).join('');
     } catch (e) {
       grid.innerHTML = `<p class="note">Could not load the species list: ${esc(e.message)}</p>`;
     }

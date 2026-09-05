@@ -25,6 +25,20 @@
   // the part that matters most.
   const midTruncate = (k) => (k && k.length > 16 ? `${k.slice(0, 8)}…${k.slice(-6)}` : k || '');
 
+  // renderWho fills the "signed in as" line with a marble avatar seeded on
+  // the identity key itself (or the literal string "operator" for a
+  // password session, which is exactly what makes every operator session
+  // draw the same marble -- there is only one "operator" identity to tell
+  // apart from a named biologist's). Same function for the real session
+  // (showConsole) and the dev-mode one (mockShowConsole) so the two never
+  // drift.
+  function renderWho(key) {
+    const label = key === 'operator' ? 'operator (password)' : midTruncate(key);
+    $('who').innerHTML =
+      `<span class="user-avatar">${window.Avatar.marble(key || 'operator', { size: 20 })}</span>` +
+      `signed in as ${escHTML(label)}`;
+  }
+
   // The same tag mark as the wordmark and favicon, drawn as an outline
   // rather than filled -- a table with nothing in it yet, not an error.
   const EMPTY_ICON =
@@ -212,8 +226,7 @@
     $('logout').classList.remove('hidden');
     $('logoutMobile').classList.remove('hidden');
     const key = state.session.identity_key || '';
-    $('who').textContent =
-      key === 'operator' ? 'signed in as operator (password)' : `signed in as ${midTruncate(key)}`;
+    renderWho(key);
     try {
       localStorage.setItem(IDENTITY_CACHE_KEY, key);
     } catch (_) {
@@ -429,11 +442,23 @@
   const FALLBACK_ICON = 'fish-generic.svg';
   const FALLBACK_GRADIENT = 'slate';
 
+  // A haul is almost always one species at a time -- a crab pot comes up
+  // full of blue crabs, not a mix -- so the last species armed is remembered
+  // across reloads and offered first next time, rather than resetting to the
+  // schema's own default every time the console reopens. Only a starting
+  // point: nothing stops picking a different card, and the arm form already
+  // leaves the current selection alone between animals within one session
+  // (see clearAnimalFields).
+  const LAST_SPECIES_KEY = 'wildtag.lastSpecies';
+
   // fillSpeciesPickers offers every profile the deployment knows about: a
   // visual card grid for the form used daily (arming), a plain <select> for
   // the one used occasionally (minting a batch, tucked into its own tab).
+  // Both list species by common name, not by the code they happen to be
+  // stored under (species.All() sorts by code, which reads as arbitrary to
+  // a person scanning for "Red drum" -- see internal/species/registry.go).
   function fillSpeciesPickers() {
-    const profiles = window.Schema.profiles();
+    const profiles = window.Schema.profiles().slice().sort((a, b) => a.common.localeCompare(b.common));
 
     const mintEl = $('mintSpecies');
     if (mintEl) {
@@ -445,6 +470,8 @@
       // calls: this select's icons come from the species silhouettes
       // (SPECIES_ICON), not combobox.js's own small built-in registry, and
       // it is built once at boot rather than rebuilt per species change.
+      // combobox.js's popover already searches by typing -- nothing extra
+      // to add here for a long list.
       window.Combobox.enhance(mintEl, {
         iconHTML: (option) => `<img src="/vendor/animals/${SPECIES_ICON[option.value] || FALLBACK_ICON}" alt="">`,
       });
@@ -457,7 +484,9 @@
           const grad = SPECIES_GRADIENT[p.code] || FALLBACK_GRADIENT;
           const icon = SPECIES_ICON[p.code] || FALLBACK_ICON;
           return (
-            `<button type="button" class="species-card" data-species="${p.code}" role="radio" aria-checked="false" aria-pressed="false">` +
+            `<button type="button" class="species-card" data-species="${p.code}" ` +
+            `data-search="${(p.common + ' ' + p.scientific + ' ' + p.code).toLowerCase()}" ` +
+            `role="radio" aria-checked="false" aria-pressed="false">` +
             `<div class="species-card-header" style="background: var(--grad-${grad})">` +
             `<div class="card-icon-badge"><img src="/vendor/animals/${icon}" alt="" loading="lazy"></div>` +
             `</div>` +
@@ -471,8 +500,20 @@
       grid.querySelectorAll('.species-card').forEach((btn) => {
         btn.addEventListener('click', () => selectSpeciesCard(btn.dataset.species));
       });
-      const preselect = grid.querySelector(`[data-species="${window.Schema.profile().code}"]`) || grid.querySelector('.species-card');
+      let lastCode = null;
+      try {
+        lastCode = localStorage.getItem(LAST_SPECIES_KEY);
+      } catch (_) {
+        // A private window, or storage blocked -- falls through to the
+        // schema default below, same as everywhere else this app reads
+        // localStorage speculatively.
+      }
+      const preselect =
+        (lastCode && grid.querySelector(`[data-species="${lastCode}"]`)) ||
+        grid.querySelector(`[data-species="${window.Schema.profile().code}"]`) ||
+        grid.querySelector('.species-card');
       if (preselect) selectSpeciesCard(preselect.dataset.species);
+      filterSpeciesGrid(''); // in case a search was left typed in from a prior render
     } else {
       onSpeciesChange();
     }
@@ -488,7 +529,30 @@
       btn.setAttribute('aria-checked', String(on));
     });
     state.armSpeciesCode = code;
+    try {
+      localStorage.setItem(LAST_SPECIES_KEY, code);
+    } catch (_) {
+      /* as above */
+    }
     onSpeciesChange();
+  }
+
+  // filterSpeciesGrid hides non-matching cards rather than rebuilding the
+  // grid: the currently-armed card must stay in the DOM and selected even
+  // if a search momentarily filters it out, since search is for finding a
+  // card, not for changing what's armed.
+  function filterSpeciesGrid(query) {
+    const grid = $('armSpeciesGrid');
+    if (!grid) return;
+    const q = query.trim().toLowerCase();
+    let anyVisible = false;
+    grid.querySelectorAll('.species-card').forEach((btn) => {
+      const match = !q || btn.dataset.search.includes(q);
+      btn.classList.toggle('hidden', !match);
+      if (match) anyVisible = true;
+    });
+    $('armSpeciesEmpty').classList.toggle('hidden', anyVisible || !q);
+    $('armSpeciesEmptyQuery').textContent = query.trim();
   }
 
   function onSpeciesChange() {
@@ -1151,6 +1215,7 @@
     $('logout').addEventListener('click', doLogout);
     $('logoutMobile').addEventListener('click', doLogout);
     $('mint').addEventListener('click', mint);
+    $('armSpeciesSearch').addEventListener('input', (e) => filterSpeciesGrid(e.target.value));
     $('alocate').addEventListener('click', refreshLocationNow);
     $('arm').addEventListener('click', openConfirm);
     $('confirmBack').addEventListener('click', closeConfirm);
@@ -1277,8 +1342,7 @@
     $('console').classList.remove('hidden');
     $('logout').classList.remove('hidden');
     $('logoutMobile').classList.remove('hidden');
-    $('who').textContent =
-      identityKey === 'operator' ? 'signed in as operator (password)' : `signed in as ${midTruncate(identityKey)}`;
+    renderWho(identityKey);
     setOnline(navigator.onLine);
   }
 
