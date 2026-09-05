@@ -213,7 +213,9 @@ h1, h2, h3 { text-wrap: balance; }
 /* Paragraph measure: the container is wide, but a line of prose stretched
    edge to edge in a 1200px card is hard to read. Cap it independently of
    layout width; two-column grids are already narrower than this. */
-.card > p, .card .note, .honesty dd { max-width: 68ch; text-wrap: pretty; }
+/* A descendant selector, not a direct-child one: the About page's accordion
+   bodies add a layer of wrapping div between .card and its paragraphs. */
+.card p, .card .note, .honesty dd { max-width: 68ch; text-wrap: pretty; }
 
 .grid { display: grid; gap: var(--sp-sm); }
 .grid.stats { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
@@ -323,6 +325,49 @@ th { color: var(--ink-dim); font-weight: 600; font-size: 12px;
 .honesty dd { margin: 2px 0 0; color: var(--ink-dim); }
 .honesty .yes::before { content: "✓ "; color: var(--good); }
 .honesty .no::before  { content: "✕ "; color: var(--warn); }
+
+/* ---- accordions & inline "read more" (About page) ---------------------
+   One disclosure pattern, used two ways: a whole section under its <h2>, or
+   a couple of paragraphs under an <h3> inside a section that's already open.
+   No height animation -- see accordion.js for why -- so the body's final
+   size is correct the instant it's shown and only its opacity eases in. */
+.accordion-trigger {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-sm);
+  width: 100%; min-height: 44px;
+  background: none; border: none; padding: 0; margin: 0 0 var(--sp-sm);
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+}
+.accordion-trigger h2 { margin: 0; }
+.accordion-trigger:last-child { margin-bottom: 0; }
+.accordion-chevron {
+  flex-shrink: 0; width: 8px; height: 8px; margin-right: 4px;
+  border-right: 2px solid var(--ink-dim); border-bottom: 2px solid var(--ink-dim);
+  transform: rotate(-45deg);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.accordion-trigger[aria-expanded="true"] .accordion-chevron { transform: rotate(45deg); }
+.accordion-trigger:hover .accordion-chevron,
+.accordion-trigger:focus-visible .accordion-chevron { border-color: var(--ink); }
+.accordion-teaser { color: var(--ink-dim); margin: 0 0 var(--sp-sm); }
+.accordion-body[hidden] { display: none; }
+.accordion-body { opacity: 0; }
+.accordion-body.in { opacity: 1; transition: opacity var(--dur-fast) var(--ease-out); }
+
+.readmore-wrap { margin: var(--sp-md) 0; }
+.readmore {
+  display: inline-block; min-height: 32px;
+  background: none; border: none; padding: 0; margin-top: 2px;
+  font: inherit; font-size: 14px; font-weight: 600; color: var(--accent);
+  cursor: pointer;
+}
+.readmore:hover, .readmore:focus-visible { text-decoration: underline; }
+.readmore-body[hidden] { display: none; }
+.readmore-body { opacity: 0; margin-top: var(--sp-sm); }
+.readmore-body.in { opacity: 1; transition: opacity var(--dur-fast) var(--ease-out); }
+
+@media (prefers-reduced-motion: reduce) {
+  .accordion-chevron, .accordion-body, .readmore-body { transition: none !important; }
+}
 
 .hidden { display: none !important; }
 .spin { display: inline-block; width: 14px; height: 14px; vertical-align: -2px;
