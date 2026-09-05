@@ -1496,7 +1496,12 @@ html.onboarding-pending .onboard-veil { display: flex; }
 @media (min-width: 768px) { .onboard-veil { flex-direction: row-reverse; } } /* art on the right, like the reference's own desktop shape */
 
 .onboard-scene { position: relative; overflow: hidden; flex-shrink: 0; height: 160px; background: var(--panel-2); border-bottom: 1px solid var(--line); }
-@media (min-width: 768px) { .onboard-scene { height: auto; width: 42%; border-bottom: none; border-left: 1px solid var(--line); } }
+/* Percentage width alone grows without limit on a very wide monitor, and the
+   drawn scene inside is a fixed, small composition (see onboarding.js) --
+   past a certain point the panel is just empty space around it. Capped so
+   the extra width on a wide screen goes to .onboard-form (flex: 1) instead,
+   where the reading column below actually uses it. */
+@media (min-width: 768px) { .onboard-scene { height: auto; width: 42%; max-width: 640px; border-bottom: none; border-left: 1px solid var(--line); } }
 .onboard-scene::before {
   content: ""; position: absolute; inset: 0; opacity: 0.3; pointer-events: none;
   background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
@@ -1511,7 +1516,13 @@ html.onboarding-pending .onboard-veil { display: flex; }
 
 .onboard-form { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: var(--sp-lg) var(--gutter-mobile) calc(var(--sp-xl) + env(safe-area-inset-bottom)); }
 @media (min-width: 768px) { .onboard-form { padding: var(--sp-2xl); } }
-.onboard-form-inner { margin: 0 auto; width: 100%; max-width: 420px; flex: 1; display: flex; flex-direction: column; }
+/* A fixed 420px reads fine on a laptop, where .onboard-form (flex: 1) is
+   itself not much wider than that -- but on a large desktop monitor the
+   same 420px sits stranded in a much wider column, and the title/body read
+   as small only because there's so much empty margin either side of them.
+   Scales with the column instead, capped well short of a line length
+   that stops being comfortable to read. */
+.onboard-form-inner { margin: 0 auto; width: 100%; max-width: clamp(420px, 40vw, 620px); flex: 1; display: flex; flex-direction: column; }
 
 .onboard-top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-md); }
 .onboard-dots { display: flex; gap: 6px; }
