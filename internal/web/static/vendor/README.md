@@ -48,3 +48,31 @@ OpenStreetMap's tile usage policy covers light use and asks for an identifying
 Referer, which a browser sends. A real deployment at scale should point
 `TILE_URL` in `redeem.js` at its own tile server or a commercial provider rather
 than leaning on donated infrastructure.
+
+## fonts/
+
+`google-sans-flex-latin.woff2` and `roboto-latin.woff2`, the latin-subset
+variable-font files Google Fonts serves for **Google Sans Flex** (display/
+headings) and **Roboto** (body). Both are licensed under the SIL Open Font
+License 1.1 and both, as of this download, ship as a single variable file
+covering their whole weight range rather than one file per weight -- so there
+is exactly one file each to vendor, not four.
+
+Self-hosted for the same reason as everything else in this directory: no
+JavaScript toolchain, and a page a crabber opens with one bar of signal should
+not also be waiting on `fonts.googleapis.com`. `style.css` declares each with
+a `font-weight: <min> <max>` range rather than a fixed weight, so `font-weight:
+500` in a rule picks the actual interpolated instance instead of falling back
+to a synthetic bold.
+
+To update: re-fetch `https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..700&family=Roboto:wght@400..700&display=swap`
+with a browser user agent (a bare `curl` gets served woff/ttf instead of
+woff2), take the `url(...)` for the `unicode-range: U+0000-00FF, ...` ("latin")
+block for each family, and replace the file it points to.
+
+## animals/
+
+Species and family-level silhouette icons from [PhyloPic](https://www.phylopic.org),
+used as the icon on a card's ambient-gradient header. See `animals/ATTRIBUTION.md`
+for the contributor and license of each -- PhyloPic silhouettes are
+individually contributed and individually licensed, and most require credit.

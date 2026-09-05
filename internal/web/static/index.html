@@ -4,6 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SCDNR wildlife tag program</title>
+<script>
+  // Applied before first paint so a person who chose dark never sees a
+  // light flash. See theme.js for the toggle itself.
+  try {
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('wildtag.theme') || 'light');
+  } catch (_) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="index">
@@ -29,6 +38,10 @@
         Admin
       </a>
     </nav>
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode">
+      <svg class="icon-sun" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="3.5"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1 4.7 4.7"/></svg>
+      <svg class="icon-moon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 12.3A6.8 6.8 0 0 1 7.7 3.5a7 7 0 1 0 8.8 8.8Z"/></svg>
+    </button>
     <button type="button" class="hamburger" id="navToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
       <span class="hamburger-box">
         <span class="hamburger-line"></span>
@@ -54,6 +67,10 @@
       Admin
     </a>
   </nav>
+  <div class="mobile-theme-row">
+    <span>Dark mode</span>
+    <button type="button" class="theme-switch" data-theme-toggle aria-label="Toggle dark mode"></button>
+  </div>
 </div>
 
 <!-- The Dataset popover/sheet: one panel, two triggers above (desktop nav
@@ -72,9 +89,37 @@
 
 <main class="wrap">
 
+  <p class="page-title">The programme, live</p>
+
   <div class="card">
     <h2>The program</h2>
     <div class="grid stats" id="stats"></div>
+  </div>
+
+  <div class="card">
+    <h2>Species in this programme</h2>
+    <div class="grid cards">
+      <a class="grad-card" href="/about">
+        <div class="grad-card-header size-sm" style="background: var(--grad-estuary)">
+          <div class="card-icon-badge"><img src="/vendor/animals/blue-crab.svg" alt="" loading="lazy"></div>
+        </div>
+        <div class="grad-card-body">
+          <span class="grad-card-eyebrow">Mark-recapture</span>
+          <div class="grad-card-title">Atlantic blue crab</div>
+          <div class="grad-card-sub">Callinectes sapidus</div>
+        </div>
+      </a>
+      <a class="grad-card" href="/about">
+        <div class="grad-card-header size-sm" style="background: var(--grad-sunset)">
+          <div class="card-icon-badge"><img src="/vendor/animals/red-drum.svg" alt="" loading="lazy"></div>
+        </div>
+        <div class="grad-card-body">
+          <span class="grad-card-eyebrow">Mark-recapture</span>
+          <div class="grad-card-title">Red drum</div>
+          <div class="grad-card-sub">Sciaenops ocellatus</div>
+        </div>
+      </a>
+    </div>
   </div>
 
   <div class="card">
@@ -131,17 +176,6 @@
     </dl>
   </div>
 
-  <div class="card">
-    <h2>Open data</h2>
-    <p class="note">
-      Every row of the dataset names the transaction that recorded it and
-      whether that transaction has a verified merkle proof, so any single line
-      can be checked against the chain rather than taken on our word.
-      <a href="/api/export.csv">Download CSV</a> or
-      <a href="/api/export.json">JSON</a>.
-    </p>
-  </div>
-
 </main>
 
 <footer>
@@ -149,6 +183,7 @@
   network <span id="net" class="mono"></span>
 </footer>
 
+<script src="theme.js"></script>
 <script src="nav.js"></script>
 <script src="datamenu.js"></script>
 <script src="app.js"></script>

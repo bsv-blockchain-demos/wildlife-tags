@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tagged animal — report and get paid</title>
+<script>
+  try {
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('wildtag.theme') || 'light');
+  } catch (_) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+</script>
 <link rel="stylesheet" href="vendor/leaflet.css">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -105,7 +112,8 @@
        that many reporters care more about the animal's history than the money,
        so this gets the weight rather than the payment confirmation. -->
   <div id="prov" class="card hidden">
-    <div class="crab-hero">
+    <div class="crab-hero" id="crabHero">
+      <div class="card-icon-badge" id="animalIconBadge"><img id="animalIcon" src="" alt="" loading="lazy"></div>
       <div class="crab-name" id="animalName"></div>
       <div class="crab-sub" id="animalSub"></div>
     </div>

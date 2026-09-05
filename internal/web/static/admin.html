@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SCDNR wildlife tag admin</title>
+<script>
+  try {
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('wildtag.theme') || 'light');
+  } catch (_) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="admin">
@@ -24,6 +31,10 @@
         Sign out
       </a>
     </nav>
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode">
+      <svg class="icon-sun" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="3.5"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1 4.7 4.7"/></svg>
+      <svg class="icon-moon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 12.3A6.8 6.8 0 0 1 7.7 3.5a7 7 0 1 0 8.8 8.8Z"/></svg>
+    </button>
     <button type="button" class="hamburger" id="navToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
       <span class="hamburger-box">
         <span class="hamburger-line"></span>
@@ -45,6 +56,10 @@
       Sign out
     </a>
   </nav>
+  <div class="mobile-theme-row">
+    <span>Dark mode</span>
+    <button type="button" class="theme-switch" data-theme-toggle aria-label="Toggle dark mode"></button>
+  </div>
 </div>
 
 <main class="wrap">
@@ -71,105 +86,131 @@
     <div id="loginErr" class="err" style="margin-top:12px"></div>
   </div>
 
+  <!-- Arm-first: this is what a field biologist opens the console to do,
+       every time, so it is the tab that's already open. Batches, funding,
+       and re-arming happen far less often and move to their own tabs
+       rather than sharing scroll real estate with the thing done daily. -->
   <div id="console" class="hidden">
 
-    <div class="card">
-      <h2>Funding</h2>
-      <div class="grid stats" id="funding"></div>
-      <p class="note" style="margin-top:12px">
-        Send BSV to <span id="deposit" class="mono"></span> to fund activations.
-      </p>
-    </div>
-
-    <div class="grid two">
-      <div class="card">
-        <h2>Print a batch</h2>
-        <div class="row">
-          <div class="field">
-            <label for="count">How many tags</label>
-            <input id="count" type="number" min="1" max="5000" value="50">
-          </div>
-          <div class="field">
-            <label for="mintSpecies">For which species</label>
-            <select id="mintSpecies"></select>
-          </div>
-        </div>
-        <button id="mint" class="primary wide">Create batch</button>
-        <div id="mintErr" class="err" style="margin-top:10px"></div>
-        <p class="note" style="margin-top:12px">
-          Creating a batch mints keys and tag ids; it does not spend anything.
-          Tags carry no money until they are armed on an animal. The species is
-          a hint for the printer &mdash; a deer ear tag is not a 1&times;2in crab
-          tag &mdash; and what each animal actually was is decided when the tag
-          is armed.
-        </p>
-      </div>
-
-      <div class="card">
-        <h2>Batches</h2>
-        <div class="scroll-x">
-          <table>
-            <thead><tr><th>Batch</th><th>Tags</th><th>Created</th><th></th></tr></thead>
-            <tbody id="batches"></tbody>
-          </table>
-        </div>
-      </div>
+    <div class="tabbar" role="tablist" aria-label="Admin sections">
+      <button type="button" class="tab-btn" role="tab" id="tab-arm" aria-selected="true" aria-controls="panel-arm" data-tab="arm">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/></svg>
+        Arm a tag
+      </button>
+      <button type="button" class="tab-btn" role="tab" id="tab-batches" aria-selected="false" aria-controls="panel-batches" data-tab="batches">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5.5" width="14" height="10" rx="1.5"/><path d="M3 8.5h14"/><circle cx="13.5" cy="12" r="1"/></svg>
+        Batches &amp; funding
+      </button>
+      <button type="button" class="tab-btn" role="tab" id="tab-rearm" aria-selected="false" aria-controls="panel-rearm" data-tab="rearm">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 10a6.5 6.5 0 1 1-2-4.7"/><path d="M16.5 3v4h-4"/></svg>
+        Waiting to re-arm
+      </button>
     </div>
 
     <!-- Arming a tag. This form is used standing up, in a boat, so the fields
-         are ordered the way the work happens: pick the tag, measure, then fix
-         the position last because that is the slowest step. -->
-    <div class="card">
-      <h2>Arm a tag</h2>
-      <div id="armBanner" class="banner hidden"></div>
+         are ordered the way the work happens: pick the species, pick the
+         tag, measure, then fix the position last because that is the
+         slowest step. -->
+    <div class="tab-panel" id="panel-arm" role="tabpanel" aria-labelledby="tab-arm">
+      <div class="card">
+        <h2>Arm a tag</h2>
+        <div id="armBanner" class="banner hidden"></div>
 
-      <div class="field">
-        <label for="tag">Tag id</label>
-        <input id="tag" class="mono" placeholder="K2M-9Q7" autocapitalize="characters">
-        <p class="note">Read it off the tag, or scan the QR and copy the code shown.</p>
+        <div class="field">
+          <label id="armSpeciesLabel">Species</label>
+          <div class="species-grid" id="armSpeciesGrid" role="radiogroup" aria-labelledby="armSpeciesLabel"></div>
+          <p class="note" id="armSpeciesNote"></p>
+        </div>
+
+        <div class="field">
+          <label for="tag">Tag id</label>
+          <input id="tag" class="mono" placeholder="K2M-9Q7" autocapitalize="characters">
+          <p class="note">Read it off the tag, or scan the QR and copy the code shown.</p>
+        </div>
+
+        <!-- What this species records. Built from GET /api/schema: the console
+             does not know what a carapace width is, which is what lets a new
+             species be a JSON file rather than a release. -->
+        <div id="armFields"></div>
+
+        <div class="field">
+          <label for="aname">Name this animal <span class="note">(optional)</span></label>
+          <input id="aname" type="text" maxlength="24" placeholder="leave blank to let the finder name it" autocomplete="off">
+          <p class="note">Leaving this blank is usually the better call: whoever
+            finds it gets to name it, and that is the part people remember. Either
+            way the name is permanent and public.</p>
+        </div>
+
+        <div class="field">
+          <label>Where you are</label>
+          <div id="afix" class="banner">No position fix yet.</div>
+          <button type="button" id="alocate" class="wide">Use my location</button>
+        </div>
+
+        <div id="armErr" class="err"></div>
+        <button id="arm" class="primary wide" disabled>Arm this tag</button>
       </div>
-
-      <div class="field">
-        <label for="armSpecies">Species</label>
-        <select id="armSpecies"></select>
-        <p class="note" id="armSpeciesNote"></p>
-      </div>
-
-      <!-- What this species records. Built from GET /api/schema: the console
-           does not know what a carapace width is, which is what lets a new
-           species be a JSON file rather than a release. -->
-      <div id="armFields"></div>
-
-      <div class="field">
-        <label for="aname">Name this animal <span class="note">(optional)</span></label>
-        <input id="aname" type="text" maxlength="24" placeholder="leave blank to let the finder name it" autocomplete="off">
-        <p class="note">Leaving this blank is usually the better call: whoever
-          finds it gets to name it, and that is the part people remember. Either
-          way the name is permanent and public.</p>
-      </div>
-
-      <div class="field">
-        <label>Where you are</label>
-        <div id="afix" class="banner">No position fix yet.</div>
-        <button type="button" id="alocate" class="wide">Use my location</button>
-      </div>
-
-      <div id="armErr" class="err"></div>
-      <button id="arm" class="primary wide" disabled>Arm this tag</button>
     </div>
 
-    <div class="card">
-      <h2>Waiting to be put back in service</h2>
-      <p class="note">
-        A tag that has just been reported sits out a cooldown before it can be
-        claimed again. That window is the one chance to look at a report before
-        the tag becomes claimable, so putting it back is a deliberate act.
-      </p>
-      <div class="scroll-x">
-        <table>
-          <thead><tr><th>Tag</th><th>Gen</th><th>Holds</th><th></th></tr></thead>
-          <tbody id="rearms"></tbody>
-        </table>
+    <div class="tab-panel" id="panel-batches" role="tabpanel" aria-labelledby="tab-batches" hidden>
+      <div class="card">
+        <h2>Funding</h2>
+        <div class="grid stats" id="funding"></div>
+        <p class="note" style="margin-top:12px">
+          Send BSV to <span id="deposit" class="mono"></span> to fund activations.
+        </p>
+      </div>
+
+      <div class="grid two">
+        <div class="card">
+          <h2>Print a batch</h2>
+          <div class="row">
+            <div class="field">
+              <label for="count">How many tags</label>
+              <input id="count" type="number" min="1" max="5000" value="50">
+            </div>
+            <div class="field">
+              <label for="mintSpecies">For which species</label>
+              <select id="mintSpecies"></select>
+            </div>
+          </div>
+          <button id="mint" class="primary wide">Create batch</button>
+          <div id="mintErr" class="err" style="margin-top:10px"></div>
+          <p class="note" style="margin-top:12px">
+            Creating a batch mints keys and tag ids; it does not spend anything.
+            Tags carry no money until they are armed on an animal. The species is
+            a hint for the printer &mdash; a deer ear tag is not a 1&times;2in crab
+            tag &mdash; and what each animal actually was is decided when the tag
+            is armed.
+          </p>
+        </div>
+
+        <div class="card">
+          <h2>Batches</h2>
+          <div class="scroll-x">
+            <table>
+              <thead><tr><th>Batch</th><th>Tags</th><th>Created</th><th></th></tr></thead>
+              <tbody id="batches"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="panel-rearm" role="tabpanel" aria-labelledby="tab-rearm" hidden>
+      <div class="card">
+        <h2>Waiting to be put back in service</h2>
+        <p class="note">
+          A tag that has just been reported sits out a cooldown before it can be
+          claimed again. That window is the one chance to look at a report before
+          the tag becomes claimable, so putting it back is a deliberate act.
+        </p>
+        <div class="scroll-x">
+          <table>
+            <thead><tr><th>Tag</th><th>Gen</th><th>Holds</th><th></th></tr></thead>
+            <tbody id="rearms"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -178,7 +219,9 @@
 
 <footer>South Carolina Department of Natural Resources</footer>
 
+<script src="theme.js"></script>
 <script src="nav.js"></script>
+<script src="tabs.js"></script>
 <script src="canonical.js"></script>
 <script src="schema.js"></script>
 <script src="wallet.js"></script>

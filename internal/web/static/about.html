@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>About &mdash; SCDNR wildlife tag rewards</title>
+<script>
+  try {
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('wildtag.theme') || 'light');
+  } catch (_) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="about">
@@ -29,6 +36,10 @@
         Admin
       </a>
     </nav>
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode">
+      <svg class="icon-sun" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="3.5"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1 4.7 4.7"/></svg>
+      <svg class="icon-moon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 12.3A6.8 6.8 0 0 1 7.7 3.5a7 7 0 1 0 8.8 8.8Z"/></svg>
+    </button>
     <button type="button" class="hamburger" id="navToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
       <span class="hamburger-box">
         <span class="hamburger-line"></span>
@@ -54,6 +65,10 @@
       Admin
     </a>
   </nav>
+  <div class="mobile-theme-row">
+    <span>Dark mode</span>
+    <button type="button" class="theme-switch" data-theme-toggle aria-label="Toggle dark mode"></button>
+  </div>
 </div>
 
 <div class="data-panel" id="dataPanel" role="menu" aria-label="Download the dataset" hidden>
@@ -401,6 +416,17 @@
         reward, a timestamped record nobody can edit &mdash; is a fact about
         <em>Callinectes sapidus</em>.</p>
 
+      <div class="badge-stack" aria-hidden="true" style="margin: var(--sp-md) 0;">
+        <span class="icon-badge tone-estuary"><img src="/vendor/animals/crab-generic.svg" alt="" loading="lazy"></span>
+        <span class="icon-badge tone-tide"><img src="/vendor/animals/fish-generic.svg" alt="" loading="lazy"></span>
+        <span class="icon-badge tone-marsh"><img src="/vendor/animals/sea-turtle.svg" alt="" loading="lazy"></span>
+        <span class="icon-badge tone-sunset"><img src="/vendor/animals/shark.svg" alt="" loading="lazy"></span>
+        <span class="icon-badge tone-amber"><img src="/vendor/animals/bird-generic.svg" alt="" loading="lazy"></span>
+      </div>
+      <p class="note">A species is a schema file, not a code change &mdash;
+        the mechanism doesn't care whether the next one has claws, fins,
+        a shell, or feathers.</p>
+
       <div class="grid two">
         <div>
           <h3 class="sub-head">A species is a file</h3>
@@ -514,6 +540,7 @@
   <a href="/api/export.csv">open dataset</a>
 </footer>
 
+<script src="theme.js"></script>
 <script src="nav.js"></script>
 <script src="datamenu.js"></script>
 <script src="accordion.js"></script>

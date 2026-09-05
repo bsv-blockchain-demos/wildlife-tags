@@ -229,6 +229,14 @@ func (s *Server) serveStatic(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/css; charset=utf-8")
 	case strings.HasSuffix(path, ".html"):
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	case strings.HasSuffix(path, ".svg"):
+		// Without this, Go's fallback content sniffer reads the XML
+		// declaration every one of these files starts with and calls it
+		// text/xml, which a browser will not paint into an <img>: the
+		// species icons render as a broken-image glyph instead of a crab.
+		w.Header().Set("Content-Type", "image/svg+xml")
+	case strings.HasSuffix(path, ".woff2"):
+		w.Header().Set("Content-Type", "font/woff2")
 	}
 	w.Header().Set("ETag", etag)
 	if r.URL.Query().Get("v") != "" {

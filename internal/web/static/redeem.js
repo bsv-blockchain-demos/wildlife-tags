@@ -530,7 +530,27 @@
     renderMap(p);
   }
 
+  // Same species -> icon/gradient mapping as admin.js's card grid, kept in
+  // step by hand since there's no module system here to share it through.
+  // Species not in the map (anything a future deployment adds) falls back
+  // to a generic family silhouette rather than a broken image.
+  const SPECIES_ICON = { CALSAP: 'blue-crab.svg', SCIOCE: 'red-drum.svg' };
+  const SPECIES_GRADIENT = { CALSAP: 'estuary', SCIOCE: 'sunset' };
+  const FALLBACK_ICON = 'crab-generic.svg';
+  const FALLBACK_GRADIENT = 'slate';
+
+  function renderHeroStyle(p) {
+    const grad = SPECIES_GRADIENT[p.species] || FALLBACK_GRADIENT;
+    const icon = SPECIES_ICON[p.species] || FALLBACK_ICON;
+    $('crabHero').style.background = `var(--grad-${grad})`;
+    // Absolute, not relative: this page is served at /t/{tagID}, and a
+    // relative path set from JS (which the server's static-HTML rewrite
+    // step never sees) resolves against that nested URL, not against /.
+    $('animalIcon').src = `/vendor/animals/${icon}`;
+  }
+
   function renderName(p) {
+    renderHeroStyle(p);
     const el = $('animalName');
     const what = p.common_name || 'animal';
     if (p.name) {
@@ -758,6 +778,7 @@
     return Object.assign(
       {
         tag_id: 'K2M9Q7C',
+        species: 'CALSAP',
         common_name: 'Blue crab',
         scientific_name: 'Callinectes sapidus',
         name: '',

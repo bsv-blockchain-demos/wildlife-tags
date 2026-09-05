@@ -183,23 +183,74 @@
     );
   }
 
-  // fillSpeciesPickers offers every profile the deployment knows about, and
-  // rebuilds the tagging form whenever the choice changes.
+  // Species icon and gradient are keyed by code so a given species always
+  // gets the same card everywhere it appears. Anything not in the map --
+  // any species this deployment adds later -- falls back to a generic
+  // family silhouette rather than a broken image, which is the whole point
+  // of the schema being data: a new profile shouldn't need a matching icon
+  // shipped in the same release.
+  const SPECIES_ICON = { CALSAP: 'blue-crab.svg', SCIOCE: 'red-drum.svg' };
+  const SPECIES_GRADIENT = { CALSAP: 'estuary', SCIOCE: 'sunset' };
+  const FALLBACK_ICON = 'crab-generic.svg';
+  const FALLBACK_GRADIENT = 'slate';
+
+  // fillSpeciesPickers offers every profile the deployment knows about: a
+  // visual card grid for the form used daily (arming), a plain <select> for
+  // the one used occasionally (minting a batch, tucked into its own tab).
   function fillSpeciesPickers() {
-    const options = window.Schema.profiles()
-      .map((p) => `<option value="${p.code}">${p.common} (${p.scientific})</option>`)
-      .join('');
-    for (const id of ['mintSpecies', 'armSpecies']) {
-      const el = $(id);
-      if (!el) continue;
-      el.innerHTML = options;
-      el.value = window.Schema.profile().code;
+    const profiles = window.Schema.profiles();
+
+    const mintEl = $('mintSpecies');
+    if (mintEl) {
+      mintEl.innerHTML = profiles
+        .map((p) => `<option value="${p.code}">${p.common} (${p.scientific})</option>`)
+        .join('');
+      mintEl.value = window.Schema.profile().code;
     }
+
+    const grid = $('armSpeciesGrid');
+    if (grid) {
+      grid.innerHTML = profiles
+        .map((p) => {
+          const grad = SPECIES_GRADIENT[p.code] || FALLBACK_GRADIENT;
+          const icon = SPECIES_ICON[p.code] || FALLBACK_ICON;
+          return (
+            `<button type="button" class="species-card" data-species="${p.code}" role="radio" aria-checked="false" aria-pressed="false">` +
+            `<div class="species-card-header" style="background: var(--grad-${grad})">` +
+            `<div class="card-icon-badge"><img src="/vendor/animals/${icon}" alt="" loading="lazy"></div>` +
+            `</div>` +
+            `<div class="species-card-body">` +
+            `<div class="species-card-name">${p.common}</div>` +
+            `<div class="species-card-sci">${p.scientific}</div>` +
+            `</div></button>`
+          );
+        })
+        .join('');
+      grid.querySelectorAll('.species-card').forEach((btn) => {
+        btn.addEventListener('click', () => selectSpeciesCard(btn.dataset.species));
+      });
+      const preselect = grid.querySelector(`[data-species="${window.Schema.profile().code}"]`) || grid.querySelector('.species-card');
+      if (preselect) selectSpeciesCard(preselect.dataset.species);
+    } else {
+      onSpeciesChange();
+    }
+  }
+
+  // selectSpeciesCard is the card grid's equivalent of a <select>'s change
+  // event: mark the one pressed card, rebuild the form under it.
+  function selectSpeciesCard(code) {
+    const grid = $('armSpeciesGrid');
+    grid.querySelectorAll('.species-card').forEach((btn) => {
+      const on = btn.dataset.species === code;
+      btn.setAttribute('aria-pressed', String(on));
+      btn.setAttribute('aria-checked', String(on));
+    });
+    state.armSpeciesCode = code;
     onSpeciesChange();
   }
 
   function onSpeciesChange() {
-    state.profile = window.Schema.profile($('armSpecies').value);
+    state.profile = window.Schema.profile(state.armSpeciesCode);
     if (!state.profile) return;
 
     $('armSpeciesNote').textContent =
@@ -368,7 +419,6 @@
     $('alocate').addEventListener('click', locate);
     $('arm').addEventListener('click', arm);
     $('tag').addEventListener('input', checkArmable);
-    $('armSpecies').addEventListener('change', onSpeciesChange);
     $('rearms').addEventListener('click', (e) => {
       const id = e.target.getAttribute && e.target.getAttribute('data-rearm');
       if (id) rearm(id, e.target);
