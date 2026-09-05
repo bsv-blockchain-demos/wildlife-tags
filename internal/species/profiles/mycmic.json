@@ -1,0 +1,55 @@
+{
+  "code": "MYCMIC",
+  "common": "Gag grouper",
+  "scientific": "Mycteroperca microlepis",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "tl",
+  "sweep_after_days": 1825,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Every gag grouper starts life as a female. Only the oldest fish, usually past eight years old, change to male, and the switch only happens within the crowded winter spawning aggregations that trigger it, not simply with age alone.",
+    "Like other groupers, a gag doesn't chase down its prey so much as inhale it: the strike is an explosive expansion of the mouth and gill cavity that can suck a fish in and clamp shut within roughly a twentieth of a second.",
+    "A gag grouper can live past 30 years old, which means a fish landed today may have hatched before most of the anglers catching it were born."
+  ],
+  "measures": [
+    { "key": "tl", "label": "Total length", "unit": "mm", "scale": 1,
+      "min": 400, "max": 1300, "required": true,
+      "help": "Tip of the lower jaw to the tip of the tail, fish laid flat." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Gag grouper are protogynous hermaphrodites: every fish is born female, and only the oldest, largest individuals later change to male. That transition leaves no visible external sign, so sex still cannot be told by looking at the fish in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "help": "Reef fish brought up from depth often show barotrauma: a bulging stomach, distended eyes, or a swim bladder too inflated to let the fish swim back down. Score the fish's overall responsiveness, not just whether barotrauma is present.",
+      "values": [
+        { "code": "GOOD",  "label": "Good: swam off strongly" },
+        { "code": "FAIR",  "label": "Fair: slow to recover" },
+        { "code": "POOR",  "label": "Poor: barely responsive" },
+        { "code": "BLEED", "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "HANDLINE", "label": "Bottom fishing / natural bait", "icon": "gear-hook" },
+        { "code": "JIG",      "label": "Jig", "icon": "gear-hook" },
+        { "code": "SPEAR",    "label": "Spearfishing" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "tl", "less_than": 610,
+      "reason": "under the federal 24-inch minimum for gag grouper in South Atlantic waters" }
+  ]
+}

@@ -160,47 +160,21 @@
 
   <div class="card">
     <h2>Species in this programme</h2>
-    <div class="grid cards">
-      <a class="grad-card" href="/about">
-        <div class="grad-card-header size-sm" style="background: var(--grad-estuary)">
-          <div class="card-icon-badge"><img src="/vendor/animals/blue-crab.svg" alt="" loading="lazy"></div>
-        </div>
-        <div class="grad-card-body">
-          <span class="grad-card-eyebrow">Mark-recapture</span>
-          <div class="grad-card-title">Atlantic blue crab</div>
-          <div class="grad-card-sub">Callinectes sapidus</div>
-        </div>
-      </a>
-      <a class="grad-card" href="/about">
-        <div class="grad-card-header size-sm" style="background: var(--grad-sunset)">
-          <div class="card-icon-badge"><img src="/vendor/animals/red-drum.svg" alt="" loading="lazy"></div>
-        </div>
-        <div class="grad-card-body">
-          <span class="grad-card-eyebrow">Mark-recapture</span>
-          <div class="grad-card-title">Red drum</div>
-          <div class="grad-card-sub">Sciaenops ocellatus</div>
-        </div>
-      </a>
-      <a class="grad-card" href="/about">
-        <div class="grad-card-header size-sm" style="background: var(--grad-marsh)">
-          <div class="card-icon-badge"><img src="/vendor/animals/sea-turtle.svg" alt="" loading="lazy"></div>
-        </div>
-        <div class="grad-card-body">
-          <span class="grad-card-eyebrow">Mark-recapture</span>
-          <div class="grad-card-title">Loggerhead sea turtle</div>
-          <div class="grad-card-sub">Caretta caretta</div>
-        </div>
-      </a>
-      <a class="grad-card" href="/about">
-        <div class="grad-card-header size-sm" style="background: var(--grad-tide)">
-          <div class="card-icon-badge"><img src="/vendor/animals/shark.svg" alt="" loading="lazy"></div>
-        </div>
-        <div class="grad-card-body">
-          <span class="grad-card-eyebrow">Mark-recapture</span>
-          <div class="grad-card-title">Sandbar shark</div>
-          <div class="grad-card-sub">Carcharhinus plumbeus</div>
-        </div>
-      </a>
+    <!-- Built from GET /api/schema, not hand-copied per species -- see
+         app.js's renderSpeciesGrid. Two species were a reasonable amount of
+         markup to hand-author twice (index.html and about.html's own
+         "not a crab system" illustration); the full marine game fish
+         tagging roster (see dnr.sc.gov/marine/tagfish/tagspecies.html)
+         is not. -->
+    <div class="grid cards" id="speciesGrid">
+      <div class="grad-card" aria-hidden="true">
+        <div class="grad-card-header size-sm"></div>
+        <div class="grad-card-body"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+      </div>
+      <div class="grad-card" aria-hidden="true">
+        <div class="grad-card-header size-sm"></div>
+        <div class="grad-card-body"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+      </div>
     </div>
   </div>
 
@@ -274,6 +248,7 @@
 <script src="nav.js"></script>
 <script src="datamenu.js"></script>
 <script src="reveal.js"></script>
+<script src="schema.js"></script>
 <script src="app.js"></script>
 <script src="focus-trap.js"></script>
 <script src="onboarding.js"></script>

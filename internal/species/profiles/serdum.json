@@ -1,0 +1,54 @@
+{
+  "code": "SERDUM",
+  "common": "Greater amberjack",
+  "scientific": "Seriola dumerili",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "tl",
+  "sweep_after_days": 1460,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Greater amberjack pack most of their growth into their first five years: back-calculated data puts a South Atlantic fish at roughly 14 inches at age 1 and about 34 inches by age 5, then growth slows sharply, adding only a foot or so more over the next decade.",
+    "A single female can release tens of millions of eggs in one season, as many as 59 million, spawning again every four or five days for about two months straight at dense aggregations over specific reefs and wrecks.",
+    "The biggest amberjack, the 'reef donkeys' anglers prize most, carry the highest risk of ciguatera poisoning, a reef-food-chain toxin that concentrates with age and size -- one of the few gamefish where releasing the largest fish caught, not the smallest, is the safer call."
+  ],
+  "measures": [
+    { "key": "tl", "label": "Total length", "unit": "mm", "scale": 1,
+      "min": 500, "max": 1800, "required": true,
+      "help": "Tip of the snout to the tip of the tail, with the tail lobes pinched together for a straight-line measurement." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Greater amberjack cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",  "label": "Good: swam off strongly" },
+        { "code": "FAIR",  "label": "Fair: slow to recover" },
+        { "code": "POOR",  "label": "Poor: barely responsive" },
+        { "code": "BLEED", "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "BOTTOM",   "label": "Bottom fishing over reef / wreck", "icon": "gear-hook" },
+        { "code": "JIG",      "label": "Deep jigging", "icon": "gear-hook" },
+        { "code": "LIVEBAIT", "label": "Live bait over structure", "icon": "gear-hook" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "tl", "less_than": 711,
+      "reason": "under the South Atlantic's federal 28-inch minimum for greater amberjack; that limit is set in fork length, and this profile records total length instead, so 711 mm is used as a practical floor -- a fish shorter than that is undersized under either measurement" }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "code": "ACASOL",
+  "common": "Wahoo",
+  "scientific": "Acanthocybium solandri",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "fl",
+  "sweep_after_days": 1095,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Wahoo are among the fastest-growing fish in the ocean: in their first year, some individuals pack on more than 3 millimetres of length a day, a growth rate matched by almost nothing else in the sea except mahi-mahi and striped marlin.",
+    "The much-repeated claim that a wahoo can hit 60 mph has never actually been measured; the one rigorous speed trial on record clocked a hooked wahoo at 48 mph in its first ten seconds of running, still startlingly fast, just not the number the fish is famous for.",
+    "A wahoo doesn't swallow prey whole the way many of its relatives do: its jaw carries a single row of triangular, razor-serrated teeth built for slicing baitfish into pieces first, which is also why an unhooked wahoo boatside is handled with real caution."
+  ],
+  "measures": [
+    { "key": "fl", "label": "Fork length", "unit": "mm", "scale": 1,
+      "min": 500, "max": 2100, "required": true,
+      "help": "Tip of the snout to the fork of the tail, measured in a straight line." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Wahoo cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "TROLL_LURE", "label": "Trolling, lure", "icon": "gear-hook" },
+        { "code": "TROLL_BAIT", "label": "Trolling, live/dead bait", "icon": "gear-hook" },
+        { "code": "CHUNK",      "label": "Chunking / chum" },
+        { "code": "OTHER",      "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": []
+}

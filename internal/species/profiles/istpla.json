@@ -1,0 +1,55 @@
+{
+  "code": "ISTPLA",
+  "common": "Sailfish",
+  "scientific": "Istiophorus platypterus",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "ljfl",
+  "sweep_after_days": 0,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "The famous claim that a sailfish can hit 68 mph is a decades-old estimate timed off a fishing reel's stripped line; modern video and biomechanics studies can't reproduce anything close to it, and put its real top speed nearer 20 mph.",
+    "Hunting in a group, individual sailfish take turns dashing into a baitball to slash with their bill while the rest hold back and wait, an \"alternating attack\" strategy that lets the group injure far more prey than one fish attacking alone, with no need to coordinate the timing.",
+    "The sail isn't for show while cruising: a sailfish swims with it folded flat against its back most of the time, and only raises it when threatened or excited, both to look larger and to help pin a ball of baitfish against the surface."
+  ],
+  "measures": [
+    { "key": "ljfl", "label": "Lower jaw fork length", "unit": "mm", "scale": 1,
+      "min": 1200, "max": 2800, "required": true,
+      "help": "Tip of the lower jaw to the fork of the tail, measured in a straight line -- the standard billfish measurement." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Sailfish cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "help": "Billfish tagging is normally done boat-side, leaving the fish in the water where possible.",
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "TROLL_LURE", "label": "Trolling, artificial lure", "icon": "gear-hook" },
+        { "code": "TROLL_BAIT", "label": "Trolling, natural bait", "icon": "gear-hook" },
+        { "code": "KITE",       "label": "Kite fishing", "icon": "gear-hook" },
+        { "code": "OTHER",      "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "ljfl", "less_than": 5000,
+      "reason": "Atlantic sailfish may legally be retained only by an angler holding a federal Highly Migratory Species permit landing a fish at or above a 63-inch lower jaw fork length minimum; in South Carolina waters sailfish fishing is practiced almost exclusively catch-and-release, and every sailfish encountered in this tagging programme is released" }
+  ]
+}

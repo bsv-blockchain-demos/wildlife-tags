@@ -1,0 +1,51 @@
+{
+  "code": "THUATL",
+  "common": "Blackfin tuna",
+  "scientific": "Thunnus atlanticus",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "fl",
+  "sweep_after_days": 1095,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Blackfin tuna hunt in short violent bursts: they slam into a school of baitfish to scatter it, then wheel back through the scattered fish to pick off stragglers one at a time, rather than simply chasing prey down in a straight line.",
+    "Unlike most tuna, which range across entire oceans, blackfin tuna live nowhere but the western Atlantic, and only in water warmer than about 20°C -- one reason they show up off South Carolina in the warm months and disappear the moment the water cools.",
+    "It's the smallest member of the true tuna genus Thunnus, topping out around 40 inches and 45 pounds, yet it's also one of the quickest: anglers who hook one report bursts near 40 mph, fast enough to strip line as hard as tuna many times its size."
+  ],
+  "measures": [
+    { "key": "fl", "label": "Fork length", "unit": "mm", "scale": 1,
+      "min": 250, "max": 1100, "required": true,
+      "help": "Measured along the curve of the body, from the tip of the upper jaw to the fork of the tail; curved fork length is the standard tuna measurement." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Blackfin tuna cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "TROLL_LURE", "label": "Trolling, lure", "icon": "gear-hook" },
+        { "code": "TROLL_BAIT", "label": "Trolling, live/dead bait", "icon": "gear-hook" },
+        { "code": "CHUNK",      "label": "Chunking / chum" },
+        { "code": "OTHER",      "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": []
+}

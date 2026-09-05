@@ -1,0 +1,54 @@
+{
+  "code": "SCOMAC",
+  "common": "Spanish mackerel",
+  "scientific": "Scomberomorus maculatus",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "fl",
+  "sweep_after_days": 1460,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Spanish mackerel have no swim bladder, so they can't hover suspended in the water the way most fish can: stop swimming and it sinks, which is part of why a whole school stays in constant, fast motion.",
+    "A Spanish mackerel barely two feet long can hit bursts over 30 mph, chasing baitfish schools it and the rest of its school drive to the surface in coordinated attacks.",
+    "The fish that shows up off South Carolina each summer has often swum there all the way from Florida, and some push as far north as New York by June before turning around every fall -- a round trip of well over a thousand miles guided almost entirely by water temperature."
+  ],
+  "measures": [
+    { "key": "fl", "label": "Fork length", "unit": "mm", "scale": 1,
+      "min": 250, "max": 900, "required": true,
+      "help": "Tip of the snout to the fork of the tail, measured in a straight line." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Spanish mackerel cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",  "label": "Good: swam off strongly" },
+        { "code": "FAIR",  "label": "Fair: slow to recover" },
+        { "code": "POOR",  "label": "Poor: barely responsive" },
+        { "code": "BLEED", "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "TROLL",    "label": "Trolling", "icon": "gear-line" },
+        { "code": "CASTLURE", "label": "Casting lures / jigs", "icon": "gear-hook" },
+        { "code": "LIVEBAIT", "label": "Live or dead bait", "icon": "gear-hook" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "fl", "less_than": 304,
+      "reason": "under South Carolina's 12-inch fork-length minimum for Spanish mackerel" }
+  ]
+}

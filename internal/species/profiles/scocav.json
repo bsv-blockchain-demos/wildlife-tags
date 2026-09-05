@@ -1,0 +1,54 @@
+{
+  "code": "SCOCAV",
+  "common": "King mackerel",
+  "scientific": "Scomberomorus cavalla",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "fl",
+  "sweep_after_days": 1460,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "A king mackerel can hit bursts near 70 km/h (43 mph) chasing prey, among the fastest sprint speeds measured in any bony fish -- it doesn't ambush from cover, it just runs baitfish down in open water.",
+    "It's one of only a handful of fish the FDA specifically tells pregnant women and young children to avoid entirely, in the same category as shark and swordfish: a long, slow-growing life lets mercury build up in its tissue for years before it's ever caught.",
+    "Tagging studies from the 1970s and 80s helped prove Atlantic and Gulf of Mexico king mackerel are two separate migratory stocks: the Atlantic group that passes South Carolina summers here and winters off Florida, mixing there with, but never blending into, an entirely different Gulf population."
+  ],
+  "measures": [
+    { "key": "fl", "label": "Fork length", "unit": "mm", "scale": 1,
+      "min": 500, "max": 1600, "required": true,
+      "help": "Tip of the snout to the fork of the tail, measured in a straight line." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "King mackerel cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",  "label": "Good: swam off strongly" },
+        { "code": "FAIR",  "label": "Fair: slow to recover" },
+        { "code": "POOR",  "label": "Poor: barely responsive" },
+        { "code": "BLEED", "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "TROLL",    "label": "Trolling", "icon": "gear-line" },
+        { "code": "LIVEBAIT", "label": "Live bait, drifted or slow-trolled", "icon": "gear-hook" },
+        { "code": "CASTLURE", "label": "Casting at surface-feeding fish", "icon": "gear-hook" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "fl", "less_than": 609,
+      "reason": "under South Carolina's 24-inch fork-length minimum for king mackerel in South Atlantic state and federal waters" }
+  ]
+}

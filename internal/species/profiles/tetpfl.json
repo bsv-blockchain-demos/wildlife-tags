@@ -1,0 +1,54 @@
+{
+  "code": "TETPFL",
+  "common": "Longbill spearfish",
+  "scientific": "Tetrapturus pfluegeri",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "ljfl",
+  "sweep_after_days": 0,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "It's named after a Miami taxidermist, not a scientist: Tetrapturus pfluegeri honors Al Pflueger Sr., whose shop mounted a huge share of the trophy billfish caught off Florida in the mid-20th century.",
+    "The species wasn't formally recognized as distinct from its Atlantic relatives until 1963 -- for decades, anglers and scientists alike had likely been calling occasional longbill spearfish catches something else entirely.",
+    "Slimmer than a marlin and carrying a sail lower than a sailfish's, the longbill spearfish is built more for a quick sprint than a long fight, and to this day it turns up almost entirely as bycatch rather than a species anyone sets out to catch."
+  ],
+  "measures": [
+    { "key": "ljfl", "label": "Lower jaw fork length", "unit": "mm", "scale": 1,
+      "min": 900, "max": 1800, "required": true,
+      "help": "Tip of the lower jaw to the fork of the tail, measured in a straight line -- the standard billfish measurement." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Longbill spearfish cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "help": "Billfish tagging is normally done boat-side, leaving the fish in the water where possible.",
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "TROLL_LURE", "label": "Trolling, artificial lure", "icon": "gear-hook" },
+        { "code": "TROLL_BAIT", "label": "Trolling, natural bait", "icon": "gear-hook" },
+        { "code": "OTHER",      "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "ljfl", "less_than": 5000,
+      "reason": "longbill spearfish are a prohibited species under US Atlantic Highly Migratory Species regulations: retention is not legal under any circumstance; every longbill spearfish encountered in this tagging programme is released" }
+  ]
+}

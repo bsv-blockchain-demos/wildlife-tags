@@ -29,9 +29,14 @@ var speciesArtByCode = map[string]speciesArt{
 	"SCIOCE": {From: "#9a3412", To: "#fb923c", Icon: "red-drum"},
 	"CARCAR": {From: "#14532d", To: "#4ade80", Icon: "sea-turtle"},
 	"CARPLU": {From: "#1e3a8a", To: "#60a5fa", Icon: "shark"},
+	"CARLIM": {From: "#9d174d", To: "#f9a8d4", Icon: "shark"},
 }
 
-var fallbackArt = speciesArt{From: "#1e293b", To: "#94a3b8", Icon: "crab-generic"}
+// The marine game fish tagging programme lists dozens of species (see
+// https://www.dnr.sc.gov/marine/tagfish/tagspecies.html); most are fish with
+// no dedicated silhouette shipped, hence a fish rather than a crab as the
+// fallback art.
+var fallbackArt = speciesArt{From: "#1e293b", To: "#94a3b8", Icon: "fish-generic"}
 
 func artFor(code string) speciesArt {
 	if a, ok := speciesArtByCode[code]; ok {

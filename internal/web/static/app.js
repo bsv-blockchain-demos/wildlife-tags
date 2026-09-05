@@ -157,6 +157,61 @@
     }
   }
 
+  // ---- species grid ---------------------------------------------------
+  //
+  // Built from GET /api/schema (see schema.js) rather than one hand-copied
+  // card per species: the marine game fish tagging programme alone lists
+  // dozens (dnr.sc.gov/marine/tagfish/tagspecies.html), and a hardcoded
+  // card per species is exactly the "found in four places" problem the
+  // schema was built to end. Icon/gradient mapping mirrors admin.js's
+  // species-picker grid and redeem.js's hero, kept in step by hand since
+  // there's no module system to share it through.
+  const esc = (s) =>
+    String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  const SPECIES_ICON = {
+    CALSAP: 'blue-crab.svg', SCIOCE: 'red-drum.svg', CARCAR: 'sea-turtle.svg',
+    CARPLU: 'shark.svg', CARLIM: 'shark.svg',
+  };
+  const SPECIES_GRADIENT = {
+    CALSAP: 'estuary', SCIOCE: 'sunset', CARCAR: 'marsh',
+    CARPLU: 'tide', CARLIM: 'coral',
+  };
+  const FALLBACK_ICON = 'fish-generic.svg';
+  // Every species this map doesn't name (nearly all of them, at programme
+  // scale) cycles through the rest of style.css's --grad-* tokens rather
+  // than all rendering the same fallback grey -- variety for a long grid,
+  // not a claim that any color "means" a particular species.
+  const GRADIENT_CYCLE = ['tide', 'sunset', 'marsh', 'dusk', 'coral', 'amber', 'estuary', 'slate'];
+
+  function speciesCard(p, index) {
+    const icon = SPECIES_ICON[p.code] || FALLBACK_ICON;
+    const grad = SPECIES_GRADIENT[p.code] || GRADIENT_CYCLE[index % GRADIENT_CYCLE.length];
+    const workflow = p.workflow === 'harvest' ? 'Harvest' : 'Mark-recapture';
+    return (
+      `<a class="grad-card" href="/about">` +
+      `<div class="grad-card-header size-sm" style="background: var(--grad-${grad})">` +
+      `<div class="card-icon-badge"><img src="/vendor/animals/${icon}" alt="" loading="lazy"></div>` +
+      `</div>` +
+      `<div class="grad-card-body">` +
+      `<span class="grad-card-eyebrow">${esc(workflow)}</span>` +
+      `<div class="grad-card-title">${esc(p.common)}</div>` +
+      `<div class="grad-card-sub">${esc(p.scientific)}</div>` +
+      `</div></a>`
+    );
+  }
+
+  async function renderSpeciesGrid() {
+    const grid = $('speciesGrid');
+    if (!grid) return;
+    try {
+      await window.Schema.load();
+      grid.innerHTML = window.Schema.profiles().map(speciesCard).join('');
+    } catch (e) {
+      grid.innerHTML = `<p class="note">Could not load the species list: ${esc(e.message)}</p>`;
+    }
+  }
+
   async function boot() {
     if (!$('stats')) return; // this script only has work to do on the dashboard
     try {
@@ -167,6 +222,7 @@
     }
     poll();
     pollTimer = setInterval(poll, 5000);
+    renderSpeciesGrid(); // independent of the stats poll; a slow schema fetch shouldn't delay it
   }
 
   // ---- dev-mode mocks, see devpanel.js -----------------------------------

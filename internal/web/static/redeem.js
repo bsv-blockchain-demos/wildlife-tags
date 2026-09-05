@@ -795,9 +795,19 @@
   // step by hand since there's no module system here to share it through.
   // Species not in the map (anything a future deployment adds) falls back
   // to a generic family silhouette rather than a broken image.
-  const SPECIES_ICON = { CALSAP: 'blue-crab.svg', SCIOCE: 'red-drum.svg', CARCAR: 'sea-turtle.svg', CARPLU: 'shark.svg' };
-  const SPECIES_GRADIENT = { CALSAP: 'estuary', SCIOCE: 'sunset', CARCAR: 'marsh', CARPLU: 'tide' };
-  const FALLBACK_ICON = 'crab-generic.svg';
+  const SPECIES_ICON = {
+    CALSAP: 'blue-crab.svg', SCIOCE: 'red-drum.svg', CARCAR: 'sea-turtle.svg',
+    CARPLU: 'shark.svg', CARLIM: 'shark.svg',
+  };
+  const SPECIES_GRADIENT = {
+    CALSAP: 'estuary', SCIOCE: 'sunset', CARCAR: 'marsh',
+    CARPLU: 'tide', CARLIM: 'coral',
+  };
+  // The marine game fish tagging programme lists dozens of species (see
+  // https://www.dnr.sc.gov/marine/tagfish/tagspecies.html); most are fish
+  // with no dedicated silhouette shipped, hence a fish rather than a crab
+  // as the generic fallback.
+  const FALLBACK_ICON = 'fish-generic.svg';
   const FALLBACK_GRADIENT = 'slate';
 
   function renderHeroStyle(p) {

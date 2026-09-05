@@ -1,0 +1,57 @@
+{
+  "code": "TRACAR",
+  "common": "Florida pompano",
+  "scientific": "Trachinotus carolinus",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "tl",
+  "sweep_after_days": 1095,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Pompano grow fast enough, and are prized enough, that they're now farmed commercially in offshore cages: going from hatchling to a pound or more in under a year makes them one of the few marine finfish it's currently profitable to raise instead of just catch.",
+    "A moving school of pompano gives itself away before a hook ever gets wet. The fish periodically skip and flip clear of the surf, a habit surf anglers use to spot 'nervous water' and find the school from the beach.",
+    "Pompano hunt buried sand fleas and mole crabs mostly by feel: a dense patch of pores along the lower jaw and lateral line reads the vibration of prey digging into the sand as a wave washes back out."
+  ],
+  "measures": [
+    { "key": "tl", "label": "Total length", "unit": "mm", "scale": 1,
+      "min": 80, "max": 680, "required": true,
+      "help": "Tip of the lower jaw to the tip of the tail." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true },
+    { "key": "sal", "label": "Salinity", "unit": "ppt", "scale": 100,
+      "min": 0, "max": 4500, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Florida pompano cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "HANDLINE", "label": "Rod and reel", "icon": "gear-hook" },
+        { "code": "FLY",      "label": "Fly", "icon": "gear-hook" },
+        { "code": "CASTNET",  "label": "Cast net", "icon": "gear-net" },
+        { "code": "TRAWL",    "label": "Trawl", "icon": "gear-net" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "tl", "less_than": 280,
+      "reason": "under the 11-inch minimum used for Florida pompano across the South Atlantic and Gulf coasts; South Carolina currently sets no size limit of its own for this species" }
+  ]
+}
