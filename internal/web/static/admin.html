@@ -195,8 +195,8 @@
           <p class="note" style="margin-top:12px">
             Creating a batch mints keys and tag ids; it does not spend anything.
             Tags carry no money until they are armed on an animal. The species is
-            a hint for the printer &mdash; a deer ear tag is not a 1&times;2in crab
-            tag &mdash; and what each animal actually was is decided when the tag
+            a hint for the printer (a deer ear tag is not a 1&times;2in crab
+            tag), and what each animal actually was is decided when the tag
             is armed.
           </p>
         </div>
@@ -206,7 +206,11 @@
           <div class="scroll-x">
             <table>
               <thead><tr><th>Batch</th><th>Tags</th><th>Created</th><th></th></tr></thead>
-              <tbody id="batches"></tbody>
+              <tbody id="batches">
+                <tr><td colspan="4"><div class="skel-line cell"></div></td></tr>
+                <tr><td colspan="4"><div class="skel-line cell"></div></td></tr>
+                <tr><td colspan="4"><div class="skel-line cell"></div></td></tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -224,7 +228,10 @@
         <div class="scroll-x">
           <table>
             <thead><tr><th>Tag</th><th>Gen</th><th>Holds</th><th></th></tr></thead>
-            <tbody id="rearms"></tbody>
+            <tbody id="rearms">
+              <tr><td colspan="4"><div class="skel-line cell"></div></td></tr>
+              <tr><td colspan="4"><div class="skel-line cell"></div></td></tr>
+            </tbody>
           </table>
         </div>
       </div>
@@ -233,7 +240,10 @@
   </div>
 </main>
 
-<footer>South Carolina Department of Natural Resources</footer>
+<footer>
+  <img class="footer-logo" src="/vendor/logos/dnr-logo-white.png" width="20" height="20" alt="South Carolina DNR seal">
+  South Carolina Department of Natural Resources
+</footer>
 
 <script src="theme.js"></script>
 <script src="nav.js"></script>

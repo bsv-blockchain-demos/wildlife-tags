@@ -245,8 +245,8 @@
     if (note) {
       note.textContent =
         (disp && disp.value) === 'RELEASED'
-          ? `The bonus is held and paid to you if this ${animal()} is caught again — ` +
-            'that is what confirms you really put it back.'
+          ? `The bonus is held and paid to you if this ${animal()} is caught again, ` +
+            'which is what confirms you really put it back.'
           : 'Keeping it pays the base reward and retires the tag.';
     }
 
@@ -445,7 +445,7 @@
     if (bytesToHex(new Uint8Array(script[2].data)) !== bytesToHex(expected)) {
       throw new Error(
         'the payment does not go to your wallet. Nothing has been signed and no money has moved. ' +
-          'Do not retry — report this.'
+          'Do not retry: report this.'
       );
     }
     if (Number(out.satoshis) !== Number(draft.payout_satoshis)) {
@@ -503,7 +503,7 @@
     $('paidNote').textContent = receipt.retired
       ? 'This tag is now retired. Thank you for reporting it.'
       : `Your ${sats(state.quote.bonus_satoshis)} bonus is held until this ${animal()} is caught again. ` +
-        'If it is, you get paid automatically — no need to come back.';
+        'If it is, you get paid automatically: no need to come back.';
     const link = $('paidTx');
     link.textContent = receipt.txid;
     link.href = `${(state.info && state.info.arcade_url) || ''}/tx/${receipt.txid}`;
@@ -511,11 +511,31 @@
 
   // ---- the animal's story ----------------------------------------------
 
-  // OpenStreetMap's standard tiles. Their usage policy covers light use; a real
-  // deployment should point this at its own tile server rather than lean on
-  // donated infrastructure.
-  const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  const TILE_ATTRIB = '&copy; OpenStreetMap contributors';
+  // Esri's World Gray Canvas rather than stock OSM raster tiles: the same
+  // coastline and road network, drawn as a near-monochrome canvas instead of
+  // OSM's saturated road-orange and park-green, so it sits under this app's
+  // palette instead of fighting it. (CARTO's equivalent free basemaps now
+  // gate behind an API key; this one still doesn't, as of this writing.) The
+  // base layer carries no labels -- "Reference" is a second, transparent
+  // overlay of place names and roads, added on top so it can be swapped or
+  // dropped independently of the canvas underneath. A real deployment should
+  // still point this at its own tile server rather than lean on donated
+  // infrastructure.
+  const TILE_URL = {
+    light: { base: 'World_Light_Gray_Base', ref: 'World_Light_Gray_Reference' },
+    dark: { base: 'World_Dark_Gray_Base', ref: 'World_Dark_Gray_Reference' },
+  };
+  const tileURL = (layer) => `https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/${layer}/MapServer/tile/{z}/{y}/{x}`;
+  const TILE_ATTRIB = '&copy; Esri &copy; OpenStreetMap contributors';
+
+  // data-theme can be "system" (see theme.js); the map still has to pick one
+  // literal tile set, so this resolves it the same way the toggle icons do.
+  function effectiveTheme() {
+    const attr = document.documentElement.getAttribute('data-theme');
+    if (attr === 'dark') return 'dark';
+    if (attr === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+    return 'light';
+  }
 
   const fmt = (n) => Number(n).toLocaleString();
 
@@ -633,18 +653,18 @@
 
     if (days > 0 && km > 0.1) {
       const perDay = (p.distance_m / days).toFixed(0);
-      facts.push(`It has averaged <b>${fmt(perDay)} m a day</b> since it was tagged — ` +
+      facts.push(`It has averaged <b>${fmt(perDay)} m a day</b> since it was tagged, ` +
                  `though a straight line between two sightings says nothing about the route it took.`);
     }
     if ((p.recaptures || []).length > 0) {
       if (p.growth && p.growth_expected) {
-        facts.push(`It has grown <b>${size(p, p.growth)}</b> since tagging — which is exactly what ` +
+        facts.push(`It has grown <b>${size(p, p.growth)}</b> since tagging, which is exactly what ` +
                    `a tagging programme is for: nobody can measure the same wild animal twice any other way.`);
       } else if (p.growth) {
         facts.push(`It has grown <b>${size(p, p.growth)}</b> since tagging. That is unusual and worth a ` +
                    `second look: a ${what} grows only by moulting, and it sheds the tag when it does.`);
       } else if (!p.growth_expected) {
-        facts.push(`It has not moulted since it was tagged — a ${what} sheds its shell and everything ` +
+        facts.push(`It has not moulted since it was tagged: a ${what} sheds its shell and everything ` +
                    `attached to it, so a tag still on the animal means the same shell it was wearing on day one.`);
       }
     }
@@ -660,7 +680,7 @@
                  `which is written into the signed record rather than inferred later.`);
     }
     facts.push(`Tagged at <b>${p.tagged_lat.toFixed(4)}, ${p.tagged_lon.toFixed(4)}</b> and recorded on chain ` +
-               `the same day — that part cannot be edited by anyone, including us.`);
+               `the same day: that part cannot be edited by anyone, including us.`);
 
     $('funFacts').innerHTML = facts.map((f) => `<div class="fact">${f}</div>`).join('');
   }
@@ -689,7 +709,9 @@
     }
     try {
       const map = L.map('map', { attributionControl: false, scrollWheelZoom: false });
-      L.tileLayer(TILE_URL, { maxZoom: 18, crossOrigin: true }).addTo(map);
+      const layer = TILE_URL[effectiveTheme()];
+      L.tileLayer(tileURL(layer.base), { maxZoom: 18, crossOrigin: true }).addTo(map);
+      L.tileLayer(tileURL(layer.ref), { maxZoom: 18, crossOrigin: true }).addTo(map);
       $('mapAttrib').innerHTML = ' · ' + TILE_ATTRIB;
 
       const latlngs = pts.map((q) => [q.lat, q.lon]);
@@ -889,8 +911,8 @@
       $('loading').classList.remove('hidden');
       $('loading').innerHTML = '<h2>Tag not found</h2><p class="err">tag K2M9Q7C: no such tag</p>';
     },
-    'Active — first sighting, unnamed': () => mockBoot('active', baseProvenance()),
-    'Active — with history, named': () => mockBoot('active', richProvenance()),
+    'Active: first sighting, unnamed': () => mockBoot('active', baseProvenance()),
+    'Active: with history, named': () => mockBoot('active', richProvenance()),
     'Cooldown': () => mockBoot('cooldown', richProvenance()),
     'Redeeming (claim in progress)': () => mockBoot('redeeming', richProvenance()),
     'Minted, never armed': () => mockBoot('minted', null),
@@ -911,7 +933,7 @@
       step('attest', 'done');
       step('build', 'done');
       step('verify', 'doing');
-      fail('the payment does not go to your wallet. Nothing has been signed and no money has moved. Do not retry — report this.');
+      fail('the payment does not go to your wallet. Nothing has been signed and no money has moved. Do not retry: report this.');
     },
     'Paid!': async () => {
       await mockBoot('active', richProvenance());

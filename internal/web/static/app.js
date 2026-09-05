@@ -12,6 +12,14 @@
     return res.json();
   }
 
+  // The same tag mark as the wordmark and favicon, drawn as an outline
+  // rather than filled -- a table with nothing in it yet, not an error.
+  const EMPTY_ICON =
+    '<svg viewBox="0 0 20 20" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/></svg>';
+  const emptyRow = (colspan, text) =>
+    `<tr><td colspan="${colspan}"><div class="empty-state"><span class="icon-badge">${EMPTY_ICON}</span><span>${text}</span></div></td></tr>`;
+
   function statTiles(s) {
     return [
       ['tags in the water', num(s.tags_active)],
@@ -29,7 +37,7 @@
 
   function eventRows(events) {
     if (!events || !events.length) {
-      return '<tr><td colspan="6" class="note">Nothing has happened yet.</td></tr>';
+      return emptyRow(6, 'Nothing has happened yet.');
     }
     return events
       .map((e) => {
@@ -42,7 +50,7 @@
           `<td class="mono">${e.display}</td>` +
           `<td>${kind}</td>` +
           `<td class="tabular">${e.generation}</td>` +
-          `<td class="tabular">${e.satoshis ? num(e.satoshis) + ' sats' : '—'}</td>` +
+          `<td class="tabular">${e.satoshis ? num(e.satoshis) + ' sats' : '–'}</td>` +
           `<td>${status}</td>` +
           `<td class="note">${new Date(e.at).toLocaleString()}</td>` +
           `</tr>`

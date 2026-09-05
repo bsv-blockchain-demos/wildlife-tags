@@ -6,6 +6,14 @@
   const $ = (id) => document.getElementById(id);
   const num = (n) => Number(n || 0).toLocaleString();
 
+  // The same tag mark as the wordmark and favicon, drawn as an outline
+  // rather than filled -- a table with nothing in it yet, not an error.
+  const EMPTY_ICON =
+    '<svg viewBox="0 0 20 20" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/></svg>';
+  const emptyRow = (colspan, text) =>
+    `<tr><td colspan="${colspan}"><div class="empty-state"><span class="icon-badge">${EMPTY_ICON}</span><span>${text}</span></div></td></tr>`;
+
   const ATTEST_PROTOCOL = [2, 'wildtag observation'];
 
   const state = { info: null, fix: null, session: null, profile: null };
@@ -135,7 +143,7 @@
       );
       $('batches').innerHTML = rows.length
         ? rows.join('')
-        : '<tr><td colspan="4" class="note">No batches yet.</td></tr>';
+        : emptyRow(4, 'No batches yet.');
     } catch (e) {
       $('batches').innerHTML = `<tr><td colspan="4" class="err">${e.message}</td></tr>`;
     }
@@ -361,7 +369,7 @@
       });
 
       $('armBanner').className = 'banner good';
-      $('armBanner').textContent = `Armed with ${num(res.satoshis)} sats — ${res.txid}`;
+      $('armBanner').textContent = `Armed with ${num(res.satoshis)} sats. Transaction ${res.txid}`;
       $('armBanner').classList.remove('hidden');
       $('tag').value = '';
       $('aname').value = '';
@@ -387,7 +395,7 @@
       );
       $('rearms').innerHTML = rows.length
         ? rows.join('')
-        : '<tr><td colspan="4" class="note">Nothing is waiting.</td></tr>';
+        : emptyRow(4, 'Nothing is waiting.');
     } catch (e) {
       $('rearms').innerHTML = `<tr><td colspan="4" class="err">${e.message}</td></tr>`;
     }
@@ -478,13 +486,13 @@
       $('logout').classList.add('hidden');
       $('logoutMobile').classList.add('hidden');
     },
-    'Signed in — wallet identity': () => {
+    'Signed in: wallet identity': () => {
       mockShowConsole('02a1b2c3d4e5f60718293a4b5c6d7e8f9012345678');
       mockFunding();
       mockBatches();
       mockRearms();
     },
-    'Signed in — operator (password)': () => {
+    'Signed in: operator (password)': () => {
       mockShowConsole('operator');
       mockFunding();
       mockBatches();
@@ -492,7 +500,7 @@
     },
     'Arm: success banner': () => {
       $('armBanner').className = 'banner good';
-      $('armBanner').textContent = 'Armed with 20,000 sats — 4f3c9e8a1b2d5f60718293a4b5c6d7e8f9012345678901234567890abcdef01';
+      $('armBanner').textContent = 'Armed with 20,000 sats. Transaction 4f3c9e8a1b2d5f60718293a4b5c6d7e8f9012345678901234567890abcdef01';
       $('armBanner').classList.remove('hidden');
     },
     'Arm: not taggable warning': () => {

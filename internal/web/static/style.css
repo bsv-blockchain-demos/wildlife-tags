@@ -73,8 +73,13 @@
 
   --dur-fast: 150ms;
   --dur-base: 250ms;
+  /* Reserved for the one signature interaction (the paid confirmation) --
+     see .paid-badge below. Nothing else in the app is allowed this long or
+     this springy; everywhere else animates at -fast or -base. */
+  --dur-slow: 400ms;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* ---- the ambient-gradient family for card headers --------------------
      Eight jewel-tone diagonals, same shape (deep corner to bright corner),
@@ -386,6 +391,14 @@ button.grad-card { display: block; width: 100%; text-align: left; padding: 0; bo
 .icon-badge.tone-marsh   { background: color-mix(in srgb, #14532d 14%, var(--panel)); color: #14532d; }
 .icon-badge.tone-amber   { background: color-mix(in srgb, #7c2d12 14%, var(--panel)); color: #7c2d12; }
 
+/* A table's empty state: the plain .icon-badge tone (a muted disc, accent
+   icon) plus a short line, centred in the row it replaces. Warmer than a
+   bare "nothing yet" string without turning an empty table into a whole
+   illustration -- it is still one row, just one worth looking at. */
+.empty-state { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: var(--sp-lg) var(--sp-sm); color: var(--ink-dim); }
+.empty-state .icon-badge { width: 40px; height: 40px; }
+.empty-state .icon-badge svg { stroke: var(--accent); }
+
 /* Overlapping circular avatar stack -- entities as a group, per the
    reference app's "Collections" pattern. */
 .badge-stack { display: flex; }
@@ -489,6 +502,36 @@ th { color: var(--ink-dim); font-weight: 700; font-size: 12px;
 
 .reward { font-family: var(--font-display); font-size: 34px; font-weight: 700; letter-spacing: -1px; text-wrap: balance; }
 
+/* ---- the signature motion: a reward settling into place ------------------
+   The one moment DESIGN.md reserves spring physics for. #paid is hidden
+   until handleRedeemComplete's receipt arrives, so this plays exactly once,
+   at the exact instant a finder learns they were paid -- the payoff the
+   whole flow exists to deliver. Everywhere else in the app cross-fades or
+   slides at --dur-fast/--dur-base; only this gets --dur-slow and overshoot. */
+#paid { text-align: center; }
+.paid-badge {
+  width: 64px; height: 64px; margin: 0 auto var(--sp-md);
+  border-radius: var(--radius-full);
+  background: var(--grad-estuary);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-raised);
+  animation: paid-settle var(--dur-slow) var(--ease-spring) both;
+}
+.paid-badge svg { width: 30px; height: 30px; stroke: #fff; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+#paid .reward { animation: paid-rise var(--dur-base) var(--ease-out) 90ms both; }
+#paid .note { animation: paid-rise var(--dur-base) var(--ease-out) 160ms both; }
+@keyframes paid-settle {
+  0%   { transform: scale(0.35); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes paid-rise {
+  0%   { transform: translateY(6px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .paid-badge, #paid .reward, #paid .note { animation: none; }
+}
+
 .leg { display: flex; gap: 16px; font-size: 12px; color: var(--ink-dim); margin-top: 8px; flex-wrap: wrap; }
 .leg span::before { content: "●"; margin-right: 5px; }
 .leg .tagged::before { color: var(--accent); }
@@ -512,6 +555,24 @@ th { color: var(--ink-dim); font-weight: 700; font-size: 12px;
 .honesty dd { margin: 2px 0 0; color: var(--ink-dim); }
 .honesty .yes::before { content: "✓ "; color: var(--good); }
 .honesty .no::before  { content: "✕ "; color: var(--warn); }
+/* The "In short" summary reserves space for a visual on desktop, in the same
+   gradient-header language as everywhere else in the app (card-icon-badge on
+   a .grad-card-header). Text-only on mobile; the visual is decorative. */
+.summary-layout { display: flex; flex-direction: column; gap: var(--sp-lg); }
+@media (min-width: 768px) {
+  .summary-layout { flex-direction: row; align-items: stretch; }
+  .summary-text { flex: 1 1 auto; min-width: 0; }
+  .summary-visual { flex: 0 0 220px; }
+}
+
+/* Two columns on desktop: newspaper-style flow rather than a grid, since a
+   <dt>/<dd> pair has no wrapping element to place on a grid -- break-inside
+   keeps each pair from splitting across the column gap. */
+@media (min-width: 768px) {
+  .honesty { column-count: 2; column-gap: var(--sp-xl); }
+  .honesty dt { break-inside: avoid; break-after: avoid; }
+  .honesty dd { break-inside: avoid; break-before: avoid; padding-bottom: 4px; }
+}
 
 .hidden { display: none !important; }
 .spin { display: inline-block; width: 14px; height: 14px; vertical-align: -2px;
@@ -522,6 +583,11 @@ th { color: var(--ink-dim); font-weight: 700; font-size: 12px;
 
 footer { color: var(--ink-dim); font-size: 13px; padding: 24px 16px 40px; text-align: center; }
 footer a { color: var(--ink-dim); }
+/* The seal ships white (for a dark badge); light mode's footer is on a pale
+   background, so it's inverted to read as ink instead of vanishing. */
+.footer-logo { width: 20px; height: 20px; vertical-align: -5px; margin-right: 6px; filter: invert(1); }
+:root[data-theme="dark"] .footer-logo,
+:root[data-theme="system"] .footer-logo { filter: none; }
 
 /* ---- accordions & inline "read more" (About page) ---------------------- */
 .accordion-trigger {
@@ -731,6 +797,8 @@ footer a { color: var(--ink-dim); }
 .map.hidden { display: none; }
 .leaflet-container { border-radius: var(--radius); font: inherit; background: var(--panel-2); }
 .leaflet-control-attribution { font-size: 9px !important; background: rgba(255,255,255,0.75) !important; }
+:root[data-theme="dark"] .leaflet-control-attribution { background: rgba(20,25,30,0.75) !important; color: var(--ink-dim) !important; }
+:root[data-theme="dark"] .leaflet-control-attribution a { color: var(--ink-dim) !important; }
 .leaflet-bar a { color: #222 !important; }
 .pin { width: 18px; height: 18px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.35); }
 .pin.tagged { background: var(--accent); }

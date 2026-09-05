@@ -3,11 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tagged animal — report and get paid</title>
-<meta name="description" content="Report a tagged animal and get paid on the spot.">
-<meta property="og:title" content="Tagged animal &mdash; report and get paid">
-<meta property="og:description" content="Scan a tagged animal, report it, and get paid on the spot.">
+<!-- __OG_TITLE__, __OG_DESC__, and __OG_IMAGE__ are replaced server-side per
+     tag (see handleRedeemPage in internal/web) with that animal's name,
+     species, and a generated share image; these are the offline fallbacks
+     pageBody()'s asset-stamping cache would otherwise serve verbatim. -->
+<title>__OG_TITLE__</title>
+<meta name="description" content="__OG_DESC__">
+<meta property="og:title" content="__OG_TITLE__">
+<meta property="og:description" content="__OG_DESC__">
+<meta property="og:image" content="__OG_IMAGE__">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -89,8 +97,8 @@
       <label for="animalname">Name this animal <span class="note">(optional)</span></label>
       <input id="animalname" type="text" maxlength="24" placeholder="e.g. Old Bertha" autocomplete="off">
       <p class="note">Nobody has named this one yet, so it is yours to name. The
-        name goes on the public record permanently and cannot be changed &mdash;
-        by you or by anyone else &mdash; so pick something you would not mind a
+        name goes on the public record permanently and cannot be changed
+        (by you or by anyone else), so pick something you would not mind a
         biologist reading out in ten years.</p>
     </div>
 
@@ -115,6 +123,9 @@
   </div>
 
   <div id="paid" class="card hidden">
+    <div class="paid-badge" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6"/></svg>
+    </div>
     <h2>Paid</h2>
     <div class="reward" id="paidAmount"></div>
     <p class="note" id="paidNote"></p>
@@ -152,7 +163,7 @@
     <dl class="honesty">
       <dt class="yes">The time</dt>
       <dd>Your report is written into a Bitcoin transaction. Once a block
-        carries it, the record cannot be backdated or altered — not by you, not
+        carries it, the record cannot be backdated or altered: not by you, not
         by SCDNR, not by us.</dd>
 
       <dt class="yes">That you had the tag</dt>
@@ -166,12 +177,12 @@
       <dt class="no">Where you were</dt>
       <dd>The position comes from this phone and is taken on trust. We record
         how accurate the phone claims to be, and we tie the fix to your report
-        so it cannot be edited afterwards &mdash; but none of that establishes
+        so it cannot be edited afterwards, but none of that establishes
         where anyone actually stood, and we will not pretend otherwise.</dd>
 
       <dt class="no">That you released it</dt>
       <dd>Also taken on trust. The bonus for putting an animal back is held rather
-        than paid, and released to you only if this tag is reported again —
+        than paid, and released to you only if this tag is reported again,
         which is the closest thing to evidence a release can have.</dd>
     </dl>
   </div>
@@ -179,6 +190,7 @@
 </main>
 
 <footer>
+  <img class="footer-logo" src="/vendor/logos/dnr-logo-white.png" width="20" height="20" alt="South Carolina DNR seal">
   South Carolina Department of Natural Resources &middot;
   <a href="/">program dashboard</a> &middot;
   <a href="/about">about this program</a> &middot;
