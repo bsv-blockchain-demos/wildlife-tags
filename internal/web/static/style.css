@@ -457,6 +457,7 @@ button.grad-card { display: block; width: 100%; text-align: left; padding: 0; bo
 .icon-badge.tone-tide    { background: color-mix(in srgb, #1e3a8a 14%, var(--panel)); color: #1e3a8a; }
 .icon-badge.tone-marsh   { background: color-mix(in srgb, #14532d 14%, var(--panel)); color: #14532d; }
 .icon-badge.tone-amber   { background: color-mix(in srgb, #7c2d12 14%, var(--panel)); color: #7c2d12; }
+.icon-badge.tone-slate   { background: color-mix(in srgb, #1e293b 14%, var(--panel)); color: #1e293b; }
 
 /* A table's empty state: the plain .icon-badge tone (a muted disc, accent
    icon) plus a short line, centred in the row it replaces. Warmer than a
@@ -637,6 +638,57 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .banner.bad  { border-color: var(--bad);  color: var(--bad); }
 .banner.warn { border-color: var(--warn); color: var(--warn); }
 .banner.good { border-color: var(--good); color: var(--good); }
+
+/* ---- tag-armed confirmation: a drawn record, not a fade-in --------------
+   A connection from the tag glyph to the animal just tagged, and a
+   confirmation mark, both drawing themselves rather than appearing --
+   the "certificate" motion language from this design system's sibling
+   project (dpp-app/motion), where the one thing genuinely established gets
+   a mark that draws rather than fades: this app's own honesty principle,
+   the record is the reward and nothing quietly moves, reads the same way
+   in a flourish as it does in the copy.
+
+   Kept to --dur-base/--ease-out throughout on purpose: --dur-slow and
+   --ease-spring stay reserved for .paid-badge, the app's one signature
+   interaction (see the --dur-slow definition above), and a field console
+   arming dozens of animals in a row needs this quick enough to never be
+   in the way of the next one -- a flourish, not a set piece. */
+.arm-confirm { display: flex; align-items: center; gap: 10px; }
+.arm-confirm-text { flex: 1; min-width: 0; }
+
+.arm-confirm-glyph {
+  width: 18px; height: 18px; flex-shrink: 0; color: var(--good);
+  fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+  opacity: 0; animation: arm-confirm-in var(--dur-base) var(--ease-out) forwards;
+}
+.arm-confirm-trace { width: 28px; height: 10px; flex-shrink: 0; overflow: visible; }
+.arm-confirm-trace path {
+  fill: none; stroke: var(--good); stroke-width: 2; stroke-linecap: round;
+  stroke-dasharray: 32; stroke-dashoffset: 32;
+  animation: arm-confirm-draw var(--dur-base) var(--ease-out) 90ms forwards;
+}
+.arm-confirm-badge {
+  position: relative; flex-shrink: 0; width: 36px; height: 36px;
+  transform: scale(0.7); opacity: 0;
+  animation: arm-confirm-pop var(--dur-base) var(--ease-out) 140ms forwards;
+}
+.arm-confirm-tick {
+  position: absolute; right: -3px; bottom: -3px; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--good); color: #fff; padding: 2px;
+  box-shadow: 0 0 0 2px var(--panel-2);
+}
+.arm-confirm-tick path {
+  fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 20; stroke-dashoffset: 20;
+  animation: arm-confirm-draw var(--dur-fast) var(--ease-out) 260ms forwards;
+}
+@keyframes arm-confirm-in   { to { opacity: 1; } }
+@keyframes arm-confirm-pop  { to { opacity: 1; transform: scale(1); } }
+@keyframes arm-confirm-draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .arm-confirm-glyph, .arm-confirm-badge { animation: none; opacity: 1; transform: none; }
+  .arm-confirm-trace path, .arm-confirm-tick path { animation: none; stroke-dashoffset: 0; }
+}
 
 /* ---- field console: status row, sticky fields, scan, queue -------------- */
 

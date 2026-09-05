@@ -750,10 +750,44 @@
     return { ...res, tag_id: canonicalTagID };
   }
 
-  function announceArmed(entry, res) {
+  // ---- the tag-armed confirmation ------------------------------------------
+  //
+  // A drawn record, not a fade-in: a trace from the tag glyph to the animal
+  // just tagged, and a confirmation mark, both drawing themselves rather
+  // than appearing. See the ".arm-confirm" comment in style.css for the
+  // motion reasoning; TAG_GLYPH here is the same path EMPTY_ICON above
+  // already draws, reused rather than redefined so the one glyph this app
+  // uses for "a tag" stays the one glyph.
+  const TAG_GLYPH =
+    '<path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/>';
+  // .icon-badge's tones are named for what they tint, not for a species, so
+  // this maps the gradient name arming already resolved (SPECIES_GRADIENT /
+  // FALLBACK_GRADIENT) to the matching tone class rather than keeping a
+  // second species-to-colour table in step with the first by hand.
+  const TONE_BY_GRADIENT = { estuary: 'tone-estuary', sunset: 'tone-sunset', slate: 'tone-slate' };
+
+  function armConfirmHTML(entry, res) {
     const who = entry.name ? `"${entry.name}"` : entry.speciesCommon || 'the animal';
+    const text = `Armed ${who} (tag ${res.tag_id}) with ${num(res.satoshis)} sats. Transaction ${res.txid}`;
+    const grad = SPECIES_GRADIENT[entry.species] || FALLBACK_GRADIENT;
+    const icon = SPECIES_ICON[entry.species] || FALLBACK_ICON;
+    const tone = TONE_BY_GRADIENT[grad] || 'tone-slate';
+    return (
+      `<div class="arm-confirm">` +
+      `<svg class="arm-confirm-glyph" viewBox="0 0 20 20" aria-hidden="true">${TAG_GLYPH}</svg>` +
+      `<svg class="arm-confirm-trace" viewBox="0 0 32 12" aria-hidden="true"><path d="M1 6 H31"/></svg>` +
+      `<span class="arm-confirm-badge icon-badge ${tone}">` +
+      `<img src="/vendor/animals/${icon}" alt="">` +
+      `<svg class="arm-confirm-tick" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5 8.5 15 16 6"/></svg>` +
+      `</span>` +
+      `<span class="arm-confirm-text">${escHTML(text)}</span>` +
+      `</div>`
+    );
+  }
+
+  function announceArmed(entry, res) {
     $('armBanner').className = 'banner good';
-    $('armBanner').textContent = `Armed ${who} (tag ${res.tag_id}) with ${num(res.satoshis)} sats. Transaction ${res.txid}`;
+    $('armBanner').innerHTML = armConfirmHTML(entry, res);
     $('armBanner').classList.remove('hidden');
   }
 
@@ -1230,7 +1264,10 @@
     },
     'Arm: success banner': () => {
       $('armBanner').className = 'banner good';
-      $('armBanner').textContent = 'Armed with 20,000 sats. Transaction 4f3c9e8a1b2d5f60718293a4b5c6d7e8f9012345678901234567890abcdef01';
+      $('armBanner').innerHTML = armConfirmHTML(
+        { name: 'Old Bertha', speciesCommon: 'Atlantic blue crab', species: 'CALSAP' },
+        { tag_id: 'K2M9Q7C', satoshis: 20000, txid: '4f3c9e8a1b2d5f60718293a4b5c6d7e8f9012345678901234567890abcdef01' }
+      );
       $('armBanner').classList.remove('hidden');
     },
     'Arm: not taggable warning': () => {
