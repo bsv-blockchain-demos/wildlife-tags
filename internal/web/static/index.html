@@ -239,6 +239,21 @@
     </dl>
   </div>
 
+  <!-- Tapping a species card used to just link to /about -- true, but the
+       same page no matter which of 29 animals you tapped. Populated by
+       app.js's speciesSheetHTML() from GET /api/schema, already loaded for
+       the grid itself. Reuses the arm flow's own confirm-sheet chrome
+       (.modal-scrim/.confirm-sheet, FocusTrap, Escape to close) since this
+       is the same "review, then dismiss" shape with nothing to confirm. -->
+  <div class="modal-scrim" id="speciesScrim" hidden></div>
+  <div class="confirm-sheet" id="speciesSheet" hidden role="dialog" aria-modal="true">
+    <div id="speciesSheetBody"></div>
+    <div class="cta-row">
+      <button type="button" id="speciesSheetClose" class="wide">Close</button>
+      <button type="button" id="speciesSheetAbout" class="primary wide">About this programme</button>
+    </div>
+  </div>
+
 </main>
 
 <footer>

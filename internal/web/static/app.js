@@ -28,10 +28,20 @@
   const STAT_ICONS = {
     tag: '<path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/>',
     flag: '<path d="M5 3v14"/><path d="M5 4h9l-2.5 3 2.5 3H5"/>',
-    coin: '<circle cx="10" cy="10" r="6.5"/><path d="M10 7v6M12 8.3c-.4-.6-1.1-1-2-1-1.2 0-2 .6-2 1.5s.8 1.3 2 1.5c1.2.2 2 .6 2 1.5s-.8 1.5-2 1.5c-.9 0-1.6-.4-2-1"/>',
+    // Two overlapping coins reads as "money" unambiguously even at 10%
+    // opacity; the previous version tried to draw a $ out of one curved
+    // path and mostly read as a squiggle at this size.
+    coin: '<circle cx="7.5" cy="12.5" r="5"/><circle cx="12.5" cy="7.5" r="5"/>',
     lock: '<rect x="5" y="9" width="10" height="8" rx="1.5"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/>',
-    hourglass: '<path d="M6 3h8M6 17h8M6.5 3c.3 2.8 2 4.3 3.5 5 1.5-.7 3.2-2.2 3.5-5M6.5 17c.3-2.8 2-4.3 3.5-5 1.5.7 3.2 2.2 3.5 5"/>',
-    stack: '<rect x="4" y="4" width="12" height="3" rx="1"/><rect x="4" y="8.5" width="12" height="3" rx="1"/><rect x="4" y="13" width="12" height="3" rx="1"/>',
+    // Straight lines pinching to a point at center, the standard hourglass
+    // silhouette -- the previous version used curves trying for the same
+    // shape and read closer to an eye than a timer.
+    hourglass: '<path d="M6 3h8M6 17h8M6 3l4 7-4 7M14 3l-4 7 4 7"/>',
+    // Three cards staggered on the diagonal, not stacked flush -- flush
+    // equal-width bars is this app's own hamburger-menu shape (see
+    // .hamburger-line in index.html), and a "things collected" glyph
+    // shouldn't double as a navigation one.
+    stack: '<rect x="3.5" y="4" width="10" height="6.5" rx="1.2"/><rect x="6" y="7" width="10" height="6.5" rx="1.2"/><rect x="8.5" y="10" width="10" height="6.5" rx="1.2"/>',
   };
 
   function statTiles(s) {
@@ -189,8 +199,13 @@
     const grad = SPECIES_GRADIENT[p.code] || GRADIENT_CYCLE[index % GRADIENT_CYCLE.length];
     const workflow = p.workflow === 'harvest' ? 'Harvest' : 'Mark-recapture';
     const search = `${p.common} ${p.scientific} ${p.code}`.toLowerCase();
+    // A <button>, not a link to /about -- see initSpeciesSheet. data-grad
+    // rides along so the sheet reuses the exact color the card already
+    // resolved rather than re-deriving it (and risking GRADIENT_CYCLE
+    // landing on a different one if this were ever called with a
+    // different index).
     return (
-      `<a class="grad-card" href="/about" data-search="${esc(search)}">` +
+      `<button type="button" class="grad-card" data-search="${esc(search)}" data-code="${esc(p.code)}" data-grad="${esc(grad)}">` +
       `<div class="grad-card-header size-sm" style="background: var(--grad-${grad})">` +
       `<div class="card-icon-badge"><img src="/vendor/animals/${icon}" alt="" loading="lazy"></div>` +
       `</div>` +
@@ -198,7 +213,7 @@
       `<span class="grad-card-eyebrow">${esc(workflow)}</span>` +
       `<div class="grad-card-title">${esc(p.common)}</div>` +
       `<div class="grad-card-sub">${esc(p.scientific)}</div>` +
-      `</div></a>`
+      `</div></button>`
     );
   }
 
@@ -295,6 +310,100 @@
     });
   }
 
+  // ---- species detail sheet: tap a card, see what it actually covers -----
+  //
+  // Reuses the arm flow's own confirm-sheet chrome (.modal-scrim,
+  // .confirm-sheet, FocusTrap) rather than inventing a second modal
+  // pattern -- this is the same "review, then dismiss" shape, just with
+  // nothing to confirm, so it also gets a backdrop-click-to-close and no
+  // Enter-to-confirm shortcut (there is no default action to fire).
+  let releaseSpeciesSheetTrap = null;
+
+  function speciesSheetHTML(p, grad) {
+    const icon = SPECIES_ICON[p.code] || FALLBACK_ICON;
+    const workflow = p.workflow === 'harvest' ? 'Harvest' : 'Mark-recapture';
+    const measures = (p.measures || [])
+      .map((m) => {
+        // Same unscaling as schema.js's own (unexported) bounds(): a
+        // measure stored with scale 100 means the field reads 15.0-40.0
+        // but the record carries 1500-4000.
+        const lo = m.scale > 1 ? m.min / m.scale : m.min;
+        const hi = m.scale > 1 ? m.max / m.scale : m.max;
+        const unit = m.unit ? ` ${esc(m.unit)}` : '';
+        return (
+          `<div class="confirm-row"><span class="confirm-k">${esc(m.label)}</span>` +
+          `<span class="confirm-v">${lo.toLocaleString()}&ndash;${hi.toLocaleString()}${unit}</span></div>`
+        );
+      })
+      .join('');
+    // must_release's reason strings are already written as standalone
+    // sentences (see the species profiles), so they read fine as bullets
+    // with no threshold number restated alongside them.
+    const limits = (p.must_release || []).map((r) => `<li>${esc(r.reason)}</li>`).join('');
+    const facts = (p.fun_facts || []).map((f) => `<li>${esc(f)}</li>`).join('');
+    return (
+      `<div class="crab-hero" style="background: var(--grad-${grad})">` +
+      `<div class="card-icon-badge"><img src="/vendor/animals/${icon}" alt="" loading="lazy"></div>` +
+      `<div class="crab-name">${esc(p.common)}</div>` +
+      `<div class="crab-sub">${esc(p.scientific)} &middot; ${esc(workflow)}</div>` +
+      `</div>` +
+      // Wrapped so .confirm-row:last-child (see style.css) drops the border
+      // under the last measure specifically -- unwrapped, it would drop
+      // the border off whichever element actually sits last in the whole
+      // sheet instead, which is a heading or fact list, not a measure row.
+      (measures ? `<h3 class="sub-head">What gets measured</h3><div>${measures}</div>` : '') +
+      (limits ? `<h3 class="sub-head">Size limits</h3><ul class="note-list">${limits}</ul>` : '') +
+      (facts ? `<h3 class="sub-head">Did you know</h3><ul class="note-list">${facts}</ul>` : '')
+    );
+  }
+
+  function openSpeciesSheet(code, grad) {
+    const p = window.Schema.profile(code);
+    if (!p) return;
+    $('speciesSheetBody').innerHTML = speciesSheetHTML(p, grad);
+    $('speciesSheet').setAttribute('aria-label', `${p.common} details`);
+    $('speciesScrim').hidden = false;
+    $('speciesSheet').hidden = false;
+    requestAnimationFrame(() => {
+      $('speciesScrim').classList.add('open');
+      $('speciesSheet').classList.add('open');
+    });
+    document.body.style.overflow = 'hidden';
+    releaseSpeciesSheetTrap = window.FocusTrap.activate($('speciesSheet'));
+  }
+
+  function closeSpeciesSheet() {
+    $('speciesScrim').classList.remove('open');
+    $('speciesSheet').classList.remove('open');
+    document.body.style.overflow = '';
+    if (releaseSpeciesSheetTrap) {
+      releaseSpeciesSheetTrap();
+      releaseSpeciesSheetTrap = null;
+    }
+    window.setTimeout(() => {
+      $('speciesScrim').hidden = true;
+      $('speciesSheet').hidden = true;
+    }, 250);
+  }
+
+  function initSpeciesSheet() {
+    const grid = $('speciesGrid');
+    if (!grid || !$('speciesSheet')) return;
+    grid.addEventListener('click', (e) => {
+      const card = e.target.closest('.grad-card');
+      if (!card || !card.dataset.code) return;
+      openSpeciesSheet(card.dataset.code, card.dataset.grad);
+    });
+    $('speciesSheetClose').addEventListener('click', closeSpeciesSheet);
+    $('speciesSheetAbout').addEventListener('click', () => {
+      location.href = '/about';
+    });
+    $('speciesScrim').addEventListener('click', closeSpeciesSheet);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !$('speciesSheet').hidden) closeSpeciesSheet();
+    });
+  }
+
   async function boot() {
     if (!$('stats')) return; // this script only has work to do on the dashboard
     try {
@@ -307,6 +416,7 @@
     pollTimer = setInterval(poll, 5000);
     renderSpeciesGrid(); // independent of the stats poll; a slow schema fetch shouldn't delay it
     initSpeciesSearch();
+    initSpeciesSheet();
   }
 
   // ---- dev-mode mocks, see devpanel.js -----------------------------------

@@ -459,12 +459,12 @@ button.grad-card { display: block; width: 100%; text-align: left; padding: 0; bo
    --grad-amber's #fbbf24) could wash it out. */
 .card-icon-badge {
   display: flex; align-items: center; justify-content: center;
-  width: 56px; height: 56px;
+  width: 64px; height: 64px;
   color: #fff;
 }
-.grad-card-header.size-sm .card-icon-badge { width: 44px; height: 44px; }
-.grad-card-header.size-lg .card-icon-badge { width: 76px; height: 76px; }
-.card-icon-badge img, .card-icon-badge svg { width: 86%; height: 86%; object-fit: contain; }
+.grad-card-header.size-sm .card-icon-badge { width: 52px; height: 52px; }
+.grad-card-header.size-lg .card-icon-badge { width: 88px; height: 88px; }
+.card-icon-badge img, .card-icon-badge svg { width: 94%; height: 94%; object-fit: contain; }
 .card-icon-badge img {
   filter: brightness(0) invert(1) drop-shadow(0 1px 3px rgb(0 0 0 / 0.35));
 } /* PhyloPic silhouettes recolored to white, shadowed for legibility on any gradient */
@@ -693,6 +693,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .note { font-size: 16px; color: var(--ink-dim); text-wrap: pretty; }
 .sub-head { font-family: var(--font-display); font-size: 16px; margin: 0 0 6px; font-weight: 600; color: var(--ink); text-wrap: balance; }
+/* A plain bulleted list at .note's own size/color -- size limits and fun
+   facts in the species detail sheet, and anywhere else a handful of short
+   reference lines needs to read as body copy, not a form or a table. */
+.note-list { margin: 0 0 var(--sp-md); padding-left: 20px; font-size: 14px; color: var(--ink-dim); line-height: 1.6; }
+.note-list li { margin: 4px 0; }
+.note-list:last-child { margin-bottom: 0; }
 .card h3 + p { margin-top: 0; }
 .card table th:first-child { width: 26%; }
 .err  { color: var(--bad); font-size: 14px; text-wrap: pretty; }
