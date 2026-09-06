@@ -1145,16 +1145,22 @@ th { color: var(--ink-dim); font-weight: 700; font-size: 12px;
    asked for by name, with a reference. It still freezes under
    prefers-reduced-motion like everything else does.
 
-   Each ring is two nested elements, not one: the <ul> spins as a whole
+   Each ring is three nested elements, not one: the <ul> spins as a whole
    (carrying its <li>s around with it, each parked at a fixed angle+radius
-   via a static transform), and each icon inside counter-spins at the same
-   speed in the opposite direction, so it travels the circle without
-   appearing to tumble.
+   via a static transform), an .orbit-icon-offset wrapper cancels exactly
+   that static angle so the icon starts upright rather than tilted to
+   whatever angle placed it, and the innermost .orbit-icon then
+   counter-spins at the ring's own speed to cancel the ring's *animated*
+   rotation too. Skipping the offset wrapper was the bug behind "some
+   icons are not facing the right direction": the counter-spin animation
+   only ever cancelled the ring's motion, never the placement angle baked
+   into the <li> itself, so anything not placed at a multiple of 360°
+   stayed permanently tilted by however far around the circle it sat.
 
-   The rings sit *above* .orbit-center in stacking order (z-index 2 vs 1),
-   not below it, so the inner ring's own orbit radius is deliberately a
-   little smaller than the seal's: the icons are meant to visibly pass over
-   its face as they turn, not stop short of it. */
+   The outer ring sits *above* .orbit-center in stacking order, riding
+   visibly over the seal's face as it turns; the inner ring sits *behind*
+   it instead, at a radius further out than before so it reads as tucked
+   behind the seal's edge rather than sitting on top of the logo. */
 .orbit-card {
   position: relative; overflow: hidden;
   border-radius: var(--radius-lg); height: 100%; min-height: 300px;
@@ -1167,10 +1173,16 @@ th { color: var(--ink-dim); font-weight: 700; font-size: 12px;
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: radial-gradient(circle at 50% 26%, rgb(255 255 255 / 0.12), transparent 60%);
 }
-.orbit-rings { position: relative; z-index: 2; width: 300px; height: 300px; flex-shrink: 0; }
+/* No z-index of its own -- if it had one, everything inside would be
+   forced to paint as a single unit relative to .orbit-center, and ring-1
+   could never sit behind the seal while ring-2 stays in front of it. Each
+   ring sets its own z-index below instead, compared directly against
+   .orbit-center's, all three as siblings in .orbit-card's one stacking
+   context. */
+.orbit-rings { position: relative; width: 300px; height: 300px; flex-shrink: 0; }
 .orbit-ring { position: absolute; top: 50%; left: 50%; list-style: none; margin: 0; padding: 0; }
-.orbit-ring-1 { width: 92px;  height: 92px;  margin: -46px;  animation: orbit-spin 36s linear infinite; }
-.orbit-ring-2 { width: 236px; height: 236px; margin: -118px; animation: orbit-spin 58s linear infinite reverse; }
+.orbit-ring-1 { width: 128px; height: 128px; margin: -64px;  z-index: 0; animation: orbit-spin 36s linear infinite; }
+.orbit-ring-2 { width: 236px; height: 236px; margin: -118px; z-index: 2; animation: orbit-spin 58s linear infinite reverse; }
 /* Each <li>'s own box is centred on the ring (top/left 50% + a negative
    margin of half its size) *before* its inline rotate()+translateX()
    transform runs, so that transform's default origin -- the box's own
@@ -1178,6 +1190,7 @@ th { color: var(--ink-dim); font-weight: 700; font-size: 12px;
    pivot around the icon's top-left corner instead of sweeping it around
    the ring. */
 .orbit-ring li { position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; margin: -22px; }
+.orbit-icon-offset { display: block; width: 100%; height: 100%; }
 .orbit-icon {
   display: flex; align-items: center; justify-content: center;
   width: 100%; height: 100%; border-radius: 50%;
@@ -1198,9 +1211,10 @@ th { color: var(--ink-dim); font-weight: 700; font-size: 12px;
 
 .orbit-center {
   /* Absolute and centered on the card, not a flex sibling of .orbit-rings --
-     it has to sit on top of the rings' own center, not next to them. Below
-     .orbit-rings in stacking order (z-index 1 vs 2) on purpose: see the
-     comment above .orbit-card for why the rings ride over the seal. */
+     it has to sit on top of the rings' own center, not next to them.
+     z-index sits between the two rings' own (0 and 2) on purpose: see the
+     comment above .orbit-card for why the outer ring rides over the seal
+     while the inner one passes behind it. */
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;
   width: 120px; height: 120px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
