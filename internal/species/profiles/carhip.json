@@ -1,0 +1,54 @@
+{
+  "code": "CARHIP",
+  "common": "Jack crevalle",
+  "scientific": "Caranx hippos",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "tl",
+  "sweep_after_days": 1095,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "A hooked jack crevalle fights so hard for so long that the exertion alone can be nearly lethal: anglers who want it to survive release often have to revive it boatside for several minutes before it can swim off under its own power.",
+    "Jack crevalle hunt in coordinated packs, driving schools of baitfish into a tight ball and sometimes pushing them right up onto a sloping beach, a hunting style closer to how dolphins corral fish than how most inshore fish feed.",
+    "A jack crevalle's heart and gills are oversized for a fish its size, built for the kind of sustained, high-speed chase that leaves most other inshore species behind after the first burst."
+  ],
+  "measures": [
+    { "key": "tl", "label": "Total length", "unit": "mm", "scale": 1,
+      "min": 150, "max": 1100, "required": true,
+      "help": "Tip of the lower jaw to the tip of the tail." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true },
+    { "key": "sal", "label": "Salinity", "unit": "ppt", "scale": 100,
+      "min": 0, "max": 4500, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Jack crevalle cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "HANDLINE", "label": "Rod and reel", "icon": "gear-hook" },
+        { "code": "FLY",      "label": "Fly", "icon": "gear-hook" },
+        { "code": "CASTNET",  "label": "Cast net", "icon": "gear-net" },
+        { "code": "TRAWL",    "label": "Trawl", "icon": "gear-net" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": []
+}

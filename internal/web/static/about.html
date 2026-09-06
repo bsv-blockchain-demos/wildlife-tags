@@ -3,401 +3,625 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>About &mdash; SCDNR wildlife tag rewards</title>
+<title>About &middot; SCDNR wildlife tag rewards</title>
+<meta name="description" content="What this changes, and what it costs to try: a QR-unlockable reward locked to the tag itself, on Bitcoin SV.">
+<meta property="og:title" content="About &middot; SCDNR wildlife tag rewards">
+<meta property="og:description" content="What this changes, and what it costs to try.">
+<meta property="og:image" content="/api/og/about.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#f3f5f8" id="themeColor">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script>
+  try {
+    var t = localStorage.getItem('wildtag.theme') || 'light';
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('themeColor').setAttribute('content', t === 'dark' ? '#0e1418' : '#f3f5f8');
+  } catch (_) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+</script>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-page="about">
 
 <header class="site">
-  <h1>SCDNR wildlife tags</h1>
-  <div class="tagline">what this changes, and what it costs to try</div>
-  <nav>
-    <a href="/">dashboard</a>
-    <a href="/api/export.csv">dataset</a>
-    <a href="/admin">admin</a>
-  </nav>
+  <div class="site-inner">
+    <div class="brand">
+      <h1><a class="brand-link" href="/"><span class="brand-name">SCDNR wildlife tags</span></a></h1>
+    </div>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 10 3l7 6.5"/><path d="M5 8.5V17h10V8.5"/></svg>
+        Dashboard
+      </a>
+      <button type="button" class="data-trigger" data-dataset-trigger aria-haspopup="true" aria-expanded="false" aria-controls="dataPanel">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v9"/><path d="M6.25 8.75 10 12.5l3.75-3.75"/><path d="M4 13.5V16h12v-2.5"/></svg>
+        Dataset
+        <span class="nav-caret" aria-hidden="true"></span>
+      </button>
+      <a href="/admin">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 16 5.2v4.3c0 4-2.6 6.6-6 7.5-3.4-.9-6-3.5-6-7.5V5.2L10 3Z"/><path d="M7.25 10l1.9 1.9L13 8"/></svg>
+        Admin
+      </a>
+    </nav>
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode">
+      <svg class="icon-sun" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="3.5"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1 4.7 4.7"/></svg>
+      <svg class="icon-moon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 12.3A6.8 6.8 0 0 1 7.7 3.5a7 7 0 1 0 8.8 8.8Z"/></svg>
+    </button>
+    <button type="button" class="hamburger" id="navToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+      <span class="hamburger-box">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </span>
+    </button>
+  </div>
 </header>
+
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Menu">
+  <nav aria-label="Mobile">
+    <a href="/">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 10 3l7 6.5"/><path d="M5 8.5V17h10V8.5"/></svg>
+      Dashboard
+    </a>
+    <button type="button" class="data-trigger" data-dataset-trigger aria-haspopup="true" aria-expanded="false" aria-controls="dataPanel">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v9"/><path d="M6.25 8.75 10 12.5l3.75-3.75"/><path d="M4 13.5V16h12v-2.5"/></svg>
+      Dataset
+    </button>
+    <a href="/admin">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 16 5.2v4.3c0 4-2.6 6.6-6 7.5-3.4-.9-6-3.5-6-7.5V5.2L10 3Z"/><path d="M7.25 10l1.9 1.9L13 8"/></svg>
+      Admin
+    </a>
+  </nav>
+  <div class="mobile-theme-row">
+    <span>Dark mode</span>
+    <button type="button" class="theme-switch" data-theme-toggle aria-label="Toggle dark mode"></button>
+  </div>
+</div>
+
+<div class="data-panel" id="dataPanel" role="menu" aria-label="Download the dataset" hidden>
+  <p class="data-panel-head">Download the dataset</p>
+  <a class="data-panel-item" role="menuitem" href="/api/export.csv">
+    <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5h6l3 3V16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1Z"/><path d="M12 2.5V6h3"/><path d="M6.5 11h7M6.5 13.5h7"/></svg>
+    <span><span class="data-panel-label">CSV</span><span class="data-panel-note">Opens in a spreadsheet</span></span>
+  </a>
+  <a class="data-panel-item" role="menuitem" href="/api/export.json">
+    <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 3.5c-1.4 0-2 .6-2 2v2.3c0 .8-.3 1.2-1 1.5.7.3 1 .7 1 1.5V13c0 1.4.6 2 2 2"/><path d="M12.5 3.5c1.4 0 2 .6 2 2v2.3c0 .8.3 1.2 1 1.5-.7.3-1 .7-1 1.5V13c0 1.4-.6 2-2 2"/></svg>
+    <span><span class="data-panel-label">JSON</span><span class="data-panel-note">Structured, for scripts</span></span>
+  </a>
+</div>
 
 <main class="wrap">
 
-  <div class="card">
-    <h2>In one paragraph</h2>
-    <p>SCDNR tags Atlantic blue crabs around Charleston and depends on crabbers
-      to report the ones they catch. The science is sound and the field protocol
-      works. What does not work is the incentive: the reward arrives weeks later,
-      often to the wrong person, and by then it has stopped being an incentive at
-      all. This replaces the printed phone number with a QR code. Scanning a tag
-      pays the finder in seconds, and writes their position and measurements into
-      the same transaction that moves the money &mdash; so the payment and the
-      data cannot come apart.</p>
-  </div>
+  <p class="page-title">About the programme</p>
 
-  <!-- The problem, in SCDNR's own words. Every number here is sourced. -->
-  <div class="card">
-    <h2>The problem is not the tagging</h2>
+  <!-- Every section heading below is a disclosure button: aria-expanded on
+       the trigger, aria-controls -> the body's id, wired up by accordion.js.
+       Defaults are chosen so the through-line (what this is, what changes,
+       what it costs, what to do next) is visible on load; the supporting
+       and justifying material is one click away rather than off the page
+       entirely. -->
 
-    <div class="grid two">
-      <div>
-        <h3 class="sub-head">Most tags are never reported</h3>
-        <p class="note">SCDNR's own review of reward tagging puts it plainly:
-          <strong>fewer than half</strong> of the tags recreational anglers
-          encounter are ever reported. The same review notes that tags carrying
-          money report materially better than tags that do not.</p>
-      </div>
-      <div>
-        <h3 class="sub-head">The reward arrives too late to be one</h3>
-        <p class="note">The fisheries literature blames delivery, not
-          generosity: the finder's identity is lost when a captain collects the
-          tag, weeks pass, and the moment is gone. Today's offer is SCDNR swag
-          or <em>a chance</em> at a $500 drawing &mdash; a lottery, not a
-          payment.</p>
-      </div>
-      <div>
-        <h3 class="sub-head">Recapture positions are the weakest data you have</h3>
-        <p class="note">Release coordinates are precise, because a biologist
-          recorded them on the spot. Recapture coordinates are remembered days
-          later and typed into a form. For a study about <em>movement</em>, that
-          asymmetry is exactly backwards.</p>
-      </div>
-      <div>
-        <h3 class="sub-head">The thing people actually want, nobody sends</h3>
-        <p class="note">SCDNR observed that many people who report a tag are
-          more interested in the animal's history than the reward. One angler
-          explained it simply: understanding his prey made him better at
-          catching it. That information already exists and costs nothing to
-          return.</p>
+  <div class="card accordion">
+    <button type="button" class="accordion-trigger" aria-expanded="true" aria-controls="sec-summary">
+      <h2>In short</h2>
+      <span class="accordion-chevron" aria-hidden="true"></span>
+    </button>
+    <div class="accordion-body" id="sec-summary">
+      <div class="summary-layout">
+        <div class="summary-text">
+          <p>SCDNR tags Atlantic blue crabs around Charleston and relies on
+            crabbers to report the ones they catch. The science and the field
+            protocol both work.</p>
+          <p>What doesn't work is the incentive. Today's reward arrives weeks
+            later, often to the wrong person, and by then it isn't one
+            anymore.</p>
+          <p>This replaces the printed phone number with a QR code. Scanning a
+            tag pays the finder in seconds, and writes their position and
+            measurements into the same transaction that moves the money, so
+            the payment and the data can't come apart.</p>
+        </div>
+        <!-- The department's own seal, orbited by what it tags: the two
+             species this programme actually tags closest in, five more
+             families a future one might further out. Animal icons only
+             (an outer pair of rings used to carry the record's own
+             abstract properties -- written, protected, permanent -- but
+             one clear idea, what gets tagged, reads better than two).
+             Each medallion's color is the same --grad-* token that
+             species' own card uses elsewhere (see SPECIES_GRADIENT in
+             app.js/admin.js), so this reads as one system with the grid
+             below rather than its own decoration. See .orbit-card in
+             style.css for how the rings turn without tumbling the icons
+             riding them. -->
+        <div class="summary-visual" aria-hidden="true">
+          <div class="orbit-card">
+            <div class="orbit-rings">
+              <ul class="orbit-ring orbit-ring-1">
+                <li style="transform: rotate(-90deg) translateX(64px);">
+                  <span class="orbit-icon-offset" style="transform: rotate(90deg)"><span class="orbit-icon" style="background: var(--grad-estuary)"><img src="/vendor/animals/blue-crab.svg" alt=""></span></span>
+                </li>
+                <li style="transform: rotate(90deg) translateX(64px);">
+                  <span class="orbit-icon-offset" style="transform: rotate(-90deg)"><span class="orbit-icon" style="background: var(--grad-sunset)"><img src="/vendor/animals/red-drum.svg" alt=""></span></span>
+                </li>
+              </ul>
+              <ul class="orbit-ring orbit-ring-2">
+                <li style="transform: rotate(-90deg) translateX(118px);">
+                  <span class="orbit-icon-offset" style="transform: rotate(90deg)"><span class="orbit-icon" style="background: var(--grad-marsh)"><img src="/vendor/animals/sea-turtle.svg" alt=""></span></span>
+                </li>
+                <li style="transform: rotate(-18deg) translateX(118px);">
+                  <span class="orbit-icon-offset" style="transform: rotate(18deg)"><span class="orbit-icon" style="background: var(--grad-tide)"><img src="/vendor/animals/shark.svg" alt=""></span></span>
+                </li>
+                <li style="transform: rotate(54deg) translateX(118px);">
+                  <span class="orbit-icon-offset" style="transform: rotate(-54deg)"><span class="orbit-icon" style="background: var(--grad-amber)"><img src="/vendor/animals/bird-generic.svg" alt=""></span></span>
+                </li>
+                <li style="transform: rotate(126deg) translateX(118px);">
+                  <span class="orbit-icon-offset" style="transform: rotate(-126deg)"><span class="orbit-icon" style="background: var(--grad-dusk)"><img src="/vendor/animals/fish-generic.svg" alt=""></span></span>
+                </li>
+                <li style="transform: rotate(198deg) translateX(118px);">
+                  <span class="orbit-icon-offset" style="transform: rotate(-198deg)"><span class="orbit-icon" style="background: var(--grad-slate)"><img src="/vendor/animals/crab-generic.svg" alt=""></span></span>
+                </li>
+              </ul>
+            </div>
+            <div class="orbit-center">
+              <img src="/vendor/logos/dnr-logo-color.png" alt="">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <h2>What changes</h2>
-    <div class="scroll-x">
-      <table>
-        <thead><tr><th></th><th>Today</th><th>With this</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><strong>Reward</strong></td>
-            <td>Swag, or a chance at a drawing</td>
-            <td>A fixed amount, paid on the spot</td>
-          </tr>
-          <tr>
-            <td><strong>Time to pay</strong></td>
-            <td>Weeks, if the finder is reachable</td>
-            <td>Seconds, to whoever scanned the tag</td>
-          </tr>
-          <tr>
-            <td><strong>Who gets paid</strong></td>
-            <td>Whoever mailed the tag in</td>
-            <td>Whoever physically held it</td>
-          </tr>
-          <tr>
-            <td><strong>Recapture position</strong></td>
-            <td>Recalled later, typed into a form</td>
-            <td>Captured on the spot, with the phone's own accuracy recorded</td>
-          </tr>
-          <tr>
-            <td><strong>Double reports</strong></td>
-            <td>Caught by hand, if caught</td>
-            <td>Impossible &mdash; the reward is one coin and spends once</td>
-          </tr>
-          <tr>
-            <td><strong>Releasing the crab</strong></td>
-            <td>Encouraged, never rewarded</td>
-            <td>Worth three times the base reward, paid when the tag turns up again</td>
-          </tr>
-          <tr>
-            <td><strong>What the finder gets back</strong></td>
-            <td>Nothing, usually</td>
-            <td>The crab's full history: where it was tagged, its size and sex,
-              days at large, distance travelled</td>
-          </tr>
-          <tr>
-            <td><strong>Data for researchers</strong></td>
-            <td>A database you have to be trusted about</td>
-            <td>Every row names the transaction that recorded it, so any line can
-              be checked independently</td>
-          </tr>
-        </tbody>
-      </table>
+  <!-- The problem, in SCDNR's own words. Every number here is sourced. -->
+  <div class="card accordion">
+    <button type="button" class="accordion-trigger" aria-expanded="false" aria-controls="sec-problem">
+      <h2>The problem is not the tagging</h2>
+      <span class="accordion-chevron" aria-hidden="true"></span>
+    </button>
+    <p class="accordion-teaser">Why more than half of today's tags go unreported, in SCDNR's own numbers.</p>
+    <div class="accordion-body" id="sec-problem" hidden>
+      <div class="grid two">
+        <div>
+          <h3 class="sub-head">Most tags are never reported</h3>
+          <p class="note">SCDNR's own review puts it plainly: <strong>fewer
+            than half</strong> of the tags anglers encounter are ever
+            reported. Tags carrying money report meaningfully better than
+            tags that don't.</p>
+        </div>
+        <div>
+          <h3 class="sub-head">The reward arrives too late to be one</h3>
+          <p class="note">The fisheries literature blames delivery, not
+            generosity: a captain collects the tag, the finder's identity
+            gets lost, and weeks pass before anything arrives. Today's offer
+            is swag, or a chance at a $500 drawing: a lottery, not a
+            payment.</p>
+        </div>
+        <div>
+          <h3 class="sub-head">Recapture positions are the weakest data you have</h3>
+          <p class="note">Release coordinates are precise: a biologist
+            recorded them on the spot. Recapture coordinates are remembered
+            days later and typed into a form: backwards, for a study
+            about <em>movement</em>.</p>
+        </div>
+        <div>
+          <h3 class="sub-head">The thing people actually want, nobody sends</h3>
+          <p class="note">SCDNR has found that many reporters care more about
+            the animal's history than the reward. One angler put it
+            simply: knowing his prey made him better at catching it. That
+            information already exists and costs nothing to send back.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card accordion">
+    <button type="button" class="accordion-trigger" aria-expanded="true" aria-controls="sec-changes">
+      <h2>What changes</h2>
+      <span class="accordion-chevron" aria-hidden="true"></span>
+    </button>
+    <div class="accordion-body" id="sec-changes">
+      <div class="scroll-x">
+        <table>
+          <thead><tr><th></th><th>Today</th><th>With this</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Reward</strong></td>
+              <td>Swag, or a chance at a drawing</td>
+              <td>A fixed amount, paid on the spot</td>
+            </tr>
+            <tr>
+              <td><strong>Time to pay</strong></td>
+              <td>Weeks, if the finder is reachable</td>
+              <td>Seconds, to whoever scanned the tag</td>
+            </tr>
+            <tr>
+              <td><strong>Who gets paid</strong></td>
+              <td>Whoever mailed the tag in</td>
+              <td>Whoever physically held it</td>
+            </tr>
+            <tr>
+              <td><strong>Recapture position</strong></td>
+              <td>Recalled later, typed into a form</td>
+              <td>Captured on the spot, with the phone's own accuracy recorded</td>
+            </tr>
+            <tr>
+              <td><strong>Double reports</strong></td>
+              <td>Caught by hand, if caught</td>
+              <td>Impossible: the reward is one coin and spends once</td>
+            </tr>
+            <tr>
+              <td><strong>Releasing the crab</strong></td>
+              <td>Encouraged, never rewarded</td>
+              <td>Worth three times the base reward, paid when the tag turns up again</td>
+            </tr>
+            <tr>
+              <td><strong>What the finder gets back</strong></td>
+              <td>Nothing, usually</td>
+              <td>The crab's full history: where it was tagged, its size and sex,
+                days at large, distance travelled</td>
+            </tr>
+            <tr>
+              <td><strong>Data for researchers</strong></td>
+              <td>A database you have to be trusted about</td>
+              <td>Every row names the transaction that recorded it, so any line can
+                be checked independently</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
   <!-- What the money is actually locked behind. A reviewer who gets this far
        wants to know what "on chain" concretely means here, and the answer is
        one script -- so it is shown rather than described. -->
-  <div class="card">
-    <h2>The reward and the record are the same object</h2>
+  <div class="card accordion">
+    <button type="button" class="accordion-trigger" aria-expanded="true" aria-controls="sec-mechanism">
+      <h2>The reward and the record are the same object</h2>
+      <span class="accordion-chevron" aria-hidden="true"></span>
+    </button>
+    <div class="accordion-body" id="sec-mechanism">
+      <p class="note">Arming a tag creates <strong>one</strong> Bitcoin
+        output: its value is the reward, its locking script is the tagging
+        record. They aren't two things referencing each other; they're one
+        thing, and most of what follows comes from that.</p>
 
-    <p class="note">Arming a tag creates <strong>one</strong> Bitcoin output. Its
-      value is the reward. Its locking script carries the tagging record. They
-      are not two things that reference each other &mdash; they are one thing,
-      and that is where most of the properties below come from.</p>
+      <div class="script">
+        <span class="arg">&lt;tag key&gt;</span> <span class="op">OP_CHECKSIGVERIFY</span>
+        <span class="arg">&lt;DNR key&gt;</span> <span class="op">OP_CHECKSIG</span><br>
+        <span class="arg">"WILDTAG"</span> <span class="arg">"2"</span>
+        <span class="arg">&lt;tag id&gt;</span> <span class="arg">"ACT"</span>
+        <span class="arg">&lt;generation&gt;</span><br>
+        <span class="arg">&lt;observation&gt;</span> <span class="arg">&lt;signature&gt;</span>
+        <span class="arg">&lt;observer key&gt;</span> <span class="arg">&lt;settlement&gt;</span><br>
+        <span class="op">OP_2DROP</span> <span class="op">OP_2DROP</span>
+        <span class="op">OP_2DROP</span> <span class="op">OP_2DROP</span>
+        <span class="op">OP_DROP</span>
+        <span class="cmt">&larr; the nine fields, pushed then discarded</span>
+      </div>
 
-    <div class="script">
-      <span class="arg">&lt;tag key&gt;</span> <span class="op">OP_CHECKSIGVERIFY</span>
-      <span class="arg">&lt;DNR key&gt;</span> <span class="op">OP_CHECKSIG</span><br>
-      <span class="arg">"WILDTAG"</span> <span class="arg">"2"</span>
-      <span class="arg">&lt;tag id&gt;</span> <span class="arg">"ACT"</span>
-      <span class="arg">&lt;generation&gt;</span><br>
-      <span class="arg">&lt;observation&gt;</span> <span class="arg">&lt;signature&gt;</span>
-      <span class="arg">&lt;observer key&gt;</span> <span class="arg">&lt;settlement&gt;</span><br>
-      <span class="op">OP_2DROP</span> <span class="op">OP_2DROP</span>
-      <span class="op">OP_2DROP</span> <span class="op">OP_2DROP</span>
-      <span class="op">OP_DROP</span>
-      <span class="cmt">&larr; the nine fields, pushed then discarded</span>
+      <p class="note">The shape is BRC-48 &ldquo;PushDrop&rdquo;: a key check,
+        then data pushed and immediately dropped. Dropping it is the point:
+        the fields play no part in validating the spend, so they can
+        be anything, and what they are is the record: where the animal was,
+        what it measured, and who signed for it.</p>
+
+      <div class="grid two">
+        <div>
+          <h3 class="sub-head">The record cannot be edited later</h3>
+          <p class="note">Not because anyone is trusted not to: the
+            record <em>is</em> the script that locks the money. Change a
+            coordinate and you've written a different script, one that
+            doesn't hold the coin and that nobody can spend. The payment
+            can't survive the data quietly moving.</p>
+        </div>
+        <div>
+          <h3 class="sub-head">Reporting cannot be separated from being paid</h3>
+          <p class="note">The only way to release the reward is to spend the
+            output, and spending it publishes the next record in the same
+            transaction. A finder can't take the money without filing the
+            report.</p>
+        </div>
+        <div>
+          <h3 class="sub-head">It pays exactly once</h3>
+          <p class="note">A coin is spent or it isn't. A second claim is a
+            double-spend, refused by the network, not by a database
+            deciding it's seen this tag before. Nothing has to remember; the
+            ledger already does.</p>
+        </div>
+        <div>
+          <h3 class="sub-head">Only the tag can start it</h3>
+          <p class="note">The first key is derived from the code printed
+            inside the QR, which never leaves the phone that scans it, so
+            that signature can only come from something in
+            physical contact with the tag. It says nothing about who or
+            where (see below), only that whoever holds the tag signed.</p>
+        </div>
+      </div>
+
+      <div class="readmore-wrap" data-readmore>
+        <h3 class="sub-head">Why there is a second key, and what it costs</h3>
+        <p class="note">A tag's code never changes, so a past finder could
+          re-derive the same key a future one holds. DNR co-signs to stop
+          that: a real cost, spelled out below.</p>
+        <button type="button" class="readmore" aria-expanded="false" aria-controls="sec-secondkey">Read more</button>
+        <div class="readmore-body" id="sec-secondkey" hidden>
+          <p class="note">A tag's code is printed on something that never
+            changes, so whoever reports a recapture holds exactly the code
+            the <em>next</em> finder will hold. Without a second signature,
+            they could come back and take the next reward, plus the
+            bonus already held in their name. No key-derivation trick fixes
+            this: a past bearer can always re-derive whatever a future
+            bearer derives.</p>
+          <p class="note">So DNR co-signs. That buys replay protection
+            across a tag's whole life, and the ability to refuse a claim on
+            a tag reported stolen. The real cost: a finder can't take the
+            money unilaterally, a genuine reduction in how trustless this is;
+            we'd rather write that down than let someone discover
+            it. What survives: the finder's own signature still proves they
+            held the tag, and their report is still bound to it,
+            unchangeable by anyone. A refusal is public too: the output just
+            stays unspent, visible to all.</p>
+        </div>
+      </div>
+
+      <h3 class="sub-head">Why the record is in the output at all</h3>
+      <p class="note">A hash would have been cheaper, but a hash only proves
+        a file hasn't changed; somebody still has to keep the file,
+        which is the arrangement this was meant to replace. Putting the
+        observation itself in the output means the dataset can be rebuilt
+        from the chain after every server is gone.</p>
     </div>
-
-    <p class="note">The shape is BRC-48 &ldquo;PushDrop&rdquo;: a key check,
-      then data pushed and immediately dropped. Dropping it is the point
-      &mdash; the fields take no part in deciding whether a spend is valid, so
-      they can be anything, and what they are is the record: where the animal
-      was, what it measured, who says so, and their signature over it.</p>
-
-    <div class="grid two">
-      <div>
-        <h3 class="sub-head">The record cannot be edited later</h3>
-        <p class="note">Not because anyone is trusted not to, but because the
-          record <em>is</em> the script that locks the money. Change a
-          coordinate and you have written a different script, which does not
-          hold the coin, which nobody can spend. There is no version of this
-          where the payment survives and the data quietly moves.</p>
-      </div>
-      <div>
-        <h3 class="sub-head">Reporting cannot be separated from being paid</h3>
-        <p class="note">The only way to release the reward is to spend that
-          output, and spending it publishes the next record in the same
-          transaction. A finder cannot take the money without filing the
-          report, and DNR cannot lose the report while the money moves.</p>
-      </div>
-      <div>
-        <h3 class="sub-head">It pays exactly once</h3>
-        <p class="note">A coin is spent or it is not. A second claim on the
-          same tag is a double-spend, and the network refuses it &mdash; not a
-          database somewhere deciding it has seen this tag before. Nothing has
-          to remember; the ledger already does.</p>
-      </div>
-      <div>
-        <h3 class="sub-head">Only the tag can start it</h3>
-        <p class="note">The first key is derived from the code printed inside
-          the QR, which never leaves the phone that scans it. That signature
-          can only come from something in physical contact with the tag. It
-          says nothing about who or where &mdash; see below &mdash; but
-          possession it does establish.</p>
-      </div>
-    </div>
-
-    <h3 class="sub-head">Why there is a second key, and what it costs</h3>
-    <p class="note">A tag's code is printed on something that never changes, so
-      the person who reports a recapture holds exactly the code the
-      <em>next</em> finder will hold. Without a second signature they could come
-      back and take the next reward, and the bonus held in their own name along
-      with it. No cleverness in key derivation fixes this: a past bearer can
-      always re-derive whatever a future bearer derives.</p>
-    <p class="note">So DNR co-signs. What that buys is replay protection across
-      a tag's whole life, and the ability to refuse a claim on a tag reported
-      stolen. <strong>What it costs is real:</strong> a finder cannot take the
-      money unilaterally, which is a genuine reduction in how trustless this
-      is, and we would rather write that down than let somebody discover it.
-      What survives it: the finder's own signature still establishes, on its
-      own, that they held the tag. Their report &mdash; the fix among it &mdash;
-      is still bound to that signature, so it cannot be edited afterwards by us
-      or by them; what the fix is worth is a separate question, answered
-      honestly further down. And a refusal is publicly visible: the output
-      simply stays unspent, where anyone can see it.</p>
-
-    <h3 class="sub-head">Why the record is in the output at all</h3>
-    <p class="note">A hash would have been cheaper. But a hash only proves a
-      file has not changed, and somebody still has to keep the file &mdash; so
-      the dataset lives exactly as long as the database holding it, which is
-      the arrangement this was meant to replace. Putting the observation itself
-      in the output means the public dataset can be rebuilt from the chain
-      after every server involved is gone.</p>
   </div>
 
   <!-- The re-release mechanism, because it is the least obvious part and the
        one a reviewer will push on hardest. -->
-  <div class="card">
-    <h2>Paying for releases without taking anyone's word</h2>
-    <p class="note">A tagged crab put back in the water can produce another data
-      point. A kept one cannot. So releasing is worth more &mdash; but nothing
-      on a receipt can show that a crab really went back.</p>
-    <p class="note">So the bonus is not paid on the reporter's word. It is
-      <strong>held against the tag</strong>, committed to that reporter, and
-      released only if the same crab is reported <em>again</em>. A second
-      sighting is the closest thing to evidence a release can have. A false
-      claim earns the base reward and forfeits a bonus that will never arrive.</p>
-    <ul class="steps">
-      <li>Crabber reports a tag and puts the crab back &rarr; paid the base
-        reward now.</li>
-      <li>Their bonus is locked to the tag, in their name.</li>
-      <li>Someone else catches the same crab later &rarr; they are paid, and the
-        first reporter's bonus is released in the same transaction.</li>
-    </ul>
+  <div class="card accordion">
+    <button type="button" class="accordion-trigger" aria-expanded="false" aria-controls="sec-releases">
+      <h2>Paying for releases without taking anyone's word</h2>
+      <span class="accordion-chevron" aria-hidden="true"></span>
+    </button>
+    <p class="accordion-teaser">How the re-release bonus is paid without trusting the reporter.</p>
+    <div class="accordion-body" id="sec-releases" hidden>
+      <p class="note">A released crab can produce another data point; a kept
+        one can't. So releasing is worth more, but nothing on a
+        receipt proves a crab really went back.</p>
+      <p class="note">So the bonus isn't paid on the reporter's word. It's
+        held against the tag, committed to that reporter, and released only
+        if the same crab is reported <em>again</em>: the closest
+        thing to evidence a release can have. A false claim earns the base
+        reward and forfeits a bonus that never arrives.</p>
+      <ul class="steps">
+        <li>Crabber reports a tag and puts the crab back &rarr; paid the base
+          reward now.</li>
+        <li>Their bonus is locked to the tag, in their name.</li>
+        <li>Someone else catches the same crab later &rarr; they are paid,
+          and the first reporter's bonus is released in the same
+          transaction.</li>
+      </ul>
+    </div>
   </div>
 
   <!-- The adoption story. This is the section that decides whether anyone
        tries it, so it leads with what does NOT change. -->
-  <div class="card">
-    <h2>What it costs to try</h2>
-    <p class="note">The honest answer is: one batch of tags and an afternoon.
-      Almost nothing about the existing programme has to change.</p>
+  <div class="card accordion">
+    <button type="button" class="accordion-trigger" aria-expanded="false" aria-controls="sec-cost">
+      <h2>What it costs to try</h2>
+      <span class="accordion-chevron" aria-hidden="true"></span>
+    </button>
+    <p class="accordion-teaser">One batch of tags and an afternoon: what has to change, and what doesn't.</p>
+    <div class="accordion-body" id="sec-cost" hidden>
+      <p class="note">The honest answer is: one batch of tags and an
+        afternoon. Almost nothing about the existing programme has to
+        change.</p>
 
-    <div class="grid two">
-      <div>
-        <h3 class="sub-head">The tag is the same tag</h3>
-        <p class="note">Same 1&times;2&nbsp;inch plastic stock, wired through
-          the lateral spines exactly as now. A QR code is added; nothing is
-          removed. <strong>Keep the phone number on it</strong> &mdash; a tag can
-          carry both, and anyone who would have called still can.</p>
-      </div>
-      <div>
-        <h3 class="sub-head">The field protocol is unchanged</h3>
-        <p class="note">Still only mature hard-shell crabs, for the same reason
-          as always: a peeler sheds the tag at its next moult and a soft-shell is
-          harmed by handling. The console enforces it rather than relying on
-          memory &mdash; and it reads that rule from the species file, so a
-          different animal gets its own rules rather than the crab's.</p>
-      </div>
-      <div>
-        <h3 class="sub-head">It runs alongside, not instead</h3>
-        <p class="note">A pilot is one batch. Tags that carry a code participate;
-          every other tag in the water behaves exactly as it does today. There is
-          no cutover and nothing to roll back.</p>
-      </div>
-      <div>
-        <h3 class="sub-head">The data comes out as a CSV</h3>
-        <p class="note">One row per event, the columns a movement study already
-          uses, plus the transaction id and whether its proof has been verified.
-          The measurement columns follow whatever is actually in the data, so a
-          fish export carries no empty carapace-width column. It opens in
-          whatever you use now.</p>
-      </div>
-      <div>
-        <h3 class="sub-head">One binary, one config</h3>
-        <p class="note">A single static binary and a handful of environment
-          variables. SQLite on a laptop or Postgres in a cluster. No accounts to
-          provision and no vendor to sign with.</p>
-      </div>
-      <div>
-        <h3 class="sub-head">The budget is a number you choose</h3>
-        <p class="note">Rewards are set per tag and funded from one wallet, so
-          the maximum spend of a pilot is decided before it starts. Rewards on
-          tags never recaptured can be reclaimed after a set date &mdash; a real
-          requirement, since crabs shed tags at every moult.</p>
+      <div class="grid two">
+        <div>
+          <h3 class="sub-head">The tag is the same tag</h3>
+          <p class="note">Same 1&times;2&nbsp;inch plastic stock, wired
+            through the lateral spines exactly as now: a QR code is
+            added, nothing removed. Keep the phone number too:
+            <strong>a tag can carry both</strong>, and anyone who'd have
+            called still can.</p>
+        </div>
+        <div>
+          <h3 class="sub-head">The field protocol is unchanged</h3>
+          <p class="note">Still only mature hard-shell crabs: a
+            peeler sheds the tag at its next moult, and handling harms a
+            soft-shell. The console enforces this from the species file
+            rather than relying on memory, so a different animal gets its
+            own rules, not the crab's.</p>
+        </div>
+        <div>
+          <h3 class="sub-head">It runs alongside, not instead</h3>
+          <p class="note">A pilot is one batch: tagged-with-a-code tags
+            participate, every other tag behaves exactly as today. No
+            cutover, nothing to roll back.</p>
+        </div>
+        <div>
+          <h3 class="sub-head">The data comes out as a CSV</h3>
+          <p class="note">One row per event, the columns a movement study
+            already uses, plus the transaction id and whether its proof is
+            verified. Measurement columns follow the actual data, so a fish
+            export carries no empty carapace-width column, and it
+            opens in whatever you already use.</p>
+        </div>
+        <div>
+          <h3 class="sub-head">One binary, one config</h3>
+          <p class="note">A single static binary and a handful of
+            environment variables: SQLite on a laptop, Postgres in a
+            cluster. No accounts to provision, no vendor to sign with.</p>
+        </div>
+        <div>
+          <h3 class="sub-head">The budget is a number you choose</h3>
+          <p class="note">Rewards are set per tag and funded from one
+            wallet, so a pilot's maximum spend is decided before it starts.
+            Unclaimed rewards can be reclaimed after a set date; that's
+            necessary, since crabs shed tags at every moult.</p>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- The question an adopter asks immediately after "is a pilot cheap": is
        this one more single-purpose system to run forever? -->
-  <div class="card">
-    <h2>It is not a crab system</h2>
-    <p class="note">Blue crab is the pilot, not the product. Nothing underneath
-      it &mdash; a bearer key printed on a tag, a one-time reward that can be
-      claimed once, a timestamped record nobody can edit afterwards &mdash; is a
-      fact about <em>Callinectes sapidus</em>.</p>
+  <div class="card accordion">
+    <button type="button" class="accordion-trigger" aria-expanded="false" aria-controls="sec-notcrab">
+      <h2>It is not a crab system</h2>
+      <span class="accordion-chevron" aria-hidden="true"></span>
+    </button>
+    <p class="accordion-teaser">Blue crab is the pilot; the mechanism underneath fits any tag-and-recapture programme.</p>
+    <div class="accordion-body" id="sec-notcrab" hidden>
+      <p class="note">Blue crab is the pilot, not the product. Nothing
+        underneath it (a bearer key on a tag, a one-time claimable
+        reward, a timestamped record nobody can edit) is a fact about
+        <em>Callinectes sapidus</em>.</p>
 
-    <div class="grid two">
-      <div>
-        <h3 class="sub-head">A species is a file</h3>
-        <p class="note">What differs between animals is a list: which
-          measurements are taken, which choices are recorded, and which sizes
-          the law protects. That list is a JSON file the server publishes, and
-          every form on every device is built from it. Adding red drum took no
-          code at all &mdash; and red drum is deliberately awkward, with a slot
-          limit rather than a minimum and no moult stage to record.</p>
+      <div class="badge-stack" aria-hidden="true" style="margin: var(--sp-md) 0;">
+        <span class="icon-badge tone-estuary"><img src="/vendor/animals/crab-generic.svg" alt="" loading="lazy"></span>
+        <span class="icon-badge tone-tide"><img src="/vendor/animals/fish-generic.svg" alt="" loading="lazy"></span>
+        <span class="icon-badge tone-marsh"><img src="/vendor/animals/sea-turtle.svg" alt="" loading="lazy"></span>
+        <span class="icon-badge tone-sunset"><img src="/vendor/animals/shark.svg" alt="" loading="lazy"></span>
+        <span class="icon-badge tone-amber"><img src="/vendor/animals/bird-generic.svg" alt="" loading="lazy"></span>
       </div>
-      <div>
-        <h3 class="sub-head">The same rules everywhere</h3>
-        <p class="note">The five-inch minimum and the egg-bearing-female rule
-          are written once and enforced on the server, in the browser and on the
-          phone from that one definition. A device that carried its own copy
-          would eventually tell somebody they may keep an animal the server then
-          refuses &mdash; after they have already killed it.</p>
-      </div>
-      <div>
-        <h3 class="sub-head">SCDNR already runs the harder case</h3>
-        <p class="note">The marine game fish programme covers
-          <a href="https://www.dnr.sc.gov/marine/tagfish/tagfish.html">46 species
-          across 20 families</a>, tagged largely by volunteers rather than staff,
-          with the same tag-release-recapture shape and the same reward problem.
-          That is the same programme with a different list.</p>
-      </div>
-      <div>
-        <h3 class="sub-head">Harvest tagging is a different shape</h3>
-        <p class="note">Deer is not mark-recapture: one party, one event,
-          compliance rather than reward. South Carolina already requires
-          electronic reporting through
-          <a href="https://dnr.sc.gov/harvestreport/">SC Game Check</a>, which
-          issues a confirmation number a processor has to trust a database to
-          validate. A one-time tag that anyone can check without asking us is
-          exactly that, without the database. It is modelled here and
-          <strong>not built</strong> &mdash; saying so is the point.</p>
+      <p class="note">A species is a schema file, not a code change: the
+        mechanism doesn't care whether the next one has claws, fins,
+        a shell, or feathers.</p>
+
+      <div class="grid two">
+        <div>
+          <h3 class="sub-head">A species is a file</h3>
+          <p class="note">What differs between animals is a list: which
+            measurements to take, which choices to record, which sizes the
+            law protects. That list is a JSON file the server publishes, and
+            every form is built from it. Adding red drum took no code at
+            all. It's deliberately awkward too, with a slot limit instead
+            of a minimum and no moult stage at all.</p>
+        </div>
+        <div>
+          <h3 class="sub-head">The same rules everywhere</h3>
+          <p class="note">The five-inch minimum and the egg-bearing-female
+            rule are written once, enforced identically on the server, in
+            the browser, and on the phone. A device with its own copy would
+            eventually tell someone they may keep an animal the server then
+            refuses, after they've already killed it.</p>
+        </div>
+        <div>
+          <h3 class="sub-head">SCDNR already runs the harder case</h3>
+          <p class="note">The marine game fish programme already covers
+            <a href="https://www.dnr.sc.gov/marine/tagfish/tagfish.html">46 species
+            across 20 families</a>, tagged largely by volunteers, with the
+            same tag-release-recapture shape and the same reward problem:
+            the same programme, a different list.</p>
+        </div>
+        <div>
+          <h3 class="sub-head">Harvest tagging is a different shape</h3>
+          <p class="note">Deer isn't mark-recapture: one party, one event,
+            compliance rather than reward. South Carolina already requires
+            electronic reporting through
+            <a href="https://dnr.sc.gov/harvestreport/">SC Game Check</a>,
+            which issues a confirmation number a processor must trust a
+            database to validate. A one-time tag anyone can check without
+            asking us does the same job, without the database: modelled
+            here, deliberately <strong>not built</strong>.</p>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <h2>What we are not claiming</h2>
-    <p class="note">The same section appears on the page a crabber sees, because
-      a programme that oversells its evidence is worse than one that has less of
-      it.</p>
-    <dl class="honesty">
-      <dt class="yes">When a record was made, and that it has not changed</dt>
-      <dd>Each tagging and each report is a Bitcoin transaction. Once a block
-        carries it the record cannot be backdated or edited &mdash; not by a
-        crabber, not by SCDNR, not by us.</dd>
+  <div class="card accordion">
+    <button type="button" class="accordion-trigger" aria-expanded="true" aria-controls="sec-notclaiming">
+      <h2>What we are not claiming</h2>
+      <span class="accordion-chevron" aria-hidden="true"></span>
+    </button>
+    <div class="accordion-body" id="sec-notclaiming">
+      <p class="note">The same section appears on the page a crabber sees: a
+        programme that oversells its evidence is worse than one that has
+        less of it.</p>
+      <dl class="honesty">
+        <dt class="yes">When a record was made, and that it has not changed</dt>
+        <dd>Each tagging and each report is a Bitcoin transaction. Once a
+          block carries it the record cannot be backdated or edited: not
+          by a crabber, not by SCDNR, not by us.</dd>
 
-      <dt class="yes">That the reporter held the tag</dt>
-      <dd>The reward unlocks only with the key printed on the tag itself.</dd>
+        <dt class="yes">That the reporter held the tag</dt>
+        <dd>The reward unlocks only with the key printed on the tag itself.</dd>
 
-      <dt class="yes">That each reward is paid once</dt>
-      <dd>It is a single coin. A duplicate claim fails.</dd>
+        <dt class="yes">That each reward is paid once</dt>
+        <dd>It is a single coin. A duplicate claim fails.</dd>
 
-      <dt class="yes">Who stands behind a record</dt>
-      <dd>Every record is signed by the biologist or crabber who made it, and
-        anyone reading the public dataset can re-derive the signing key and check
-        it themselves.</dd>
+        <dt class="yes">Who stands behind a record</dt>
+        <dd>Every record is signed by whoever made it, and anyone reading
+          the public dataset can re-derive the signing key and check it
+          themselves.</dd>
 
-      <dt class="no">Where anyone actually was</dt>
-      <dd>Positions come from the phone that scanned the tag and are taken on
-        trust. The accuracy the device reports is recorded alongside every fix.
-        This is an attestation, and we will not describe it as anything more.</dd>
+        <dt class="no">Where anyone actually was</dt>
+        <dd>Positions come from the phone that scanned the tag, taken on
+          trust. The device's own reported accuracy is recorded alongside
+          every fix. This is an attestation, nothing more.</dd>
 
-      <dt class="no">That a crab was really released</dt>
-      <dd>Also taken on trust. The held bonus makes a false claim unprofitable
-        rather than impossible, and a second sighting corroborates it. That is
-        not the same as evidence.</dd>
-    </dl>
+        <dt class="no">That a crab was really released</dt>
+        <dd>Also taken on trust. The held bonus makes a false claim
+          unprofitable, not impossible; a second sighting corroborates it.
+          That isn't evidence.</dd>
+      </dl>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>Trying it</h2>
-    <ul class="steps">
-      <li>Create a batch and print the sheet on waterproof tag stock. Tag ids and
-        codes are generated together; nothing is spent yet.</li>
-      <li>Fund one wallet with the pilot's budget.</li>
-      <li>In the field, scan a tag, record the crab as you already do, and arm
-        it. The reward is locked to that tag at that moment.</li>
-      <li>A crabber scans it, reports the catch, and is paid. You get a position
-        fix taken where they stood, not where they remembered standing.</li>
-      <li>Export the dataset whenever you like; check any row against the chain.</li>
-    </ul>
-    <p class="note" style="margin-top:14px">
-      <a href="/">See the live dashboard</a> for what the programme is currently
-      holding, or <a href="/api/export.csv">download the dataset</a> as it stands.
-    </p>
+  <div class="card accordion">
+    <button type="button" class="accordion-trigger" aria-expanded="true" aria-controls="sec-trying">
+      <h2>Trying it</h2>
+      <span class="accordion-chevron" aria-hidden="true"></span>
+    </button>
+    <div class="accordion-body" id="sec-trying">
+      <ul class="steps">
+        <li>Create a batch and print the sheet on waterproof tag stock: ids
+          and codes are generated together, nothing spent yet.</li>
+        <li>Fund one wallet with the pilot's budget.</li>
+        <li>In the field, scan a tag, record the crab as usual, and arm it:
+          the reward locks to that tag at that moment.</li>
+        <li>A crabber scans it, reports the catch, and is paid. You get a
+          position fix taken where they stood, not where they remembered
+          standing.</li>
+        <li>Export the dataset whenever you like; check any row against the
+          chain.</li>
+      </ul>
+      <p class="note" style="margin-top:14px">
+        <a href="/">See the live dashboard</a> for what the programme is currently
+        holding, or <a href="/api/export.csv">download the dataset</a> as it stands.
+      </p>
+    </div>
   </div>
 
 </main>
 
 <footer>
-  South Carolina Department of Natural Resources &middot;
+  <a href="https://www.dnr.sc.gov/"><img class="footer-logo" src="/vendor/logos/dnr-logo-white.png" width="20" height="20" alt="South Carolina DNR seal">
+  South Carolina Department of Natural Resources</a> &middot;
   <a href="/">dashboard</a> &middot;
   <a href="/api/export.csv">open dataset</a>
+  <!-- TODO: photographer name pending -- the file's own metadata carries a
+       description but no byline, and it could not be matched with
+       confidence to one listing among several similar photos. -->
+  <p class="photo-credit">Background photo: a scenic view of Lake Jocassee,
+    South Carolina, by <span data-photo-credit>[photographer credit pending]</span>,
+    licensed via <a href="https://elements.envato.com/">Envato Elements</a>.</p>
 </footer>
 
-<script src="app.js"></script>
+<script src="theme.js"></script>
+<script src="nav.js"></script>
+<script src="focus-trap.js"></script>
+<script src="datamenu.js"></script>
+<script src="reveal.js"></script>
+<script src="accordion.js"></script>
+<script src="devpanel.js"></script>
+<script src="sw-register.js"></script>
 </body>
 </html>

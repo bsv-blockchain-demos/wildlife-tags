@@ -1,0 +1,54 @@
+{
+  "code": "THUALB",
+  "common": "Yellowfin tuna",
+  "scientific": "Thunnus albacares",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "fl",
+  "sweep_after_days": 1095,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Yellowfin tuna run warm-blooded in patches: a mesh of blood vessels called the rete mirabile lets them hold their swimming muscles, eyes and brain a few degrees above the surrounding water, sharpening vision and reaction time mid-strike -- modest compared to bluefin tuna, which can run over 20°C above ambient, but real all the same.",
+    "In the eastern Pacific, yellowfin tuna are famous for schooling directly beneath pods of spinner and spotted dolphins, closely enough that fishing fleets spent decades finding tuna by finding dolphins first; the same partnership is rare almost everywhere else the species turns up, including here in the Atlantic.",
+    "A yellowfin tuna can top 400 pounds and six feet in length, but it gets there fast and doesn't stick around: most live only six or seven years, so the biggest fish landed off the Carolinas are racing a clock as much as they're racing a hook."
+  ],
+  "measures": [
+    { "key": "fl", "label": "Fork length", "unit": "mm", "scale": 1,
+      "min": 400, "max": 2000, "required": true,
+      "help": "Measured along the curve of the body, from the tip of the upper jaw to the fork of the tail; curved fork length is the standard tuna measurement, and is what the federal minimum size is based on." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Yellowfin tuna cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "TROLL_LURE", "label": "Trolling, lure", "icon": "gear-hook" },
+        { "code": "TROLL_BAIT", "label": "Trolling, live/dead bait", "icon": "gear-hook" },
+        { "code": "CHUNK",      "label": "Chunking / chum" },
+        { "code": "OTHER",      "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "fl", "less_than": 686,
+      "reason": "under the federal Atlantic HMS recreational minimum size for yellowfin tuna, 27 inches curved fork length" }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "code": "SARSAR",
+  "common": "Atlantic bonito",
+  "scientific": "Sarda sarda",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "tl",
+  "sweep_after_days": 1460,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "A bonito under thirty inches can burst to around 40 mph, a tuna-like body built for short, hard sprints rather than the long, steady cruising of its bigger scombrid cousins.",
+    "It grows fast and dies young: most of a bonito's length is packed on in its first two or three years, and few live past five, a strikingly short lifespan for a fish that reaches this size that quickly.",
+    "Anglers up and down the Atlantic coast regularly hook a bonito while trolling for something else entirely, then re-rig it whole as live or dead bait for the much larger tuna, marlin, or shark they were actually after."
+  ],
+  "measures": [
+    { "key": "tl", "label": "Total length", "unit": "mm", "scale": 1,
+      "min": 300, "max": 900, "required": true,
+      "help": "Tip of the snout to the tip of the tail, with the tail lobes pinched together for a straight-line measurement." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Atlantic bonito cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",  "label": "Good: swam off strongly" },
+        { "code": "FAIR",  "label": "Fair: slow to recover" },
+        { "code": "POOR",  "label": "Poor: barely responsive" },
+        { "code": "BLEED", "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "TROLL",    "label": "Trolling", "icon": "gear-line" },
+        { "code": "CASTLURE", "label": "Casting lures / jigs", "icon": "gear-hook" },
+        { "code": "LIVEBAIT", "label": "Live bait / chum", "icon": "gear-hook" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "tl", "less_than": 304,
+      "reason": "Atlantic bonito carry no dedicated South Carolina or federal recreational size limit; SCDNR's general 12-inch minimum for tagging-eligible marine game fish applies instead" }
+  ]
+}

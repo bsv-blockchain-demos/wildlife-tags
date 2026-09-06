@@ -124,6 +124,14 @@
     String(s).replace(/[&<>"']/g, (c) =>
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+  // stickyBadge marks a field the console carries forward across animals
+  // (see Sticky on the Go side) so a biologist who did not type today's
+  // water temperature understands why a number is already sitting there,
+  // rather than wondering whether the form is broken.
+  function stickyBadge(sticky) {
+    return sticky ? ' <span class="sticky-badge" title="Carries forward to the next animal until you change it">kept</span>' : '';
+  }
+
   // unit renders a measure's range in the units a person types, which is not
   // what is stored: a scale of 100 means the field says 15.0 to 40.0 while the
   // record carries 1500 to 4000.
@@ -148,10 +156,11 @@
       const b = bounds(m);
       const req = m.required && (tagging || !m.tagging_only) ? ' required' : '';
       const unit = m.unit ? ` (${esc(m.unit)})` : '';
+      const sticky = m.sticky ? ' data-sticky="true"' : '';
       parts.push(
         `<div class="field">` +
-          `<label for="f_${esc(m.key)}">${esc(m.label)}${unit}</label>` +
-          `<input id="f_${esc(m.key)}" data-meas="${esc(m.key)}" data-scale="${m.scale}" ` +
+          `<label for="f_${esc(m.key)}">${esc(m.label)}${unit}${stickyBadge(m.sticky)}</label>` +
+          `<input id="f_${esc(m.key)}" data-meas="${esc(m.key)}" data-scale="${m.scale}"${sticky} ` +
           `type="number" inputmode="decimal" min="${b.lo}" max="${b.hi}" ${b.stepAttr}${req}>` +
           (m.help ? `<p class="note">${esc(m.help)}</p>` : '') +
         `</div>`
@@ -162,13 +171,20 @@
       if (v.key === dispKey && tagging) continue;
       if (v.tagging_only && !tagging) continue;
       const req = v.required && (tagging || !v.tagging_only) ? ' required' : '';
+      const sticky = v.sticky ? ' data-sticky="true"' : '';
       const options = (v.values || [])
-        .map((val) => `<option value="${esc(val.code)}">${esc(val.label)}</option>`)
+        .map((val) => {
+          const icon = val.icon ? ` data-icon="${esc(val.icon)}"` : '';
+          return `<option value="${esc(val.code)}"${icon}>${esc(val.label)}</option>`;
+        })
         .join('');
       parts.push(
         `<div class="field">` +
-          `<label for="f_${esc(v.key)}">${esc(v.label)}</label>` +
-          `<select id="f_${esc(v.key)}" data-attr="${esc(v.key)}"${req}>${options}</select>` +
+          `<label for="f_${esc(v.key)}">${esc(v.label)}${stickyBadge(v.sticky)}</label>` +
+          // data-combobox, so admin.js/redeem.js can enhance every select this
+          // renders into a searchable popover (see combobox.js) in one pass,
+          // without needing to know each field's id in advance.
+          `<select id="f_${esc(v.key)}" data-attr="${esc(v.key)}" data-combobox${sticky}${req}>${options}</select>` +
           (v.help ? `<p class="note">${esc(v.help)}</p>` : '') +
           (v.key === dispKey ? `<p class="note" data-disp-note></p>` : '') +
         `</div>`

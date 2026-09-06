@@ -4,26 +4,181 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SCDNR wildlife tag program</title>
+<meta name="description" content="Tagged animals, reported by whoever finds them, paid on the spot. A live QR-unlockable reward programme built on Bitcoin SV.">
+<meta property="og:title" content="SCDNR wildlife tag program">
+<meta property="og:description" content="Tagged animals, reported by whoever finds them, paid on the spot.">
+<meta property="og:image" content="/api/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#f3f5f8" id="themeColor">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script>
+  // Applied before first paint so a person who chose dark never sees a
+  // light flash. See theme.js for the toggle itself.
+  try {
+    var t = localStorage.getItem('wildtag.theme') || 'light';
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('themeColor').setAttribute('content', t === 'dark' ? '#0e1418' : '#f3f5f8');
+  } catch (_) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+  // Same technique, same reason: a first-time visitor should never see this
+  // page for even one frame before the walkthrough covers it. See
+  // onboarding.js.
+  try {
+    if (!localStorage.getItem('wildtag.onboarded.v1')) {
+      document.documentElement.classList.add('onboarding-pending');
+    }
+  } catch (_) {}
+</script>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-page="index" data-onboard="home">
+
+<!-- First run. Hidden by default; the inline script in <head> shows it
+     before paint on a first-ever visit, and onboarding.js drives it from
+     there. See style.css's ".onboard-*" rules. -->
+<div class="onboard-veil" id="onboardVeil" role="dialog" aria-modal="true" aria-label="Welcome to SCDNR wildlife tags">
+  <div class="onboard-scene" id="onboardScene" aria-hidden="true"></div>
+  <div class="onboard-form">
+    <div class="onboard-form-inner">
+      <div class="onboard-top">
+        <div class="onboard-dots" id="onboardDots" aria-hidden="true"></div>
+        <button type="button" class="onboard-skip" id="onboardSkip">Skip</button>
+      </div>
+      <p class="onboard-eyebrow" id="onboardEyebrow"></p>
+      <h2 class="onboard-title" id="onboardTitle"></h2>
+      <div class="onboard-body" id="onboardBody"></div>
+      <div class="onboard-actions" id="onboardActions"></div>
+    </div>
+  </div>
+</div>
 
 <header class="site">
-  <h1>SCDNR wildlife tags</h1>
-  <div class="tagline">tagged animals, reported by whoever finds them, paid on the spot</div>
-  <nav>
-    <a href="/about">about</a>
-    <a href="/api/export.csv">dataset (CSV)</a>
-    <a href="/api/export.json">JSON</a>
-    <a href="/admin">admin</a>
-  </nav>
+  <div class="site-inner">
+    <div class="brand">
+      <!-- No tagline here, unlike the other pages: the page-title just
+           below ("Report it, get paid") now says the same thing shorter,
+           and repeating it a second time in the header was pure noise. -->
+      <h1><a class="brand-link" href="/"><span class="brand-name">SCDNR wildlife tags</span></a></h1>
+    </div>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/about">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.25"/><path d="M10 9.25v4.25"/><circle cx="10" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        About
+      </a>
+      <button type="button" class="data-trigger" data-dataset-trigger aria-haspopup="true" aria-expanded="false" aria-controls="dataPanel">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v9"/><path d="M6.25 8.75 10 12.5l3.75-3.75"/><path d="M4 13.5V16h12v-2.5"/></svg>
+        Dataset
+        <span class="nav-caret" aria-hidden="true"></span>
+      </button>
+      <a href="/admin">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 16 5.2v4.3c0 4-2.6 6.6-6 7.5-3.4-.9-6-3.5-6-7.5V5.2L10 3Z"/><path d="M7.25 10l1.9 1.9L13 8"/></svg>
+        Admin
+      </a>
+    </nav>
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode">
+      <svg class="icon-sun" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="3.5"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1 4.7 4.7"/></svg>
+      <svg class="icon-moon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 12.3A6.8 6.8 0 0 1 7.7 3.5a7 7 0 1 0 8.8 8.8Z"/></svg>
+    </button>
+    <button type="button" class="hamburger" id="navToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+      <span class="hamburger-box">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </span>
+    </button>
+  </div>
 </header>
+
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Menu">
+  <nav aria-label="Mobile">
+    <a href="/about">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.25"/><path d="M10 9.25v4.25"/><circle cx="10" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      About
+    </a>
+    <button type="button" class="data-trigger" data-dataset-trigger aria-haspopup="true" aria-expanded="false" aria-controls="dataPanel">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v9"/><path d="M6.25 8.75 10 12.5l3.75-3.75"/><path d="M4 13.5V16h12v-2.5"/></svg>
+      Dataset
+    </button>
+    <a href="/admin">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 16 5.2v4.3c0 4-2.6 6.6-6 7.5-3.4-.9-6-3.5-6-7.5V5.2L10 3Z"/><path d="M7.25 10l1.9 1.9L13 8"/></svg>
+      Admin
+    </a>
+  </nav>
+  <div class="mobile-theme-row">
+    <span>Dark mode</span>
+    <button type="button" class="theme-switch" data-theme-toggle aria-label="Toggle dark mode"></button>
+  </div>
+</div>
+
+<!-- The Dataset popover/sheet: one panel, two triggers above (desktop nav
+     and mobile menu), wired up by datamenu.js. -->
+<div class="data-panel" id="dataPanel" role="menu" aria-label="Download the dataset" hidden>
+  <p class="data-panel-head">Download the dataset</p>
+  <a class="data-panel-item" role="menuitem" href="/api/export.csv">
+    <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5h6l3 3V16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1Z"/><path d="M12 2.5V6h3"/><path d="M6.5 11h7M6.5 13.5h7"/></svg>
+    <span><span class="data-panel-label">CSV</span><span class="data-panel-note">Opens in a spreadsheet</span></span>
+  </a>
+  <a class="data-panel-item" role="menuitem" href="/api/export.json">
+    <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 3.5c-1.4 0-2 .6-2 2v2.3c0 .8-.3 1.2-1 1.5.7.3 1 .7 1 1.5V13c0 1.4.6 2 2 2"/><path d="M12.5 3.5c1.4 0 2 .6 2 2v2.3c0 .8.3 1.2 1 1.5-.7.3-1 .7-1 1.5V13c0 1.4-.6 2-2 2"/></svg>
+    <span><span class="data-panel-label">JSON</span><span class="data-panel-note">Structured, for scripts</span></span>
+  </a>
+</div>
 
 <main class="wrap">
 
+  <p class="page-title">Report it, get paid</p>
+
   <div class="card">
     <h2>The program</h2>
-    <div class="grid stats" id="stats"></div>
+    <div class="program-layout">
+      <div class="grid stats" id="stats">
+        <!-- Replaced the instant /api/stats answers; see app.js. -->
+        <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+        <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+        <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+        <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+        <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+        <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+      </div>
+      <!-- Desktop-only: the same four counts on the tiles to the left
+           (minted, active, cooldown, retired), drawn as a ring instead of
+           read as numbers. See app.js's renderStatsChart. Hidden until
+           there is at least one tag printed -- nothing to honestly draw
+           before that. -->
+      <div class="stats-chart hidden" id="statsChart"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Species in this programme</h2>
+    <!-- Built from GET /api/schema, not hand-copied per species -- see
+         app.js's renderSpeciesGrid. Two species were a reasonable amount of
+         markup to hand-author twice (index.html and about.html's own
+         "not a crab system" illustration); the full marine game fish
+         tagging roster (see dnr.sc.gov/marine/tagfish/tagspecies.html)
+         is not. -->
+    <input type="search" id="speciesSearch" class="species-search" placeholder="Search species&hellip; (Enter to pin as a filter)" autocomplete="off" aria-label="Search species" aria-controls="speciesGrid">
+    <div class="chip-row hidden" id="speciesChips" aria-label="Active filters"></div>
+    <p class="note hidden" id="speciesEmpty">No species match your search.</p>
+    <div class="grid cards" id="speciesGrid">
+      <div class="grad-card" aria-hidden="true">
+        <div class="grad-card-header size-sm"></div>
+        <div class="grad-card-body"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+      </div>
+      <div class="grad-card" aria-hidden="true">
+        <div class="grad-card-header size-sm"></div>
+        <div class="grad-card-body"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -39,7 +194,7 @@
     <p class="note">
       Here the reward is locked to the tag itself. Scanning it pays the finder
       in seconds, and their position and measurements are written into the same
-      transaction that moves the money — so the reward and the data cannot be
+      transaction that moves the money, so the reward and the data cannot be
       separated afterwards.
     </p>
     <p class="note"><a href="/about">What this changes, and what it costs to try &rarr;</a></p>
@@ -52,7 +207,11 @@
         <thead>
           <tr><th>Tag</th><th>Event</th><th>Gen</th><th>Amount</th><th>Status</th><th>When</th></tr>
         </thead>
-        <tbody id="recent"></tbody>
+        <tbody id="recent">
+          <tr><td colspan="6"><div class="skel-line cell"></div></td></tr>
+          <tr><td colspan="6"><div class="skel-line cell"></div></td></tr>
+          <tr><td colspan="6"><div class="skel-line cell"></div></td></tr>
+        </tbody>
       </table>
     </div>
   </div>
@@ -80,24 +239,43 @@
     </dl>
   </div>
 
-  <div class="card">
-    <h2>Open data</h2>
-    <p class="note">
-      Every row of the dataset names the transaction that recorded it and
-      whether that transaction has a verified merkle proof, so any single line
-      can be checked against the chain rather than taken on our word.
-      <a href="/api/export.csv">Download CSV</a> or
-      <a href="/api/export.json">JSON</a>.
-    </p>
+  <!-- Tapping a species card used to just link to /about -- true, but the
+       same page no matter which of 29 animals you tapped. Populated by
+       app.js's speciesSheetHTML() from GET /api/schema, already loaded for
+       the grid itself. Reuses the arm flow's own confirm-sheet chrome
+       (.modal-scrim/.confirm-sheet, FocusTrap, Escape to close) since this
+       is the same "review, then dismiss" shape with nothing to confirm --
+       plus an X and backdrop-click, which the arm confirm sheet leaves out
+       on purpose (see .sheet-close-x in style.css) but this one, carrying
+       no consequence, doesn't need to withhold. -->
+  <div class="modal-scrim" id="speciesScrim" hidden></div>
+  <div class="confirm-sheet" id="speciesSheet" hidden role="dialog" aria-modal="true">
+    <button type="button" id="speciesSheetX" class="sheet-close-x" aria-label="Close">&times;</button>
+    <div class="confirm-sheet-scroll">
+      <div id="speciesSheetBody"></div>
+    </div>
+    <div class="cta-row">
+      <button type="button" id="speciesSheetAbout" class="primary wide">About this programme</button>
+    </div>
   </div>
 
 </main>
 
 <footer>
-  South Carolina Department of Natural Resources &middot;
+  <a href="https://www.dnr.sc.gov/"><img class="footer-logo" src="/vendor/logos/dnr-logo-white.png" width="20" height="20" alt="South Carolina DNR seal">
+  South Carolina Department of Natural Resources</a> &middot;
   network <span id="net" class="mono"></span>
 </footer>
 
+<script src="theme.js"></script>
+<script src="nav.js"></script>
+<script src="datamenu.js"></script>
+<script src="reveal.js"></script>
+<script src="schema.js"></script>
 <script src="app.js"></script>
+<script src="focus-trap.js"></script>
+<script src="onboarding.js"></script>
+<script src="devpanel.js"></script>
+<script src="sw-register.js"></script>
 </body>
 </html>

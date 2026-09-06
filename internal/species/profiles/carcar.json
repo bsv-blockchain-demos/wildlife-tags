@@ -1,0 +1,47 @@
+{
+  "code": "CARCAR",
+  "common": "Loggerhead sea turtle",
+  "scientific": "Caretta caretta",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR Marine Turtle Conservation Program",
+  "primary_measure": "ccl",
+  "sweep_after_days": 0,
+  "qr_version_max": 3,
+  "growth_expected": true,
+  "fun_facts": [
+    "A nest's sand temperature decides the hatchlings' sex, not their genes: a few degrees above roughly 29°C and a nest hatches mostly female, a few degrees below and it hatches mostly male.",
+    "A nesting female almost always comes ashore on the same short stretch of beach where she herself hatched decades earlier, guided in part by a faint magnetic signature of that coastline she imprinted on as a hatchling.",
+    "After hatching, loggerheads vanish into the open Atlantic for close to a decade, often drifting inside mats of Sargassum weed as far as the Azores, before turning up again in coastal waters as juveniles -- a stretch researchers call \"the lost years\" because so little of it was ever directly observed."
+  ],
+  "measures": [
+    { "key": "ccl", "label": "Curved carapace length", "unit": "mm", "scale": 1,
+      "min": 700, "max": 1300, "required": true,
+      "help": "Measured with a flexible tape along the curve of the shell, from the nuchal notch to the longer posterior tip." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Sex cannot be told by looking at a turtle in the field, nesting females aside; unknown is the normal answer for anything but a nesting encounter.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "encounter", "label": "How it was found", "required": true, "sticky": true,
+      "values": [
+        { "code": "NESTING",  "label": "Nesting on a beach" },
+        { "code": "SIGHTED",  "label": "Sighted, alive and moving" },
+        { "code": "BYCATCH",  "label": "Bycatch in fishing gear" },
+        { "code": "STRANDED", "label": "Stranded: sick, injured, or dead" }
+      ]}
+  ],
+  "not_taggable": [
+    { "measure": "ccl", "less_than": 700,
+      "reason": "flipper tags in this programme are applied to nesting adult females on the beach; a turtle this small is a juvenile encountered elsewhere and is not part of that protocol" }
+  ],
+  "must_release": [
+    { "measure": "ccl", "less_than": 5000,
+      "reason": "loggerhead sea turtles are federally protected under the Endangered Species Act; every animal encountered must be released, regardless of size" }
+  ]
+}

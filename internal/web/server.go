@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/bsv-blockchain-demos/wildlife-tags/internal/auth"
+	"github.com/bsv-blockchain-demos/wildlife-tags/internal/ogimage"
 	"github.com/bsv-blockchain-demos/wildlife-tags/internal/service"
 )
 
@@ -39,6 +40,12 @@ type Server struct {
 	indexOnce   sync.Once
 	indexBodies map[string][]byte
 
+	// og renders the share-preview images behind every page's og:image --
+	// see internal/ogimage and og.go. Built once here because it parses two
+	// fonts and decodes eight icons, work a request handler should not
+	// repeat on every hit.
+	og *ogimage.Renderer
+
 	// redeemLimiter throttles redemption attempts.
 	//
 	// Global rather than per-IP, and that is deliberate: behind an ingress
@@ -55,6 +62,11 @@ func New(svc *service.Service, a *auth.Authenticator, logger *slog.Logger) (*Ser
 		return nil, fmt.Errorf("web: mount static assets: %w", err)
 	}
 
+	og, err := newOGRenderer(sub)
+	if err != nil {
+		return nil, fmt.Errorf("web: build og image renderer: %w", err)
+	}
+
 	s := &Server{
 		svc:           svc,
 		auth:          a,
@@ -62,6 +74,7 @@ func New(svc *service.Service, a *auth.Authenticator, logger *slog.Logger) (*Ser
 		now:           func() time.Time { return time.Now().UTC() },
 		static:        sub,
 		redeemLimiter: newBucket(20, 3*time.Second),
+		og:            og,
 	}
 	if err := s.hashAssets(); err != nil {
 		return nil, err
@@ -98,6 +111,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /api/admin/session", s.requireAdmin(s.handleSession))
 	mux.HandleFunc("GET /api/admin/funding", s.requireAdmin(s.handleFunding))
 	mux.HandleFunc("GET /api/admin/batches", s.requireAdmin(s.handleBatches))
+	mux.HandleFunc("GET /api/admin/audit", s.requireAdmin(s.handleAuditTrail))
 	mux.HandleFunc("POST /api/admin/batches", s.requireAdmin(s.handleMintBatch))
 	mux.HandleFunc("GET /api/admin/tags", s.requireAdmin(s.handleAdminTags))
 	mux.HandleFunc("POST /api/admin/activate/prepare", s.requireAdmin(s.handleActivatePrepare))
@@ -108,10 +122,23 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /healthz", s.handleHealth)
 	mux.HandleFunc("GET /readyz", s.handleReady)
 
+	// Share-preview images. Generated, not stored: cheap enough to draw on
+	// every request (a handful of shapes and a few dozen words of text) that
+	// there is no cache to invalidate when a crab gets a name.
+	mux.HandleFunc("GET /api/og.png", s.handleOGHome)
+	mux.HandleFunc("GET /api/og/about.png", s.handleOGAbout)
+	// No .png suffix: {tagID} must be a whole path segment, Go's mux
+	// pattern syntax has no way to mix a wildcard with trailing literal
+	// text in the same segment. A crawler fetching an og:image URL does
+	// not care about its extension, only its Content-Type, which this
+	// handler sets regardless.
+	mux.HandleFunc("GET /api/og/tag/{tagID}", s.handleOGTag)
+
 	// Pages. /t/{tagID} is where a scanned QR lands; the fragment carrying the
 	// secret never reaches the server, which is the whole reason it is a
-	// fragment.
-	mux.HandleFunc("GET /t/{tagID}", s.servePage("redeem.html"))
+	// fragment. Its OG tags are filled in per tag (see handleRedeemPage);
+	// every other page's are fixed at build time, in the HTML itself.
+	mux.HandleFunc("GET /t/{tagID}", s.handleRedeemPage)
 	mux.HandleFunc("GET /about", s.servePage("about.html"))
 	mux.HandleFunc("GET /admin", s.servePage("admin.html"))
 	mux.HandleFunc("GET /", s.serveStatic)
@@ -229,6 +256,18 @@ func (s *Server) serveStatic(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/css; charset=utf-8")
 	case strings.HasSuffix(path, ".html"):
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	case strings.HasSuffix(path, ".svg"):
+		// Without this, Go's fallback content sniffer reads the XML
+		// declaration every one of these files starts with and calls it
+		// text/xml, which a browser will not paint into an <img>: the
+		// species icons render as a broken-image glyph instead of a crab.
+		w.Header().Set("Content-Type", "image/svg+xml")
+	case strings.HasSuffix(path, ".woff2"):
+		w.Header().Set("Content-Type", "font/woff2")
+	case strings.HasSuffix(path, ".webmanifest") || path == "manifest.json":
+		w.Header().Set("Content-Type", "application/manifest+json")
+	case strings.HasSuffix(path, ".png"):
+		w.Header().Set("Content-Type", "image/png")
 	}
 	w.Header().Set("ETag", etag)
 	if r.URL.Query().Get("v") != "" {

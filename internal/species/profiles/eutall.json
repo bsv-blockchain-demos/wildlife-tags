@@ -1,0 +1,51 @@
+{
+  "code": "EUTALL",
+  "common": "Little tunny",
+  "scientific": "Euthynnus alletteratus",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "fl",
+  "sweep_after_days": 1095,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Despite the name, a little tunny isn't a true tuna: it belongs to a different genus, Euthynnus, and is more closely related to mackerel than to the yellowfin and blackfin tuna sharing the same water.",
+    "Anglers who catch one and expect table fare like its tuna cousins are usually disappointed: little tunny meat is dark and blood-rich, and unless it's bled and iced within minutes it turns strongly \"fishy\" fast, which is exactly why the species is nicknamed false albacore.",
+    "It's identified less by shape than by a scribble: a pattern of wavy, worm-like markings on its back above the lateral line, unlike any other fish sharing these waters."
+  ],
+  "measures": [
+    { "key": "fl", "label": "Fork length", "unit": "mm", "scale": 1,
+      "min": 200, "max": 850, "required": true,
+      "help": "Measured along the curve of the body, from the tip of the upper jaw to the fork of the tail; curved fork length is the standard tuna-family measurement." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Little tunny cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "TROLL_LURE", "label": "Trolling, lure", "icon": "gear-hook" },
+        { "code": "TROLL_BAIT", "label": "Trolling, live/dead bait", "icon": "gear-hook" },
+        { "code": "CHUNK",      "label": "Chunking / chum" },
+        { "code": "OTHER",      "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": []
+}
