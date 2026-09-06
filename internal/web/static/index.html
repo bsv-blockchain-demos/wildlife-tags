@@ -244,12 +244,17 @@
        app.js's speciesSheetHTML() from GET /api/schema, already loaded for
        the grid itself. Reuses the arm flow's own confirm-sheet chrome
        (.modal-scrim/.confirm-sheet, FocusTrap, Escape to close) since this
-       is the same "review, then dismiss" shape with nothing to confirm. -->
+       is the same "review, then dismiss" shape with nothing to confirm --
+       plus an X and backdrop-click, which the arm confirm sheet leaves out
+       on purpose (see .sheet-close-x in style.css) but this one, carrying
+       no consequence, doesn't need to withhold. -->
   <div class="modal-scrim" id="speciesScrim" hidden></div>
   <div class="confirm-sheet" id="speciesSheet" hidden role="dialog" aria-modal="true">
-    <div id="speciesSheetBody"></div>
+    <button type="button" id="speciesSheetX" class="sheet-close-x" aria-label="Close">&times;</button>
+    <div class="confirm-sheet-scroll">
+      <div id="speciesSheetBody"></div>
+    </div>
     <div class="cta-row">
-      <button type="button" id="speciesSheetClose" class="wide">Close</button>
       <button type="button" id="speciesSheetAbout" class="primary wide">About this programme</button>
     </div>
   </div>

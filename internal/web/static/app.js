@@ -370,6 +370,16 @@
     });
     document.body.style.overflow = 'hidden';
     releaseSpeciesSheetTrap = window.FocusTrap.activate($('speciesSheet'));
+    // FocusTrap.activate marks every OTHER sibling of #speciesSheet inert
+    // to keep the rest of the page out of reach -- #speciesScrim included,
+    // since it is a sibling of the sheet, not a descendant of it. inert
+    // blocks pointer hit-testing as well as focus, so that made the
+    // backdrop itself unclickable, which is exactly the bug this was: a
+    // click outside the sheet silently landed on nothing. Un-inerting just
+    // the (empty, non-focusable) scrim restores that without reopening the
+    // rest of the page -- releaseSpeciesSheetTrap() still re-inerts
+    // everything it originally marked, this element included, on close.
+    $('speciesScrim').removeAttribute('inert');
   }
 
   function closeSpeciesSheet() {
@@ -394,7 +404,7 @@
       if (!card || !card.dataset.code) return;
       openSpeciesSheet(card.dataset.code, card.dataset.grad);
     });
-    $('speciesSheetClose').addEventListener('click', closeSpeciesSheet);
+    $('speciesSheetX').addEventListener('click', closeSpeciesSheet);
     $('speciesSheetAbout').addEventListener('click', () => {
       location.href = '/about';
     });

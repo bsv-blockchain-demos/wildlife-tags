@@ -911,12 +911,18 @@ button.btn-icon svg { width: 18px; height: 18px; flex-shrink: 0; }
 .confirm-sheet {
   position: fixed; z-index: 98; left: 0; right: 0; bottom: 0;
   background: var(--panel); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  padding: var(--sp-lg); padding-bottom: calc(24px + env(safe-area-inset-bottom));
   box-shadow: var(--shadow-overlay);
   transform: translateY(16px); opacity: 0; visibility: hidden;
   transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out), visibility 0s linear var(--dur-base);
-  max-height: 80vh; overflow-y: auto;
+  max-height: 80vh;
+  /* A flex column, not one long scrolling block: .confirm-sheet-scroll (the
+     heading and body) is the part that scrolls, so .cta-row's actions stay
+     reachable at the bottom of the sheet instead of requiring a scroll
+     past however much content a given sheet happens to have. */
+  display: flex; flex-direction: column;
 }
+.confirm-sheet-scroll { overflow-y: auto; min-height: 0; padding: var(--sp-lg) var(--sp-lg) 0; }
+.confirm-sheet .cta-row { padding: var(--sp-md) var(--sp-lg) calc(24px + env(safe-area-inset-bottom)); }
 .confirm-sheet.open { transform: translateY(0); opacity: 1; visibility: visible; transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out); }
 .confirm-sheet[hidden] { display: none; }
 @media (min-width: 640px) {
@@ -925,6 +931,17 @@ button.btn-icon svg { width: 18px; height: 18px; flex-shrink: 0; }
     transform: translate(-50%, calc(-50% + 16px)); border-radius: var(--radius-lg);
   }
   .confirm-sheet.open { transform: translate(-50%, -50%); }
+}
+/* Top-right quick-dismiss, in addition to whatever's in .cta-row -- used
+   by sheets where closing carries no consequence (the species detail
+   sheet), deliberately not added to the arm confirm sheet, where an easy
+   accidental dismiss right before an irreversible on-chain action is the
+   opposite of what that review step is for. */
+.sheet-close-x {
+  position: absolute; top: 12px; right: 12px; z-index: 1;
+  width: 32px; height: 32px; min-height: 32px; padding: 0;
+  border-radius: 50%; font-size: 20px; line-height: 1;
+  background: var(--panel-2); border: 1px solid var(--line-strong); color: var(--ink);
 }
 .confirm-row { display: flex; justify-content: space-between; gap: var(--sp-md); padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
 .confirm-row:last-child { border-bottom: none; }
