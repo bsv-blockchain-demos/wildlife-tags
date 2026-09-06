@@ -158,6 +158,11 @@
     <div class="console-status">
       <span id="netStatus" class="net-status"></span>
       <span id="armTally" class="note"></span>
+      <!-- Quiet, not a game mechanic: narrates a pattern this console
+           already optimized species selection for (see LAST_SPECIES_KEY),
+           it doesn't create a new one. Only appears at 2+ so a normal,
+           unremarkable single arm never shows it. See renderStreak(). -->
+      <span id="armStreak" class="note hidden"></span>
     </div>
 
     <!-- Arming a tag. This form is used standing up, in a boat, so the fields
@@ -331,6 +336,18 @@
     </div>
 
     <div class="tab-panel" id="panel-audit" role="tabpanel" aria-labelledby="tab-audit" hidden>
+      <!-- Read back from the same audit trail as the table below, filtered
+           to this identity's own tag.activate entries -- see admin.js's
+           renderTaggingLog(). Not a client-side counter: it resets to
+           nothing on reload the way state.armedCount does, which is fine
+           for "armed this session" but wrong for a career total. -->
+      <div class="card">
+        <h2>Your tagging log</h2>
+        <p class="note">What this identity has actually armed, on chain --
+          not a session counter that forgets when this tab closes.</p>
+        <div id="taggingLog"><div class="skel-line cell"></div></div>
+      </div>
+
       <div class="card">
         <h2>Audit log</h2>
         <p class="note">

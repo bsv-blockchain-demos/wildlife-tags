@@ -77,6 +77,12 @@
     profile: null,
     watchId: null,
     armedCount: 0,
+    // streakSpecies/streakCount track consecutive successful arms of the
+    // same species -- see renderStreak(). Session-only, like armedCount:
+    // resets to zero on reload rather than persisting, since it is a
+    // read of "what just happened", not a record worth keeping.
+    streakSpecies: null,
+    streakCount: 0,
     // rearmSelected is a Set of tag ids checked in the "waiting to re-arm"
     // table -- see the bulk-select bar built around it below.
     rearmSelected: new Set(),
@@ -274,6 +280,39 @@
     el.classList.remove('pulse');
     void el.offsetWidth; // force a reflow between remove and re-add
     el.classList.add('pulse');
+  }
+
+  // recordStreak updates state.streakSpecies/streakCount for one successful
+  // arm and repaints #armStreak. Called once per entry from flushQueue's
+  // success branch, so a burst of several queued arms flushing at once
+  // (reconnecting after being offline, say) still counts them in order
+  // rather than only reacting to the last one.
+  //
+  // Silent on breaking, not just on staying below the threshold: dropping
+  // back to "1 species, no streak" produces no visible change at all --
+  // no "streak ended" message -- since this is meant to notice a good
+  // pattern, not comment on its absence.
+  function recordStreak(species) {
+    if (species === state.streakSpecies) state.streakCount++;
+    else {
+      state.streakSpecies = species;
+      state.streakCount = 1;
+    }
+    renderStreak();
+  }
+
+  function renderStreak() {
+    const el = $('armStreak');
+    if (!el) return;
+    if (state.streakCount < 2) {
+      el.classList.add('hidden');
+      el.textContent = '';
+      return;
+    }
+    const p = window.Schema.profile(state.streakSpecies);
+    const label = p ? p.common : state.streakSpecies;
+    el.textContent = `${state.streakCount} ${label} in a row`;
+    el.classList.remove('hidden');
   }
 
   // ---- funding ----------------------------------------------------------
@@ -937,6 +976,7 @@
           state.armedCount++;
           renderTally();
           pulseTally();
+          recordStreak(entry.species);
           buzz(BUZZ_OK);
           announceArmed(entry, res);
           loadFunding();
@@ -1219,9 +1259,76 @@
           `<td class="note">${escHTML(e.Detail || '')}</td></tr>`
       );
       $('audit').innerHTML = rows.length ? rows.join('') : emptyRow(4, 'Nothing recorded yet.');
+      renderTaggingLog(data.entries);
     } catch (e) {
       $('audit').innerHTML = `<tr><td colspan="4" class="err">${e.message}</td></tr>`;
+      renderTaggingLog([]);
     }
+  }
+
+  // tag.activate's own Detail string is "<tag id> (<species code>) at
+  // <txid>" (see service/activate.go) -- the only place a species code
+  // survives in the audit log, since Audit() takes one free-text detail
+  // field rather than a structured one. Parsed defensively: this feeds a
+  // nice-to-have summary, not anything the record itself depends on, and
+  // an entry that fails to parse is simply skipped from the per-species
+  // breakdown while still counting toward the plain total below.
+  const ACTIVATE_DETAIL_RE = /\(([A-Z0-9]+)\)/;
+
+  // renderTaggingLog reads this identity's own history back from the
+  // audit trail already fetched for the table below it, rather than a
+  // client-side counter -- the same distinction as state.armedCount vs.
+  // this: one is "since this tab opened", the other is real.
+  function renderTaggingLog(entries) {
+    const box = $('taggingLog');
+    if (!box) return;
+    const me = state.session && state.session.identity_key;
+    const mine = (entries || [])
+      .filter((e) => e.Action === 'tag.activate' && e.Actor === me)
+      .slice()
+      .reverse(); // the endpoint's own order is newest first; a streak and a "first" both read as a timeline
+    if (!mine.length) {
+      box.innerHTML = '<p class="note">Nothing armed under this identity yet -- arm a tag and it will show up here.</p>';
+      return;
+    }
+    const label = (code) => {
+      const p = window.Schema.profile ? window.Schema.profile(code) : null;
+      return p ? p.common : code;
+    };
+    const counts = new Map();
+    let longest = 1;
+    let longestCode = null;
+    let run = 1;
+    let prev = null;
+    for (const e of mine) {
+      const m = ACTIVATE_DETAIL_RE.exec(e.Detail || '');
+      const code = m ? m[1] : null;
+      if (!code) continue;
+      counts.set(code, (counts.get(code) || 0) + 1);
+      run = code === prev ? run + 1 : 1;
+      if (run > longest) {
+        longest = run;
+        longestCode = code;
+      }
+      prev = code;
+    }
+    let topCode = null;
+    let topCount = 0;
+    for (const [code, n] of counts) {
+      if (n > topCount) {
+        topCode = code;
+        topCount = n;
+      }
+    }
+    const rows = [
+      ['Tags armed', num(mine.length)],
+      ['Species tagged', num(counts.size)],
+    ];
+    if (topCode) rows.push(['Most tagged', `${escHTML(label(topCode))} (${num(topCount)})`]);
+    if (longest > 1) rows.push(['Longest streak', `${longest} ${escHTML(label(longestCode))} in a row`]);
+    box.innerHTML = rows
+      .map(([k, v]) => `<div class="confirm-row"><span class="confirm-k">${escHTML(k)}</span><span class="confirm-v">${v}</span></div>`)
+      .join('');
   }
 
   // ---- wiring -----------------------------------------------------------
@@ -1361,11 +1468,19 @@
 
   function mockAudit() {
     const now = Date.now();
+    const wallet = '02a1b2c3d4e5f60718293a4b5c6d7e8f9012345678';
+    // tag.activate details in the tag.activate/(species code)/at txid shape
+    // renderTaggingLog() actually parses (see ACTIVATE_DETAIL_RE) -- three
+    // in a row for the wallet identity so the streak/most-tagged fields
+    // in "Your tagging log" have something to show in dev mode too, not
+    // just the plain audit table.
     const rows = [
-      [now - 2 * 60000, '02a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', 'tag.activate', 'K2M-9Q7 · Atlantic blue crab'],
+      [now - 2 * 60000, wallet, 'tag.activate', 'K2M-9Q7 (CALSAP) at 4f3c9e8a1b2d5f60718293a4b5c6d7e8f9012345678901234567890abcdef01'],
+      [now - 8 * 60000, wallet, 'tag.activate', 'H7T-3XQ (CALSAP) at 3e2b8d7a1b2d5f60718293a4b5c6d7e8f9012345678901234567890abcdef02'],
+      [now - 15 * 60000, wallet, 'tag.activate', 'R9K-2MP (CALSAP) at 2d1a7c6a1b2d5f60718293a4b5c6d7e8f9012345678901234567890abcdef03'],
       [now - 40 * 60000, 'operator', 'batch.print', 'B20260901-AD87F5'],
       [now - 3 * 3600000, 'operator', 'batch.mint', '50 tags · Atlantic blue crab'],
-      [now - 26 * 3600000, '02a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', 'tag.rearm', 'B7X-4RT'],
+      [now - 26 * 3600000, wallet, 'tag.rearm', 'B7X-4RT'],
     ];
     $('audit').innerHTML = rows
       .map(
@@ -1375,6 +1490,7 @@
           `<td class="note">${escHTML(detail)}</td></tr>`
       )
       .join('');
+    renderTaggingLog(rows.map(([At, Actor, Action, Detail]) => ({ At, Actor, Action, Detail })));
   }
 
   // Shows the signed-in shell without showConsole()'s call to refresh(),
@@ -1387,6 +1503,9 @@
     $('logoutMobile').classList.remove('hidden');
     renderWho(identityKey);
     setOnline(navigator.onLine);
+    // renderTaggingLog() (see mockAudit) matches entries against
+    // state.session.identity_key the same way the real showConsole() does.
+    state.session = { identity_key: identityKey };
   }
 
   window.DevMocks = window.DevMocks || {};
