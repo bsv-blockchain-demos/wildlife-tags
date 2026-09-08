@@ -1,0 +1,59 @@
+{
+  "code": "POGCRO",
+  "common": "Black drum",
+  "scientific": "Pogonias cromis",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "tl",
+  "sweep_after_days": 1095,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "A black drum's chin barbels aren't just decoration: they're studded with taste buds, letting the fish taste the muddy bottom for buried clams and oysters before it ever takes a bite.",
+    "Large black drum, often called bull drum, frequently carry a harmless parasite called a spaghetti worm buried in the fillet; it's one reason experienced anglers keep the small ones to eat and let the big ones go.",
+    "A black drum can live past 60 years, older than almost any other fish caught this close to shore in South Carolina."
+  ],
+  "measures": [
+    { "key": "tl", "label": "Total length", "unit": "mm", "scale": 1,
+      "min": 100, "max": 1450, "required": true,
+      "help": "Tip of the lower jaw to the tip of the tail." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true },
+    { "key": "sal", "label": "Salinity", "unit": "ppt", "scale": 100,
+      "min": 0, "max": 4500, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Black drum cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "HANDLINE", "label": "Rod and reel", "icon": "gear-hook" },
+        { "code": "FLY",      "label": "Fly", "icon": "gear-hook" },
+        { "code": "GIG",      "label": "Gig or bowfishing", "icon": "gear-other" },
+        { "code": "TRAWL",    "label": "Trawl", "icon": "gear-net" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "tl", "less_than": 356,
+      "reason": "under South Carolina's 14-inch minimum for black drum" },
+    { "measure": "tl", "more_than": 685,
+      "reason": "over South Carolina's 27-inch slot maximum for black drum" }
+  ]
+}

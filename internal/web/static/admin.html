@@ -4,153 +4,425 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SCDNR wildlife tag admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#f3f5f8" id="themeColor">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script>
+  try {
+    var t = localStorage.getItem('wildtag.theme') || 'light';
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('themeColor').setAttribute('content', t === 'dark' ? '#0e1418' : '#f3f5f8');
+  } catch (_) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+</script>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-page="admin">
 
 <header class="site">
-  <h1>Wildlife tag admin</h1>
-  <div class="tagline" id="who"></div>
-  <nav>
-    <a href="/">dashboard</a>
-    <a href="#" id="logout" class="hidden">sign out</a>
-  </nav>
+  <div class="site-inner">
+    <div class="brand">
+      <h1><a class="brand-link" href="/"><span class="brand-name">Wildlife tag admin</span></a></h1>
+      <p class="tagline" id="who"></p>
+    </div>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 10 3l7 6.5"/><path d="M5 8.5V17h10V8.5"/></svg>
+        Dashboard
+      </a>
+      <a href="#" id="logout" class="hidden">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H4.5A1.5 1.5 0 0 0 3 4.5v11A1.5 1.5 0 0 0 4.5 17H8"/><path d="M12 6.5 16 10l-4 3.5"/><path d="M16 10H8"/></svg>
+        Sign out
+      </a>
+    </nav>
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode">
+      <svg class="icon-sun" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="3.5"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1 4.7 4.7"/></svg>
+      <svg class="icon-moon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 12.3A6.8 6.8 0 0 1 7.7 3.5a7 7 0 1 0 8.8 8.8Z"/></svg>
+    </button>
+    <button type="button" class="hamburger" id="navToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+      <span class="hamburger-box">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </span>
+    </button>
+  </div>
 </header>
 
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Menu">
+  <nav aria-label="Mobile">
+    <a href="/">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 10 3l7 6.5"/><path d="M5 8.5V17h10V8.5"/></svg>
+      Dashboard
+    </a>
+    <a href="#" id="logoutMobile" class="hidden">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H4.5A1.5 1.5 0 0 0 3 4.5v11A1.5 1.5 0 0 0 4.5 17H8"/><path d="M12 6.5 16 10l-4 3.5"/><path d="M16 10H8"/></svg>
+      Sign out
+    </a>
+  </nav>
+  <div class="mobile-theme-row">
+    <span>Dark mode</span>
+    <button type="button" class="theme-switch" data-theme-toggle aria-label="Toggle dark mode"></button>
+  </div>
+</div>
+
 <main class="wrap">
+
+  <p class="page-title">Field console</p>
 
   <!-- Sign in. Identity first, because a biologist doing this in the field has
        wet hands and no patience for a password. -->
   <div id="login" class="card hidden">
-    <h2>Sign in</h2>
-    <p class="note">
-      Signing in with your wallet puts your identity key on every tag you arm,
-      so the record says which biologist made it.
-    </p>
-    <button id="walletLogin" class="primary wide">Sign in with my wallet</button>
-    <div id="pwBox" class="hidden" style="margin-top:16px">
-      <div class="field">
-        <label for="pw">Or the operator password</label>
-        <input id="pw" type="password" autocomplete="current-password">
+    <div class="login-form">
+      <h2>Sign in</h2>
+      <p class="note">
+        Signing in with your wallet puts your identity key on every tag you arm,
+        so the record says which biologist made it.
+      </p>
+      <button id="walletLogin" class="primary wide btn-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/><circle cx="14" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
+        Sign in with my wallet
+      </button>
+      <div id="pwBox" class="hidden" style="margin-top:16px">
+        <div class="field">
+          <label for="pw">Or the operator password</label>
+          <input id="pw" type="password" autocomplete="current-password">
+        </div>
+        <button id="pwLogin" class="wide btn-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="7" r="3.2"/><path d="M9.3 9.3 16.5 16.5M13 12l1.8 1.8M15.7 9.3 18 11.5"/></svg>
+          Sign in with the password
+        </button>
+        <p class="note">A password session is recorded as "operator" rather than
+          as a person, so activations made this way are not attributable to a
+          named biologist.</p>
       </div>
-      <button id="pwLogin" class="wide">Sign in with the password</button>
-      <p class="note">A password session is recorded as "operator" rather than
-        as a person, so activations made this way are not attributable to a
-        named biologist.</p>
+      <div id="loginErr" class="err" style="margin-top:12px" role="alert" aria-live="assertive"></div>
     </div>
-    <div id="loginErr" class="err" style="margin-top:12px"></div>
+    <!-- Desktop only (see .login-art): the same tag-to-reward motion the
+         onboarding wizard opens with, reused here because signing in is the
+         same shape of "one thing unlocks another" -- a key rather than a
+         tag, an armable console rather than a paid finder. Purely
+         decorative, so it is hidden from assistive tech and never blocks
+         the form next to it from being the first (and only) focus stop. -->
+    <div class="login-art" aria-hidden="true">
+      <div style="display:flex;align-items:center;">
+        <div class="onboard-surface onboard-settle" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <span style="width:28px;height:28px;color:var(--ink-dim);">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="15" height="10" rx="2"/><path d="M2.5 8.5h15"/><circle cx="14" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
+          </span>
+        </div>
+        <svg class="onboard-trace-h" viewBox="0 0 40 10" style="width:40px;height:10px;color:var(--accent);"><path d="M1 5 H39" style="animation-delay:140ms"/></svg>
+        <div class="onboard-settle" style="animation-delay:260ms;width:80px;height:80px;border-radius:50%;background:var(--grad-estuary);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-raised);">
+          <span style="width:36px;height:36px;color:#fff;">
+            <svg class="draw-mark" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 8.5 15 16 6" style="animation-delay:460ms"/></svg>
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- Arm-first: this is what a field biologist opens the console to do,
+       every time, so it is the tab that's already open. Batches, funding,
+       and re-arming happen far less often and move to their own tabs
+       rather than sharing scroll real estate with the thing done daily. -->
   <div id="console" class="hidden">
 
-    <div class="card">
-      <h2>Funding</h2>
-      <div class="grid stats" id="funding"></div>
-      <p class="note" style="margin-top:12px">
-        Send BSV to <span id="deposit" class="mono"></span> to fund activations.
-      </p>
+    <div class="tabbar" role="tablist" aria-label="Admin sections">
+      <button type="button" class="tab-btn" role="tab" id="tab-arm" aria-selected="true" aria-controls="panel-arm" data-tab="arm">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/></svg>
+        Arm a tag
+      </button>
+      <button type="button" class="tab-btn" role="tab" id="tab-batches" aria-selected="false" aria-controls="panel-batches" data-tab="batches">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5.5" width="14" height="10" rx="1.5"/><path d="M3 8.5h14"/><circle cx="13.5" cy="12" r="1"/></svg>
+        Batches &amp; funding
+      </button>
+      <button type="button" class="tab-btn" role="tab" id="tab-rearm" aria-selected="false" aria-controls="panel-rearm" data-tab="rearm">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 10a6.5 6.5 0 1 1-2-4.7"/><path d="M16.5 3v4h-4"/></svg>
+        Waiting to re-arm
+      </button>
+      <button type="button" class="tab-btn" role="tab" id="tab-audit" aria-selected="false" aria-controls="panel-audit" data-tab="audit">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3.5h6.5L15 7v9.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"/><path d="M11.5 3.5V7H15"/><path d="M6.5 10h6M6.5 12.5h6M6.5 15h3.5"/></svg>
+        Audit log
+      </button>
     </div>
 
-    <div class="grid two">
+    <!-- Signal and pace, at a glance, on every tab: whether a request made
+         right now would go anywhere, and how much has actually been armed
+         and confirmed this session. -->
+    <div class="console-status">
+      <span id="netStatus" class="net-status"></span>
+      <span id="armTally" class="note"></span>
+      <!-- Quiet, not a game mechanic: narrates a pattern this console
+           already optimized species selection for (see LAST_SPECIES_KEY),
+           it doesn't create a new one. Only appears at 2+ so a normal,
+           unremarkable single arm never shows it. See renderStreak(). -->
+      <span id="armStreak" class="note hidden"></span>
+    </div>
+
+    <!-- Arming a tag. This form is used standing up, in a boat, so the fields
+         are ordered the way the work happens: pick the species, pick the
+         tag, measure, then fix the position last because that is the
+         slowest step. -->
+    <div class="tab-panel" id="panel-arm" role="tabpanel" aria-labelledby="tab-arm">
       <div class="card">
-        <h2>Print a batch</h2>
-        <div class="row">
-          <div class="field">
-            <label for="count">How many tags</label>
-            <input id="count" type="number" min="1" max="5000" value="50">
-          </div>
-          <div class="field">
-            <label for="mintSpecies">For which species</label>
-            <select id="mintSpecies"></select>
-          </div>
+        <h2>Arm a tag</h2>
+        <div id="armBanner" class="banner hidden" role="status" aria-live="polite"></div>
+
+        <div class="field">
+          <label id="armSpeciesLabel">Species</label>
+          <!-- Filters the grid below by typing, not a separate control with
+               its own selection: the programme's roster is long enough now
+               (see dnr.sc.gov/marine/tagfish/tagspecies.html) that scrolling
+               to find one card among dozens is real friction. Hidden rather
+               than removed when it has no matches, so the currently-armed
+               species stays selected and visible if a search momentarily
+               filters it out. -->
+          <input type="search" id="armSpeciesSearch" class="species-search" placeholder="Search species…" autocomplete="off" aria-label="Search species" aria-controls="armSpeciesGrid">
+          <div class="species-grid" id="armSpeciesGrid" role="radiogroup" aria-labelledby="armSpeciesLabel"></div>
+          <p class="note hidden" id="armSpeciesEmpty">No species match "<span id="armSpeciesEmptyQuery"></span>".</p>
+          <p class="note" id="armSpeciesNote"></p>
         </div>
-        <button id="mint" class="primary wide">Create batch</button>
-        <div id="mintErr" class="err" style="margin-top:10px"></div>
+
+        <div class="field">
+          <label for="tag">Tag id</label>
+          <div class="row-inline">
+            <input id="tag" class="mono" placeholder="K2M-9Q7" autocapitalize="characters">
+            <button type="button" id="scanTag" class="icon-btn" aria-label="Scan the tag's QR code">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V4.5A1.5 1.5 0 0 1 4.5 3H7M13 3h2.5A1.5 1.5 0 0 1 17 4.5V7M17 13v2.5a1.5 1.5 0 0 1-1.5 1.5H13M7 17H4.5A1.5 1.5 0 0 1 3 15.5V13"/><path d="M3 10h14"/></svg>
+              Scan
+            </button>
+          </div>
+          <p class="note">Scan the tag's QR code, or read the id off the tag and type it.</p>
+        </div>
+
+        <!-- What this species records. Built from GET /api/schema: the console
+             does not know what a carapace width is, which is what lets a new
+             species be a JSON file rather than a release. Fields marked
+             "kept" (see schema.js's stickyBadge) are readings about the
+             place, not the animal, and survive being cleared after each arm. -->
+        <div id="armFields" class="fields-grid"></div>
+
+        <div class="field">
+          <label for="aname">Name this animal <span class="note">(optional)</span></label>
+          <input id="aname" type="text" maxlength="24" placeholder="leave blank to let the finder name it" autocomplete="off">
+          <p class="note">Leaving this blank is usually the better call: whoever
+            finds it gets to name it, and that is the part people remember. Either
+            way the name is permanent and public.</p>
+        </div>
+
+        <div class="field">
+          <label>Where you are</label>
+          <div id="afix" class="banner" role="status" aria-live="polite">No position fix yet.</div>
+        </div>
+
+        <div id="armErr" class="err" role="alert" aria-live="assertive"></div>
+
+        <!-- The secondary action (refresh a fix already being fetched in
+             the background) and the primary one (arm), as a pair rather
+             than two independently-placed .wide buttons: stacked full
+             width on mobile, side by side with "Arm this tag" rightmost
+             on anything wider. -->
+        <div class="cta-row">
+          <button type="button" id="alocate" class="wide btn-icon">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="2.2" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="6"/><path d="M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18"/></svg>
+            <span id="alocateLabel">Use my location</span>
+          </button>
+          <button id="arm" class="primary wide btn-icon" disabled>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 3H4.5A1.5 1.5 0 0 0 3 4.5V11l7.3 7.3a1.5 1.5 0 0 0 2.1 0l5.9-5.9a1.5 1.5 0 0 0 0-2.1L11 3Z"/><circle cx="7" cy="7" r="1.1"/></svg>
+            Arm this tag
+          </button>
+        </div>
+
+        <!-- Submissions queued locally: an arm that could not reach the
+             server yet (no signal), or one the server refused and a
+             biologist needs to look at. Populated by admin.js's offline
+             queue; empty and hidden the rest of the time. -->
+        <div id="armQueue" class="queue-list hidden" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="panel-batches" role="tabpanel" aria-labelledby="tab-batches" hidden>
+      <div class="card">
+        <h2>Funding</h2>
+        <div class="grid stats" id="funding">
+          <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+          <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+          <div class="stat"><div class="skel-line n"></div><div class="skel-line k"></div></div>
+        </div>
         <p class="note" style="margin-top:12px">
-          Creating a batch mints keys and tag ids; it does not spend anything.
-          Tags carry no money until they are armed on an animal. The species is
-          a hint for the printer &mdash; a deer ear tag is not a 1&times;2in crab
-          tag &mdash; and what each animal actually was is decided when the tag
-          is armed.
+          Send BSV to <span id="deposit" class="mono"></span> to fund activations.
         </p>
       </div>
 
+      <div class="grid two">
+        <div class="card">
+          <h2>Print a batch</h2>
+          <div class="row">
+            <div class="field">
+              <label for="count">How many tags</label>
+              <input id="count" type="number" min="1" max="5000" value="50">
+            </div>
+            <div class="field">
+              <label for="mintSpecies">For which species</label>
+              <select id="mintSpecies" data-combobox></select>
+            </div>
+          </div>
+          <button id="mint" class="primary wide btn-icon">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg>
+            Create batch
+          </button>
+          <div id="mintErr" class="err" style="margin-top:10px" role="alert" aria-live="assertive"></div>
+          <p class="note" style="margin-top:12px">
+            Creating a batch mints keys and tag ids; it does not spend anything.
+            Tags carry no money until they are armed on an animal. The species is
+            a hint for the printer (a deer ear tag is not a 1&times;2in crab
+            tag), and what each animal actually was is decided when the tag
+            is armed.
+          </p>
+        </div>
+
+        <div class="card">
+          <h2>Batches</h2>
+          <div class="scroll-x">
+            <table>
+              <thead><tr><th>Batch</th><th>Tags</th><th>Created</th><th></th></tr></thead>
+              <tbody id="batches">
+                <tr><td colspan="4"><div class="skel-line cell"></div></td></tr>
+                <tr><td colspan="4"><div class="skel-line cell"></div></td></tr>
+                <tr><td colspan="4"><div class="skel-line cell"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="panel-rearm" role="tabpanel" aria-labelledby="tab-rearm" hidden>
       <div class="card">
-        <h2>Batches</h2>
+        <h2>Waiting to be put back in service</h2>
+        <p class="note">
+          A tag that has just been reported sits out a cooldown before it can be
+          claimed again. That window is the one chance to look at a report before
+          the tag becomes claimable, so putting it back is a deliberate act.
+        </p>
+        <!-- Selecting rows and re-arming them together, rather than one
+             button press per tag: a busy day can leave a dozen tags sitting
+             here at once, and confirming each individually is exactly the
+             kind of friction a console meant to be used standing up should
+             not add. -->
+        <div class="bulk-bar hidden" id="rearmBulkBar">
+          <span class="note" id="rearmBulkCount"></span>
+          <button type="button" class="btn-icon" id="rearmBulkGo">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 10a6.5 6.5 0 1 1-2-4.7"/><path d="M16.5 3v4h-4"/></svg>
+            Put back selected
+          </button>
+        </div>
         <div class="scroll-x">
           <table>
-            <thead><tr><th>Batch</th><th>Tags</th><th>Created</th><th></th></tr></thead>
-            <tbody id="batches"></tbody>
+            <thead><tr><th><input type="checkbox" id="rearmSelectAll" aria-label="Select all"></th><th>Tag</th><th>Gen</th><th>Holds</th><th></th></tr></thead>
+            <tbody id="rearms">
+              <tr><td colspan="5"><div class="skel-line cell"></div></td></tr>
+              <tr><td colspan="5"><div class="skel-line cell"></div></td></tr>
+            </tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- Arming a tag. This form is used standing up, in a boat, so the fields
-         are ordered the way the work happens: pick the tag, measure, then fix
-         the position last because that is the slowest step. -->
-    <div class="card">
-      <h2>Arm a tag</h2>
-      <div id="armBanner" class="banner hidden"></div>
-
-      <div class="field">
-        <label for="tag">Tag id</label>
-        <input id="tag" class="mono" placeholder="K2M-9Q7" autocapitalize="characters">
-        <p class="note">Read it off the tag, or scan the QR and copy the code shown.</p>
+    <div class="tab-panel" id="panel-audit" role="tabpanel" aria-labelledby="tab-audit" hidden>
+      <!-- Read back from the same audit trail as the table below, filtered
+           to this identity's own tag.activate entries -- see admin.js's
+           renderTaggingLog(). Not a client-side counter: it resets to
+           nothing on reload the way state.armedCount does, which is fine
+           for "armed this session" but wrong for a career total. -->
+      <div class="card">
+        <h2>Your tagging log</h2>
+        <p class="note">What this identity has actually armed, on chain --
+          not a session counter that forgets when this tab closes.</p>
+        <div id="taggingLog"><div class="skel-line cell"></div></div>
       </div>
 
-      <div class="field">
-        <label for="armSpecies">Species</label>
-        <select id="armSpecies"></select>
-        <p class="note" id="armSpeciesNote"></p>
-      </div>
-
-      <!-- What this species records. Built from GET /api/schema: the console
-           does not know what a carapace width is, which is what lets a new
-           species be a JSON file rather than a release. -->
-      <div id="armFields"></div>
-
-      <div class="field">
-        <label for="aname">Name this animal <span class="note">(optional)</span></label>
-        <input id="aname" type="text" maxlength="24" placeholder="leave blank to let the finder name it" autocomplete="off">
-        <p class="note">Leaving this blank is usually the better call: whoever
-          finds it gets to name it, and that is the part people remember. Either
-          way the name is permanent and public.</p>
-      </div>
-
-      <div class="field">
-        <label>Where you are</label>
-        <div id="afix" class="banner">No position fix yet.</div>
-        <button type="button" id="alocate" class="wide">Use my location</button>
-      </div>
-
-      <div id="armErr" class="err"></div>
-      <button id="arm" class="primary wide" disabled>Arm this tag</button>
-    </div>
-
-    <div class="card">
-      <h2>Waiting to be put back in service</h2>
-      <p class="note">
-        A tag that has just been reported sits out a cooldown before it can be
-        claimed again. That window is the one chance to look at a report before
-        the tag becomes claimable, so putting it back is a deliberate act.
-      </p>
-      <div class="scroll-x">
-        <table>
-          <thead><tr><th>Tag</th><th>Gen</th><th>Holds</th><th></th></tr></thead>
-          <tbody id="rearms"></tbody>
-        </table>
+      <div class="card">
+        <h2>Audit log</h2>
+        <p class="note">
+          Every administrative action -- signing in, minting a batch, printing a
+          sheet, arming a tag, putting one back in service -- lands here, newest
+          first. This is the record of who did what before any of it ever
+          touches the chain.
+        </p>
+        <div class="scroll-x">
+          <table>
+            <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Detail</th></tr></thead>
+            <tbody id="audit">
+              <tr><td colspan="4"><div class="skel-line cell"></div></td></tr>
+              <tr><td colspan="4"><div class="skel-line cell"></div></td></tr>
+              <tr><td colspan="4"><div class="skel-line cell"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
   </div>
+
+  <!-- A one-tap review before an on-chain, unchangeable record is queued.
+       Populated by admin.js's armSummaryHTML(); "Confirm & arm" is the only
+       action that actually queues anything. -->
+  <div class="modal-scrim" id="confirmScrim" hidden></div>
+  <div class="confirm-sheet" id="confirmSheet" hidden role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="confirm-sheet-scroll">
+      <h2 id="confirmTitle">Confirm this tagging</h2>
+      <div id="confirmBody"></div>
+    </div>
+    <div class="cta-row">
+      <button type="button" id="confirmBack" class="wide btn-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4 6 10l8 6"/></svg>
+        Keep editing
+      </button>
+      <button type="button" id="confirmGo" class="primary wide btn-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 8.5 15 16 6"/></svg>
+        Confirm &amp; arm
+      </button>
+    </div>
+  </div>
+
+  <!-- The QR scanner. A live camera view plus whichever decoder the browser
+       can offer -- BarcodeDetector where it exists, jsQR (lazy-loaded, see
+       vendor/README.md) everywhere else -- so reading a tag never means
+       leaving this page for a separate camera app. -->
+  <div class="scanner-overlay" id="scannerOverlay" hidden role="dialog" aria-modal="true" aria-label="Scan a tag's QR code">
+    <video id="scannerVideo" playsinline muted></video>
+    <canvas id="scannerCanvas" class="hidden"></canvas>
+    <div class="scanner-frame" aria-hidden="true"></div>
+    <p class="scanner-hint">Point the camera at the tag's QR code</p>
+    <div id="scannerErr" class="scanner-err" role="alert" aria-live="assertive"></div>
+    <button type="button" id="scannerClose" class="scanner-close" aria-label="Close scanner">&times;</button>
+  </div>
 </main>
 
-<footer>South Carolina Department of Natural Resources</footer>
+<footer>
+  <a href="https://www.dnr.sc.gov/"><img class="footer-logo" src="/vendor/logos/dnr-logo-white.png" width="20" height="20" alt="South Carolina DNR seal">
+  South Carolina Department of Natural Resources</a>
+</footer>
 
+<script src="theme.js"></script>
+<script src="nav.js"></script>
+<script src="tabs.js"></script>
 <script src="canonical.js"></script>
+<script src="toast.js"></script>
+<script src="combobox.js"></script>
 <script src="schema.js"></script>
+<script src="avatar.js"></script>
 <script src="wallet.js"></script>
+<script src="focus-trap.js"></script>
 <script src="admin.js"></script>
+<script src="devpanel.js"></script>
+<script src="sw-register.js"></script>
 </body>
 </html>

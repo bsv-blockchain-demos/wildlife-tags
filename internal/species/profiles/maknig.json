@@ -1,0 +1,54 @@
+{
+  "code": "MAKNIG",
+  "common": "Blue marlin",
+  "scientific": "Makaira nigricans",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "ljfl",
+  "sweep_after_days": 0,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Female blue marlin outgrow males so dramatically that almost every \"grander\" ever weighed, a fish over 1,000 pounds, has been female: adult males rarely reach even half that size, in a species where both sexes can live past 40 years.",
+    "A blue marlin caught at 1,245 pounds and 12 feet long turned out, when its otoliths were read, to be only about 20 years old -- it had spent those two decades as one of the fastest-growing bony fish in the ocean.",
+    "The bill isn't a spear. A blue marlin hunts by swimming into a school and slashing its bill sideways through it, stunning or maiming several fish at once rather than impaling any single one."
+  ],
+  "measures": [
+    { "key": "ljfl", "label": "Lower jaw fork length", "unit": "mm", "scale": 1,
+      "min": 1500, "max": 3500, "required": true,
+      "help": "Tip of the lower jaw to the fork of the tail, measured in a straight line -- the standard billfish measurement." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Blue marlin cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "help": "Billfish tagging is normally done boat-side, leaving the fish in the water where possible.",
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "TROLL_LURE", "label": "Trolling, artificial lure", "icon": "gear-hook" },
+        { "code": "TROLL_BAIT", "label": "Trolling, natural bait", "icon": "gear-hook" },
+        { "code": "OTHER",      "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "ljfl", "less_than": 5000,
+      "reason": "Atlantic blue marlin may legally be retained only by an angler holding a federal Highly Migratory Species permit landing a fish at or above a 99-inch lower jaw fork length minimum, counted against a national quota of just 250 marlin and spearfish landed per year; every blue marlin encountered in this tagging programme is released" }
+  ]
+}

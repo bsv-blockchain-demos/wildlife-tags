@@ -72,6 +72,37 @@ func TestTheSheetEmbedsItsCodesRatherThanLinkingThem(t *testing.T) {
 	}
 }
 
+// TestTheSheetLabelsItselfWithTheBatchsOwnSpecies guards against a sheet
+// printing one species' name on another species' tags. The template used to
+// hardcode "blue crab" regardless of what Sheet.SpeciesCommon/SpeciesUpper
+// said, which would have printed "BLUE CRAB" on a red drum batch -- a wrong
+// label on a real animal, not a cosmetic bug.
+func TestTheSheetLabelsItselfWithTheBatchsOwnSpecies(t *testing.T) {
+	code, err := Encode("https://wildtag.dnr.sc.gov/t/K2M9Q7C#OvIhMOLKGhm4G8K-iUaCaw")
+	if err != nil {
+		t.Fatalf("encode: %v", err)
+	}
+	var buf bytes.Buffer
+	err = Render(&buf, Sheet{
+		BatchID: "B2", CreatedAt: "today", PublicURL: "https://wildtag.dnr.sc.gov",
+		SpeciesCommon: "Red drum", SpeciesUpper: "RED DRUM",
+		Tags: []SheetTag{{TagID: "K2M9Q7C", Display: "K2M-9Q7", Code: code, Position: 1}},
+	})
+	if err != nil {
+		t.Fatalf("render: %v", err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, "Red drum") {
+		t.Error("the sheet does not name its own species in the heading")
+	}
+	if !strings.Contains(out, "RED DRUM") {
+		t.Error("the sheet does not label the tag face with its own species")
+	}
+	if strings.Contains(strings.ToLower(out), "crab") {
+		t.Error("a red drum sheet mentions crab -- the species label is still hardcoded")
+	}
+}
+
 func TestTheErrorCorrectionLevelSuitsAnEstuary(t *testing.T) {
 	// Level M's redundancy is chosen for a tag that spends months being fouled
 	// and abraded. Dropping to L would fit a denser payload and would not

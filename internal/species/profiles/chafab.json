@@ -1,0 +1,57 @@
+{
+  "code": "CHAFAB",
+  "common": "Atlantic spadefish",
+  "scientific": "Chaetodipterus faber",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "tl",
+  "sweep_after_days": 1095,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Newly hatched spadefish don't swim upright: for their first weeks they drift on their sides near the surface, black and white and mottled, an almost perfect impression of a dead leaf floating in the current.",
+    "Despite looking like a reef fish out of the angelfish family, a spadefish isn't closely related to one at all; the disc shape and vertical bars are convergent evolution, not shared ancestry.",
+    "A single wreck or reef can hold a spadefish school hundreds strong, tight enough that divers sometimes follow the moving wall of fish, not the structure itself, to find their way back to the anchor line."
+  ],
+  "measures": [
+    { "key": "tl", "label": "Total length", "unit": "mm", "scale": 1,
+      "min": 100, "max": 700, "required": true,
+      "help": "Tip of the lower jaw to the tip of the tail." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true },
+    { "key": "sal", "label": "Salinity", "unit": "ppt", "scale": 100,
+      "min": 0, "max": 4500, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Atlantic spadefish cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "HANDLINE", "label": "Rod and reel", "icon": "gear-hook" },
+        { "code": "SPEAR",    "label": "Spearfishing", "icon": "gear-other" },
+        { "code": "CASTNET",  "label": "Cast net", "icon": "gear-net" },
+        { "code": "TRAWL",    "label": "Trawl", "icon": "gear-net" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "tl", "less_than": 356,
+      "reason": "under South Carolina's 14-inch minimum for Atlantic spadefish" }
+  ]
+}

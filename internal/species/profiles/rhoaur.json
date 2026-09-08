@@ -1,0 +1,56 @@
+{
+  "code": "RHOAUR",
+  "common": "Vermilion snapper",
+  "scientific": "Rhomboplites aurorubens",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "tl",
+  "sweep_after_days": 1825,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Commercial crews nicknamed vermilion snapper \"b-liners\" from how they packed a catch: vermilion went around the outside edge of the fish box, red snapper stayed protected in the middle, so if anything on the outer edge spoiled first, it wasn't the more valuable fish in the center.",
+    "Unlike a fish that spawns once a year, a vermilion snapper releases eggs in repeated batches across a long season, from April into September and peaking in early summer.",
+    "For a fish that tops out around 20 inches and a couple of pounds, a vermilion snapper can live surprisingly long: age studies have found individuals as old as 12 years, a decade-plus lifespan packed into a modest-sized body."
+  ],
+  "measures": [
+    { "key": "tl", "label": "Total length", "unit": "mm", "scale": 1,
+      "min": 200, "max": 500, "required": true,
+      "help": "Tip of the lower jaw to the tip of the tail, fish laid flat." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Vermilion snapper cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "help": "Reef fish brought up from depth often show barotrauma: a bulging stomach, distended eyes, or a swim bladder too inflated to let the fish swim back down. Score the fish's overall responsiveness, not just whether barotrauma is present.",
+      "values": [
+        { "code": "GOOD",  "label": "Good: swam off strongly" },
+        { "code": "FAIR",  "label": "Fair: slow to recover" },
+        { "code": "POOR",  "label": "Poor: barely responsive" },
+        { "code": "BLEED", "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "HANDLINE", "label": "Bottom fishing / natural bait", "icon": "gear-hook" },
+        { "code": "BANDIT",   "label": "Bandit rig (multi-hook drop line)", "icon": "gear-line" },
+        { "code": "TRAP",     "label": "Chevron trap (research survey)", "icon": "gear-trap" },
+        { "code": "JIG",      "label": "Jig", "icon": "gear-hook" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "tl", "less_than": 305,
+      "reason": "under the federal 12-inch minimum for vermilion snapper in South Atlantic waters" }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "code": "RACCAN",
+  "common": "Cobia",
+  "scientific": "Rachycentron canadum",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "fl",
+  "sweep_after_days": 1460,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Cobia look like a small shark from below, with a flattened head and a dark stripe down each side, but their closest living relatives are remoras, the sucker fish that hitch rides on sharks and rays. Cobia never grew the sucking disk, but they still shadow big animals the same way, trailing turtles, rays, and sharks to pick up whatever the larger animal stirs loose.",
+    "Female cobia grow noticeably faster and end up larger than males, the reverse of what happens in most gamefish, where the sexes grow at close to the same rate.",
+    "A single female cobia can release close to two million eggs in one spawning bout and spawns repeatedly through the season rather than just once, part of why a small, slow-to-rebuild local population can still recover once it's protected."
+  ],
+  "measures": [
+    { "key": "fl", "label": "Fork length", "unit": "mm", "scale": 1,
+      "min": 600, "max": 1800, "required": true,
+      "help": "Tip of the snout to the fork of the tail, measured in a straight line." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Cobia cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",  "label": "Good: swam off strongly" },
+        { "code": "FAIR",  "label": "Fair: slow to recover" },
+        { "code": "POOR",  "label": "Poor: barely responsive" },
+        { "code": "BLEED", "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "SIGHT",    "label": "Sight-cast", "icon": "gear-hook" },
+        { "code": "LIVEBAIT", "label": "Live bait / chum", "icon": "gear-hook" },
+        { "code": "TROLL",    "label": "Trolling", "icon": "gear-line" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "fl", "less_than": 914,
+      "reason": "under South Carolina's 36-inch fork-length minimum for cobia in its Southern Cobia Management Zone, a state-specific limit set apart from the Gulf of Mexico's separate cobia management to protect South Carolina's own spawning population" }
+  ]
+}

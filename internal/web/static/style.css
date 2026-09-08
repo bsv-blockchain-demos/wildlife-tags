@@ -1,124 +1,1075 @@
-/* One stylesheet for three pages. Mobile-first, because the page that matters
-   most is opened one-handed on a boat in bright sun with the other hand
-   holding a crab. */
+/* WildTag's visual language, in the spirit of Google Arts & Culture's iOS
+   app: light by default, generous rounded cards with ambient-gradient icon
+   headers, circular icon badges, Google Sans Flex for display type over
+   Roboto for everything read at length. Mobile-first, because the page that
+   matters most is opened one-handed on a boat in bright sun with the other
+   hand holding a crab.
 
-:root {
-  color-scheme: light dark;
+   Theme: light is the hard default regardless of system preference -- a
+   person picks dark explicitly (hamburger menu on mobile, a toggle in the
+   top bar on desktop), and that choice is remembered. See theme.js. */
 
-  --bg: #0e1418;
-  --panel: #161f25;
-  --panel-2: #1d282f;
-  --line: #2a3a44;
-  --ink: #e8f0f3;
-  --ink-dim: #93a8b3;
-  --accent: #37b3a0;      /* estuary green */
-  --accent-ink: #04231f;
-  --warn: #e0a33c;
-  --bad: #e06c5a;
-  --good: #59c08a;
-  --radius: 10px;
+@font-face {
+  font-family: "Google Sans Flex";
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url("vendor/fonts/google-sans-flex-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url("vendor/fonts/roboto-latin.woff2") format("woff2");
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f4f7f8;
-    --panel: #ffffff;
-    --panel-2: #eef3f5;
-    --line: #d3dde2;
-    --ink: #121c22;
-    --ink-dim: #5a6f7a;
-    --accent: #1c7d6d;
-    --accent-ink: #ffffff;
+:root {
+  color-scheme: light;
+
+  --font-display: "Google Sans Flex", "Google Sans", system-ui, -apple-system, sans-serif;
+  --font-body: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* ---- light theme (default) ------------------------------------------ */
+  --bg: #f3f5f8;
+  --panel: #ffffff;
+  --panel-2: #eef1f5;
+  --line: #e2e6ec;
+  --line-strong: #c7cedb;
+  --ink: #1a1d21;
+  --ink-dim: #5c6470;
+  --accent: #0f766e;
+  --accent-hover: #0b5c56;
+  --accent-ink: #ffffff;
+  --warn: #8a5c12;
+  --bad: #bf3a22;
+  --good: #2a7550;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-lg: 22px;
+  --radius-full: 999px;
+
+  /* Elevation is a soft, colored shadow in light mode -- flat tonal
+     stroke-only cards read as unfinished once the background stops being
+     pure white behind them. */
+  --shadow-card: 0 1px 2px rgb(20 30 45 / 0.04), 0 8px 24px -12px rgb(20 30 45 / 0.14);
+  --shadow-raised: 0 4px 10px rgb(20 30 45 / 0.06), 0 16px 40px -16px rgb(20 30 45 / 0.22);
+  --shadow-overlay: 0 12px 40px rgb(20 30 45 / 0.28);
+
+  /* Spacing, 4px scale. */
+  --sp-xs: 4px;
+  --sp-sm: 8px;
+  --sp-md: 16px;
+  --sp-lg: 24px;
+  --sp-xl: 32px;
+  --sp-2xl: 48px;
+  --sp-3xl: 64px;
+
+  --container: 1200px;
+  --container-narrow: 640px;
+  --gutter: 24px;
+  --gutter-mobile: 16px;
+  --header-h: 64px;
+
+  --dur-fast: 150ms;
+  --dur-base: 250ms;
+  /* Reserved for the one signature interaction (the paid confirmation) --
+     see .paid-badge below. Nothing else in the app is allowed this long or
+     this springy; everywhere else animates at -fast or -base. */
+  --dur-slow: 400ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ---- the ambient-gradient family for card headers --------------------
+     Eight jewel-tone diagonals, same shape (deep corner to bright corner),
+     different hues, so a screen full of them reads as one coordinated
+     system rather than a grab-bag. Icons sit directly on top of every one
+     of these, sized to fill most of the header (see .card-icon-badge); a
+     drop-shadow on the icon itself, not a backing badge, is what keeps it
+     legible no matter which gradient a given card happens to use. */
+  --grad-estuary: linear-gradient(135deg, #0f5c56 0%, #2dd4bf 100%);
+  --grad-tide:    linear-gradient(135deg, #1e3a8a 0%, #60a5fa 100%);
+  --grad-sunset:  linear-gradient(135deg, #9a3412 0%, #fb923c 100%);
+  --grad-marsh:   linear-gradient(135deg, #14532d 0%, #4ade80 100%);
+  --grad-dusk:    linear-gradient(135deg, #4c1d95 0%, #c4b5fd 100%);
+  --grad-coral:   linear-gradient(135deg, #9d174d 0%, #f9a8d4 100%);
+  --grad-amber:   linear-gradient(135deg, #7c2d12 0%, #fbbf24 100%);
+  --grad-slate:   linear-gradient(135deg, #1e293b 0%, #94a3b8 100%);
+}
+
+/* ---- dark theme: the original "estuary" palette, opted into rather than
+   defaulted to. See theme.js: applied via [data-theme="dark"] on <html>,
+   which wins over this media query the instant a person has chosen
+   anything, but lets an explicit "system" choice still track the OS. */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    color-scheme: dark;
+    --bg: #0e1418; --panel: #161f25; --panel-2: #1d282f;
+    --line: #2a3a44; --line-strong: #4e6c7f;
+    --ink: #e8f0f3; --ink-dim: #93a8b3;
+    --accent: #37b3a0; --accent-hover: #4fcab6; --accent-ink: #04231f;
+    --warn: #e0a33c; --bad: #e06c5a; --good: #59c08a;
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.5);
+    --shadow-raised: 0 4px 10px rgb(0 0 0 / 0.35), 0 16px 40px -16px rgb(0 0 0 / 0.6);
+    --shadow-overlay: 0 12px 40px rgb(0 0 0 / 0.6);
   }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e1418; --panel: #161f25; --panel-2: #1d282f;
+  --line: #2a3a44; --line-strong: #4e6c7f;
+  --ink: #e8f0f3; --ink-dim: #93a8b3;
+  --accent: #37b3a0; --accent-hover: #4fcab6; --accent-ink: #04231f;
+  --warn: #e0a33c; --bad: #e06c5a; --good: #59c08a;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.5);
+  --shadow-raised: 0 4px 10px rgb(0 0 0 / 0.35), 0 16px 40px -16px rgb(0 0 0 / 0.6);
+  --shadow-overlay: 0 12px 40px rgb(0 0 0 / 0.6);
 }
 
 * { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  background: var(--bg);
+  background-color: var(--bg);
   color: var(--ink);
-  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 16px/1.55 var(--font-body);
   -webkit-text-size-adjust: 100%;
   padding-bottom: env(safe-area-inset-bottom);
+  transition: background-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+  /* A nested overflow-x:auto strip (the admin tabbar, a .scroll-x table)
+     clips and scrolls its own content correctly on its own, but an
+     un-scrolled child sitting past its container's edge still counts
+     toward *this* element's own scrollable area unless something stops
+     it -- which on a narrow phone meant the whole page could be dragged
+     sideways by up to a tab's width, not just the tabbar itself. This is
+     the stop: nothing here is meant to scroll horizontally except the
+     handful of elements that opt into it deliberately. */
+  overflow-x: hidden;
 }
 
-.wrap { max-width: 900px; margin: 0 auto; padding: 16px; }
-.narrow { max-width: 560px; }
+/* Lake Jocassee behind everything, tinted back to this theme's own --bg so
+   it reads as texture, not a competing hero image -- see the credit at the
+   foot of /about for the photo itself. color-mix against transparent
+   rather than a fixed rgba(): the tint has to be exactly --bg's color at
+   partial strength in both themes, and --bg is a token, not a constant.
+
+   A fixed, viewport-sized pseudo-element rather than body's own
+   background-image: "cover" on a plain background sizes against the
+   element's own box, and body is as tall as the page, so on anything
+   longer than one screen the photo would be blown up to cover thousands
+   of scroll pixels instead of the viewport. background-attachment: fixed
+   would fix that sizing problem but is unreliable on mobile Safari and
+   repaints on every scroll frame where it does work; a position: fixed
+   element sidesteps both. */
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: -1;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--bg) 82%, transparent), color-mix(in srgb, var(--bg) 82%, transparent)),
+    url('/vendor/photos/jocassee-lake.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.wrap { max-width: var(--container); margin: 0 auto; padding: 0 var(--gutter-mobile); }
+@media (min-width: 768px) { .wrap { padding: 0 var(--gutter); } }
+.narrow { max-width: var(--container-narrow); }
+
+/* The console is a form and a couple of tables, not a dashboard with wide
+   charts to fill -- at the site's usual 1200px it reads as sparse rather
+   than roomy. Scoped to the admin page only: the dashboard's stat ring and
+   the about page's two-column explainer grid both actually use the extra
+   width. */
+@media (min-width: 900px) { body[data-page="admin"] .wrap { max-width: 880px; } }
+
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; }
+
+/* ---- top bar ----------------------------------------------------------- */
 
 header.site {
-  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
-  padding: 16px; border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 70;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
 }
-header.site h1 { font-size: 18px; margin: 0; letter-spacing: -0.2px; }
-header.site .tagline { color: var(--ink-dim); font-size: 13px; }
-header.site nav { margin-left: auto; display: flex; gap: 14px; font-size: 14px; }
-header.site nav a { color: var(--ink-dim); text-decoration: none; }
-header.site nav a:hover { color: var(--ink); }
+.site-inner {
+  display: flex; align-items: center; gap: var(--sp-md);
+  min-height: var(--header-h);
+  max-width: var(--container); margin: 0 auto;
+  padding: var(--sp-sm) var(--gutter-mobile);
+}
+@media (min-width: 768px) { .site-inner { padding: var(--sp-sm) var(--gutter); } }
+
+.brand { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.brand h1, .brand .tagline { margin: 0; }
+.brand-link { color: inherit; text-decoration: none; }
+.brand-link:hover .brand-name, .brand-link:focus-visible .brand-name { color: var(--accent); }
+.brand-name {
+  display: block; font-family: var(--font-display); font-size: 19px; font-weight: 700;
+  letter-spacing: -0.2px; color: var(--ink);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+header.site .tagline { color: var(--ink-dim); font-size: 14px; text-wrap: balance; }
+
+/* #who's own "signed in as ..." avatar (see admin.js's renderWho / avatar.js).
+   Inline-flex on the .tagline itself, not a wrapper: .brand's own column
+   layout is untouched, this only arranges #who's two children side by side. */
+#who { display: inline-flex; align-items: center; gap: 6px; }
+.user-avatar { flex-shrink: 0; display: flex; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px var(--line); }
+.user-avatar svg { display: block; }
+
+.site-nav {
+  display: none; margin-left: auto; align-items: center; gap: var(--sp-lg);
+  font-size: 14px;
+}
+@media (min-width: 768px) { .site-nav { display: flex; } }
+.site-nav a, .site-nav .data-trigger {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 0;
+  color: var(--ink-dim); text-decoration: none; padding: var(--sp-sm) 0;
+  border-bottom: 2px solid transparent;
+  background: none; border-left: none; border-top: none; border-right: none;
+  font: inherit; font-size: 14px; cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.site-nav a:hover, .site-nav a:focus-visible,
+.site-nav .data-trigger:hover, .site-nav .data-trigger:focus-visible,
+.site-nav .data-trigger[aria-expanded="true"] { color: var(--ink); }
+.site-nav a[aria-current="page"] { color: var(--ink); border-color: var(--accent); }
+
+.nav-icon { flex-shrink: 0; width: 16px; height: 16px; }
+.nav-caret {
+  flex-shrink: 0; width: 6px; height: 6px; margin-left: -2px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.data-trigger[aria-expanded="true"] .nav-caret { transform: rotate(-135deg); }
+
+/* The desktop theme toggle: a pill switch with sun/moon icons, sitting with
+   the other nav controls rather than inline with the link list. */
+.theme-toggle {
+  display: none; align-items: center; justify-content: center;
+  width: 40px; height: 40px; min-height: 0; padding: 0;
+  margin-left: var(--sp-sm); flex-shrink: 0;
+  border-radius: var(--radius-full); border: 1px solid var(--line);
+  background: var(--panel-2); color: var(--ink-dim); cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+}
+.theme-toggle:hover, .theme-toggle:focus-visible { color: var(--ink); background: var(--panel); }
+@media (min-width: 768px) { .theme-toggle { display: inline-flex; } }
+.theme-toggle svg { width: 18px; height: 18px; }
+.theme-toggle .icon-moon { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-sun,
+:root[data-theme="system"] .theme-toggle .icon-sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-moon,
+:root[data-theme="system"] .theme-toggle .icon-moon { display: block; }
+
+/* The redeem page's language switcher. It sits where a nav would on any
+   other page, but this page deliberately has none (see its own comment on
+   why), so this is the one control in the header and it stays put on
+   mobile rather than hiding above 768px the way .theme-toggle does. */
+.lang-toggle {
+  display: inline-flex; gap: 2px; margin-left: auto; flex-shrink: 0;
+  padding: 2px; border-radius: var(--radius-full); background: var(--panel-2);
+}
+.lang-toggle button {
+  min-height: 0; padding: 6px 10px; border: none; border-radius: var(--radius-full);
+  background: transparent; color: var(--ink-dim);
+  font: inherit; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+}
+.lang-toggle button[aria-pressed="true"] { background: var(--panel); color: var(--ink); }
+.lang-toggle button:hover, .lang-toggle button:focus-visible { color: var(--ink); }
+
+/* Hamburger: three lines drawn in CSS, no icon asset, morphing into an X. */
+.hamburger {
+  display: inline-flex; margin-left: auto; flex-shrink: 0;
+  align-items: center; justify-content: center;
+  width: 44px; height: 44px; padding: 0;
+  background: transparent; border: none; border-radius: var(--radius-sm);
+  color: var(--ink);
+}
+@media (min-width: 768px) { .hamburger { display: none; } }
+.hamburger-box { position: relative; width: 22px; height: 14px; display: block; }
+.hamburger-line {
+  position: absolute; left: 0; width: 100%; height: 2px; border-radius: 2px;
+  background: currentColor;
+  transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
+}
+.hamburger-line:nth-child(1) { top: 0; }
+.hamburger-line:nth-child(2) { top: 6px; }
+.hamburger-line:nth-child(3) { top: 12px; }
+.hamburger[aria-expanded="true"] .hamburger-line:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.hamburger[aria-expanded="true"] .hamburger-line:nth-child(2) { opacity: 0; }
+.hamburger[aria-expanded="true"] .hamburger-line:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.mobile-menu {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: var(--bg);
+  opacity: 0; visibility: hidden; transform: translateY(-8px);
+  transition: opacity var(--dur-base) var(--ease-out),
+              transform var(--dur-base) var(--ease-out),
+              visibility 0s linear var(--dur-base);
+}
+.mobile-menu.open {
+  opacity: 1; visibility: visible; transform: translateY(0);
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+.mobile-menu nav {
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-sm);
+  text-align: center; padding: var(--sp-2xl) var(--gutter-mobile);
+  padding-top: calc(var(--header-h) + var(--sp-lg));
+}
+.mobile-menu nav a, .mobile-menu nav .data-trigger {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: var(--sp-sm) var(--sp-lg); min-height: 44px; width: 100%;
+  font-family: var(--font-display);
+  font-size: clamp(20px, 15.5px + 1.5vw, 26px); font-weight: 600; line-height: 1.25;
+  color: var(--ink); text-decoration: none; text-wrap: balance;
+  background: none; border: none; cursor: pointer;
+}
+.mobile-menu nav a:hover, .mobile-menu nav a:focus-visible,
+.mobile-menu nav .data-trigger:hover, .mobile-menu nav .data-trigger:focus-visible { color: var(--accent); }
+.mobile-menu nav .nav-icon { width: 22px; height: 22px; }
+@media (min-width: 768px) { .mobile-menu { display: none; } }
+
+/* The mobile theme switch: a labeled row inside the hamburger menu, styled
+   like a settings toggle rather than another nav link -- it's a preference,
+   not a destination. */
+.mobile-theme-row {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-md);
+  width: 100%; max-width: 320px; margin-top: var(--sp-xl);
+  padding: var(--sp-md) var(--sp-lg); cursor: pointer;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.mobile-theme-row span { font-family: var(--font-body); font-size: 15px; font-weight: 500; color: var(--ink); }
+.theme-switch {
+  position: relative; flex-shrink: 0; width: 48px; height: 28px; min-height: 0; padding: 0;
+  border-radius: var(--radius-full); border: none;
+  background: var(--line-strong); cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.theme-switch::before {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px;
+  border-radius: 50%; background: #fff; box-shadow: var(--shadow-card);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+:root[data-theme="dark"] .theme-switch,
+:root[data-theme="system"] .theme-switch { background: var(--accent); }
+:root[data-theme="dark"] .theme-switch::before,
+:root[data-theme="system"] .theme-switch::before { transform: translateX(20px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hamburger-line, .mobile-menu, .dev-panel, .data-panel, .brand-link, .site-nav a,
+  .theme-switch, .theme-switch::before, body { transition: none !important; }
+}
+
+/* ---- headings & basic text --------------------------------------------- */
+
+.page-title {
+  font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em;
+  font-size: clamp(28px, 22px + 2.2vw, 40px); line-height: 1.1; color: var(--ink);
+  margin: var(--sp-lg) 0 var(--sp-md); text-wrap: balance;
+}
+.section-title {
+  font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em;
+  font-size: clamp(20px, 17px + 1vw, 24px); color: var(--ink);
+  margin: 0 0 var(--sp-md);
+}
 
 .card {
   background: var(--panel); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: 16px; margin: 0 0 16px;
+  border-radius: var(--radius-lg); padding: var(--sp-md);
+  margin: 0 0 var(--sp-md); box-shadow: var(--shadow-card);
 }
-.card h2 { font-size: 14px; margin: 0 0 12px; text-transform: uppercase;
-  letter-spacing: 0.08em; color: var(--ink-dim); font-weight: 600; }
+@media (min-width: 768px) { .card { padding: var(--sp-lg); } }
+.card h2 { font-family: var(--font-body); font-size: 13px; margin: 0 0 var(--sp-sm);
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-dim); font-weight: 700; }
 
-.grid { display: grid; gap: 12px; }
+/* The sign-in card, alone on an otherwise empty console before anyone has
+   signed in: full-width like every other card here just leaves the form
+   stranded on the left of a lot of blank panel. Desktop only -- the form
+   itself is unchanged, this only decides how much of the card's own width
+   it has to fill. .login-art is decoration filling the rest, not a second
+   thing to read, so it stays out of the tab order and off narrow screens
+   where there is no spare width to give it. */
+.login-art { display: none; }
+@media (min-width: 768px) {
+  #login.card { display: flex; align-items: center; gap: var(--sp-2xl); width: fit-content; max-width: 100%; }
+  .login-form { flex: none; width: 360px; }
+  .login-art { display: flex; align-items: center; justify-content: center; flex: none; width: 200px; }
+}
+.card p, .card .note, .honesty dd { max-width: 68ch; text-wrap: pretty; }
+
+/* Scroll reveal: see reveal.js. transform/opacity only, so this composites
+   on its own layer and costs nothing else on the page while it runs. */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); }
+.reveal-in { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+/* ---- gradient-header cards ----------------------------------------------
+   The signature component: a rounded card whose top is an ambient gradient
+   carrying a circular icon badge, with a plain surface below it for text.
+   Icon contrast never depends on the gradient underneath -- the badge is
+   always a translucent white disc, the icon always currentColor on top of
+   that, so it reads on all eight gradients without per-card tuning. */
+.grad-card {
+  display: block; overflow: hidden;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-card);
+  text-decoration: none; color: inherit;
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+a.grad-card:hover, button.grad-card:hover,
+a.grad-card:focus-visible, button.grad-card:focus-visible {
+  transform: translateY(-2px); box-shadow: var(--shadow-raised);
+}
+button.grad-card { display: block; width: 100%; text-align: left; padding: 0; border: 1px solid var(--line); font: inherit; cursor: pointer; }
+.grad-card-header {
+  position: relative; height: 108px; display: flex; align-items: center; justify-content: center;
+}
+.grad-card-header.size-sm { height: 84px; }
+.grad-card-header.size-lg { height: 160px; }
+.grad-card-body { padding: var(--sp-md); }
+.grad-card-eyebrow {
+  display: block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--ink-dim); margin-bottom: 2px;
+}
+.grad-card-title { font-family: var(--font-display); font-size: 17px; font-weight: 600; color: var(--ink); text-wrap: balance; }
+.grad-card-sub { font-size: 13px; color: var(--ink-dim); margin-top: 2px; }
+
+/* The icon that sits on a gradient header. No backing disc: at 29+
+   species, a small silhouette in a small white circle reads as a blur,
+   not a shape, and with this many similar fish outlines the shape is
+   the whole point. Sized to fill most of the header instead, with a
+   soft drop-shadow standing in for the disc's old job of guaranteeing
+   contrast -- the icon itself is a plain white silhouette, and without
+   it a light-colored corner of one of the eight header gradients (e.g.
+   --grad-amber's #fbbf24) could wash it out. */
+.card-icon-badge {
+  display: flex; align-items: center; justify-content: center;
+  width: 64px; height: 64px;
+  color: #fff;
+}
+.grad-card-header.size-sm .card-icon-badge { width: 52px; height: 52px; }
+.grad-card-header.size-lg .card-icon-badge { width: 88px; height: 88px; }
+.card-icon-badge img, .card-icon-badge svg { width: 94%; height: 94%; object-fit: contain; }
+.card-icon-badge img {
+  filter: brightness(0) invert(1) drop-shadow(0 1px 3px rgb(0 0 0 / 0.35));
+} /* PhyloPic silhouettes recolored to white, shadowed for legibility on any gradient */
+
+/* A little more presence on hover than the card's own lift: the badge
+   itself grows, and the animal inside it grows a touch more and tips,
+   so the two read as one motion rather than a single flat zoom. --dur-fast
+   because this is a hover response (see DESIGN's motion timing table), not
+   the signature interaction -- that stays --ease-spring's only user. */
+.card-icon-badge, .card-icon-badge img, .card-icon-badge svg {
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.grad-card:hover .card-icon-badge, .grad-card:focus-visible .card-icon-badge {
+  transform: scale(1.12);
+}
+.grad-card:hover .card-icon-badge img, .grad-card:hover .card-icon-badge svg,
+.grad-card:focus-visible .card-icon-badge img, .grad-card:focus-visible .card-icon-badge svg {
+  transform: scale(1.14) rotate(-8deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .grad-card, .card-icon-badge, .card-icon-badge img, .card-icon-badge svg { transition: none !important; }
+}
+
+/* A plain circular badge for non-gradient contexts (list rows, timelines):
+   a tinted disc instead of a wash of translucent white on white. */
+.icon-badge {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--panel-2); color: var(--accent);
+}
+.icon-badge img, .icon-badge svg { width: 60%; height: 60%; object-fit: contain; }
+.icon-badge img { filter: var(--icon-tint, none); }
+.icon-badge.tone-estuary { background: color-mix(in srgb, #0f5c56 14%, var(--panel)); color: #0f5c56; }
+.icon-badge.tone-sunset  { background: color-mix(in srgb, #9a3412 14%, var(--panel)); color: #9a3412; }
+.icon-badge.tone-tide    { background: color-mix(in srgb, #1e3a8a 14%, var(--panel)); color: #1e3a8a; }
+.icon-badge.tone-marsh   { background: color-mix(in srgb, #14532d 14%, var(--panel)); color: #14532d; }
+.icon-badge.tone-amber   { background: color-mix(in srgb, #7c2d12 14%, var(--panel)); color: #7c2d12; }
+.icon-badge.tone-slate   { background: color-mix(in srgb, #1e293b 14%, var(--panel)); color: #1e293b; }
+
+/* A table's empty state: the plain .icon-badge tone (a muted disc, accent
+   icon) plus a short line, centred in the row it replaces. Warmer than a
+   bare "nothing yet" string without turning an empty table into a whole
+   illustration -- it is still one row, just one worth looking at. */
+.empty-state { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: var(--sp-lg) var(--sp-sm); color: var(--ink-dim); }
+.empty-state .icon-badge { width: 40px; height: 40px; }
+.empty-state .icon-badge svg { stroke: var(--accent); }
+
+/* Overlapping circular avatar stack -- entities as a group, per the
+   reference app's "Collections" pattern. */
+.badge-stack { display: flex; }
+.badge-stack .icon-badge, .badge-stack .card-icon-badge { border: 2px solid var(--panel); margin-left: -12px; }
+.badge-stack > :first-child { margin-left: 0; }
+
+.grid { display: grid; gap: var(--sp-sm); }
 .grid.stats { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
 .grid.two { grid-template-columns: 1fr; }
 @media (min-width: 640px) { .grid.two { grid-template-columns: 1fr 1fr; } }
+.grid.cards { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--sp-md); }
 
-.stat { background: var(--panel-2); border-radius: var(--radius); padding: 12px; }
-.stat .n { font-size: 26px; font-weight: 650; letter-spacing: -0.5px; }
-.stat .k { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.07em; }
+.stat { background: var(--panel-2); border-radius: var(--radius); padding: 12px; position: relative; overflow: hidden; container-type: inline-size; }
 
-label { display: block; font-size: 13px; color: var(--ink-dim); margin: 0 0 4px; }
+/* A large, faint icon in the corner -- decoration, not information (the
+   number and label already say everything that matters), so it stays out
+   of the way at low opacity and disappears below a size it would just
+   crowd. A container query, not a viewport one: whether a given tile has
+   "space" depends on how many share its row, not on the screen it's on.
+   Stretched top-to-bottom against .stat's own 12px padding (aspect-ratio
+   keeps it square) rather than fixed at one line tall, so it spans the
+   number and the label beneath it as one block instead of just floating
+   over the number. */
+.stat-icon { display: none; position: absolute; top: 12px; right: 8px; bottom: 12px; aspect-ratio: 1; color: var(--ink); opacity: 0.1; pointer-events: none; }
+.stat-icon svg { width: 100%; height: 100%; }
+@container (min-width: 160px) { .stat-icon { display: block; } }
+
+/* ---- "The program" stat breakdown chart ---------------------------------
+   A real composition chart, not a decorative fabrication: the four ring
+   segments are exactly the four counts already on the tiles to their left
+   (minted, active, cooldown, retired), drawn once as a shape instead of
+   only as numbers. Desktop only -- on a narrow screen the tiles already
+   say the same thing, and a chart this size would only push them further
+   down the page. Hand-drawn SVG rather than a charting library, for the
+   same reason nothing else here reaches for one (see app.js): it is four
+   arcs, and the smallest chart bundle is heavier than this whole page. */
+.program-layout { display: flex; flex-direction: column; }
+.stats-chart { display: none; }
+@media (min-width: 900px) {
+  .program-layout { flex-direction: row; align-items: center; gap: var(--sp-xl); }
+  /* Six tiles, always: auto-fit alone picks however many columns fit the
+     width beside the chart, which at some widths means five in the first
+     row and one stranded alone in the second. Fixed at three so it is
+     always two even rows in this specific layout, reading in the same
+     left-to-right, top-to-bottom order the tiles are written in above --
+     unlike auto-fit, which the narrower single-column layout below 900px
+     still uses, since a lone stat column has no "row" to divide evenly. */
+  .program-layout .grid.stats { flex: 1; grid-template-columns: repeat(3, 1fr); }
+  .stats-chart {
+    display: flex; align-items: center; gap: var(--sp-lg); flex: none;
+    opacity: 0; transform: scale(0.94);
+    transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+  }
+  .stats-chart.in { opacity: 1; transform: scale(1); }
+}
+.stats-chart.hidden { display: none !important; }
+.chart-ring-wrap { position: relative; display: grid; place-items: center; flex-shrink: 0; }
+.chart-ring-wrap svg { display: block; }
+.chart-ring-wrap svg circle { stroke-linecap: butt; }
+.chart-total { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.chart-total-n { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.chart-total-k { font-size: 10px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.06em; text-align: center; }
+.chart-legend { display: flex; flex-direction: column; gap: 8px; }
+.chart-legend-row { display: flex; align-items: center; gap: 8px; font-size: 13px; white-space: nowrap; color: var(--ink); }
+.chart-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+@media (prefers-reduced-motion: reduce) { .stats-chart { transition: none !important; } }
+
+/* Skeleton placeholders: shown in the markup by default, replaced the
+   instant real data arrives, so a slow connection sees an intentional
+   loading shape instead of a blank tile that pops a number into existence.
+   A pulse, never a sweeping gradient -- see DESIGN's motion rules -- and it
+   freezes under prefers-reduced-motion rather than stopping outright, so
+   the loading state stays legible either way. */
+.skel-line { background: var(--line); border-radius: 4px; animation: skeleton-pulse 1.8s var(--ease-in-out) infinite; }
+.skel-line.n { height: 26px; width: 56%; margin-bottom: 8px; }
+.skel-line.k { height: 11px; width: 78%; }
+.skel-line.cell { height: 13px; width: 70%; }
+@keyframes skeleton-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { .skel-line { animation: none; opacity: 0.6; } }
+.stat .n { position: relative; z-index: 1; font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+.stat .k { position: relative; z-index: 1; font-size: 12px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.07em; }
+
+label { display: block; font-size: 14px; color: var(--ink-dim); margin: 0 0 4px; }
 input, select, textarea {
-  width: 100%; padding: 12px; font-size: 16px; /* 16px stops iOS zooming on focus */
-  background: var(--panel-2); color: var(--ink);
-  border: 1px solid var(--line); border-radius: var(--radius);
+  width: 100%; padding: 12px; font-size: 16px; font-family: var(--font-body);
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--line-strong); border-radius: var(--radius);
 }
 .field { margin: 0 0 14px; }
-.row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+.row { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 480px) { .row { grid-template-columns: 1fr 1fr; } }
+
+/* schema.js's renderFields() writes a flat sequence of .field divs -- it
+   knows nothing about layout, only what a species records. Wrapping that
+   output in this pairs short fields (a number, a two-word dropdown) two to
+   a row on desktop instead of letting each one stretch to the full card
+   width; a species with more measurements than another still just adds
+   more fields, not a layout somebody has to touch. Off below 768px on
+   purpose: a phone-width column is already the right shape for a single
+   field per row. */
+@media (min-width: 768px) {
+  .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 var(--sp-lg); }
+  .fields-grid .field { margin-bottom: var(--sp-md); }
+}
+
+/* ---- combobox: a <select> enhanced into a searchable popover ------------
+   See combobox.js. The native <select> stays in the DOM (hidden, off to
+   the side) as the real form control; everything below is the visual and
+   interaction layer in front of it. */
+.combo { position: relative; }
+.combo-native { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
+.combo-trigger {
+  width: 100%; display: flex; align-items: center; gap: 10px; text-align: left;
+  padding: 12px; font-size: 16px; font-family: var(--font-body); font-weight: 400; color: var(--ink);
+  background: var(--panel); border: 1px solid var(--line-strong); border-radius: var(--radius);
+  cursor: pointer; min-height: 0;
+}
+.combo-trigger:hover { background: var(--panel-2); }
+.combo-trigger-icon { flex-shrink: 0; width: 20px; height: 20px; color: var(--accent); }
+.combo-trigger-icon svg { width: 100%; height: 100%; }
+.combo-trigger-icon img, .combo-option-icon img { width: 100%; height: 100%; object-fit: contain; }
+/* The species silhouettes are plain black fills (see animals/ATTRIBUTION.md),
+   legible as-is on the light rows here -- except in dark mode, the same as
+   the footer seal. */
+:root[data-theme="dark"] .combo-trigger-icon img,
+:root[data-theme="dark"] .combo-option-icon img { filter: invert(1); }
+.combo-trigger-label { flex: 1; }
+.combo-trigger-label.placeholder { color: var(--ink-dim); }
+.combo-caret { flex-shrink: 0; width: 16px; height: 16px; color: var(--ink-dim); transition: transform var(--dur-fast) var(--ease-out); }
+.combo[data-open="true"] .combo-trigger { border-color: var(--accent); }
+.combo[data-open="true"] .combo-caret { transform: rotate(180deg); }
+
+.combo-popover {
+  position: absolute; z-index: 45; top: calc(100% + 4px); left: 0; right: 0;
+  display: flex; flex-direction: column; max-height: 280px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow-overlay); overflow: hidden;
+}
+.combo-popover[hidden] { display: none; }
+.combo-search-wrap { padding: 8px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+.combo-search { padding: 8px 10px; font-size: 14px; border-radius: var(--radius-sm); }
+.combo-list { list-style: none; margin: 0; padding: 4px; overflow-y: auto; }
+.combo-option, .combo-list li[role="option"] {
+  display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: var(--radius-sm);
+  font-size: 14px; color: var(--ink); cursor: pointer;
+}
+.combo-list li[data-active="true"] { background: var(--panel-2); }
+.combo-list li[aria-selected="true"] { font-weight: 600; }
+.combo-list li[aria-selected="true"]::after { content: ""; margin-left: auto; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.combo-option-icon { flex-shrink: 0; width: 18px; height: 18px; color: var(--accent); }
+.combo-option-icon svg { width: 100%; height: 100%; }
+.combo-option-icon.blank { visibility: hidden; } /* keeps labels aligned when only some options in the list have one */
+.combo-empty { padding: 16px 10px; text-align: center; color: var(--ink-dim); font-size: 13px; }
 
 button {
-  font: inherit; font-weight: 600; cursor: pointer;
-  padding: 14px 18px; min-height: 48px;  /* a thumb, not a mouse */
-  border-radius: var(--radius); border: 1px solid var(--line);
+  font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+  padding: 14px 18px; min-height: 48px;
+  border-radius: var(--radius); border: 1px solid var(--line-strong);
   background: var(--panel-2); color: var(--ink);
+  white-space: nowrap;
+  transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
 }
+button:active { transform: scale(0.98); }
 button.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+button.primary:hover { background: var(--accent-hover); }
 button.wide { width: 100%; }
+@media (min-width: 768px) { button.wide { width: auto; min-width: 240px; } }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.note { font-size: 13px; color: var(--ink-dim); }
-.sub-head { font-size: 14px; margin: 0 0 6px; font-weight: 650; color: var(--ink); }
+/* Pill segmented filter -- active = filled accent, inactive = outline. */
+.pillbar { display: flex; gap: var(--sp-sm); flex-wrap: wrap; margin: 0 0 var(--sp-md); }
+.pill-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 18px; min-height: 40px; border-radius: var(--radius-full);
+  border: 1px solid var(--line-strong); background: var(--panel);
+  color: var(--ink); font-size: 14px; font-weight: 600;
+}
+.pill-btn[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+
+.note { font-size: 16px; color: var(--ink-dim); text-wrap: pretty; }
+.sub-head { font-family: var(--font-display); font-size: 16px; margin: 0 0 6px; font-weight: 600; color: var(--ink); text-wrap: balance; }
+/* A plain bulleted list at .note's own size/color -- size limits and fun
+   facts in the species detail sheet, and anywhere else a handful of short
+   reference lines needs to read as body copy, not a form or a table. */
+.note-list { margin: 0 0 var(--sp-md); padding-left: 20px; font-size: 14px; color: var(--ink-dim); line-height: 1.6; }
+.note-list li { margin: 4px 0; }
+.note-list:last-child { margin-bottom: 0; }
 .card h3 + p { margin-top: 0; }
 .card table th:first-child { width: 26%; }
-.err  { color: var(--bad); font-size: 14px; }
+.err  { color: var(--bad); font-size: 14px; text-wrap: pretty; }
 .ok   { color: var(--good); }
 .warn { color: var(--warn); }
 
 .banner {
   border-radius: var(--radius); padding: 12px 14px; font-size: 14px;
   border: 1px solid var(--line); background: var(--panel-2); margin: 0 0 14px;
+  text-wrap: pretty;
 }
 .banner.bad  { border-color: var(--bad);  color: var(--bad); }
 .banner.warn { border-color: var(--warn); color: var(--warn); }
 .banner.good { border-color: var(--good); color: var(--good); }
 
+/* ---- tag-armed confirmation: a drawn record, not a fade-in --------------
+   A connection from the tag glyph to the animal just tagged, and a
+   confirmation mark, both drawing themselves rather than appearing --
+   the "certificate" motion language from this design system's sibling
+   project (dpp-app/motion), where the one thing genuinely established gets
+   a mark that draws rather than fades: this app's own honesty principle,
+   the record is the reward and nothing quietly moves, reads the same way
+   in a flourish as it does in the copy.
+
+   Kept to --dur-base/--ease-out throughout on purpose: --dur-slow and
+   --ease-spring stay reserved for .paid-badge, the app's one signature
+   interaction (see the --dur-slow definition above), and a field console
+   arming dozens of animals in a row needs this quick enough to never be
+   in the way of the next one -- a flourish, not a set piece. */
+.arm-confirm { display: flex; align-items: center; gap: 10px; }
+.arm-confirm-text { flex: 1; min-width: 0; }
+
+.arm-confirm-glyph {
+  width: 18px; height: 18px; flex-shrink: 0; color: var(--good);
+  fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+  opacity: 0; animation: arm-confirm-in var(--dur-base) var(--ease-out) forwards;
+}
+.arm-confirm-trace { width: 28px; height: 10px; flex-shrink: 0; overflow: visible; }
+.arm-confirm-trace path {
+  fill: none; stroke: var(--good); stroke-width: 2; stroke-linecap: round;
+  stroke-dasharray: 32; stroke-dashoffset: 32;
+  animation: arm-confirm-draw var(--dur-base) var(--ease-out) 90ms forwards;
+}
+.arm-confirm-badge {
+  position: relative; flex-shrink: 0; width: 36px; height: 36px;
+  transform: scale(0.7); opacity: 0;
+  animation: arm-confirm-pop var(--dur-base) var(--ease-out) 140ms forwards;
+}
+.arm-confirm-tick {
+  position: absolute; right: -3px; bottom: -3px; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--good); color: #fff; padding: 2px;
+  box-shadow: 0 0 0 2px var(--panel-2);
+}
+.arm-confirm-tick path { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+/* Faster and later than .draw-mark's own default: this tick is the last
+   thing in an already-brief flourish (see the comment above), not its own
+   moment, so it neither gets the full --dur-base nor starts until the
+   badge it sits on has finished popping in at 140ms. */
+.arm-confirm-tick.draw-mark path { animation-duration: var(--dur-fast); animation-delay: 260ms; }
+@keyframes arm-confirm-in   { to { opacity: 1; } }
+@keyframes arm-confirm-pop  { to { opacity: 1; transform: scale(1); } }
+@keyframes arm-confirm-draw { to { stroke-dashoffset: 0; } }
+
+/* The species fact line: held back until the tick above has finished
+   drawing (380ms clears its 260ms delay + --dur-fast), so it lands as the
+   sequence's last beat rather than competing with the record for
+   attention. See armConfirmHTML in admin.js and species.Profile.FunFacts. */
+.arm-confirm-fact {
+  margin: 10px 0 0; padding-top: 10px; border-top: 1px solid var(--line);
+  font-size: 13px; color: var(--ink-dim);
+  opacity: 0; transform: translateY(6px);
+  animation: arm-confirm-fact-in var(--dur-base) var(--ease-out) 380ms forwards;
+}
+.arm-confirm-fact-label {
+  display: block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--accent); margin-bottom: 3px;
+}
+@keyframes arm-confirm-fact-in { to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .arm-confirm-fact { animation: none; opacity: 1; transform: none; }
+}
+
+/* ---- draw-mark: a confirmation mark that draws itself ------------------
+   The same "certificate" motion language as .arm-confirm above, made
+   reusable: dpp-app/motion's own Tick and Cross primitives exist because a
+   mark that draws via stroke-dashoffset reads as evidence -- the thing was
+   just verified -- where one that pops or fades in reads as decoration.
+   This app draws that exact pair (a check, an X) in enough places --
+   arming a tag, getting paid, every toast, the onboarding walkthrough's own
+   explanation of what is and isn't proven -- that it earns one shared rule
+   rather than five bespoke ones, the same argument dpp-app/motion's own
+   theme.ts makes about colour and timing, applied here to this one motion.
+
+   30 covers every path shape currently drawn under this class with margin
+   to spare (the longest today, the Paid badge's own checkmark, measures
+   about 24 units); a shape that needs more should raise it explicitly
+   rather than silently draw with a visible jump at the end. Per-instance
+   delay is set on the <path> itself via inline style where a caller needs
+   to wait for something else to settle first -- see redeem.html's
+   .paid-badge and onboarding.js's scenes for examples. */
+.draw-mark path {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: draw-mark var(--dur-base) var(--ease-out) both;
+}
+@keyframes draw-mark { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .draw-mark path { animation: none; stroke-dashoffset: 0; }
+}
+
+/* A short connector that draws itself -- the onboarding walkthrough's own
+   version of .arm-confirm-trace, generalized: stroke is currentColor
+   rather than a hardcoded --good, since each scene's connector inherits
+   whatever accent color that scene is using instead of always reading as
+   "success". Used to link the two things a step is actually about (the
+   tag and the reward, a fix and the record it lands in) rather than
+   leaving them as two unrelated shapes near each other. */
+.onboard-trace-h { overflow: visible; flex-shrink: 0; }
+.onboard-trace-h path {
+  fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round;
+  stroke-dasharray: 40; stroke-dashoffset: 40;
+  animation: onboard-trace-draw var(--dur-base) var(--ease-out) both;
+}
+@keyframes onboard-trace-draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .onboard-trace-h path { animation: none; stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arm-confirm-glyph, .arm-confirm-badge { animation: none; opacity: 1; transform: none; }
+  .arm-confirm-trace path, .arm-confirm-tick path { animation: none; stroke-dashoffset: 0; }
+}
+
+/* ---- field console: status row, sticky fields, scan, queue -------------- */
+
+/* Signal and pace, shown on every tab of the console (see admin.html). */
+.console-status { display: flex; align-items: center; gap: var(--sp-md); flex-wrap: wrap; margin: 0 0 var(--sp-md); }
+.net-status { font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.net-status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-dim); }
+.net-status.good { color: var(--good); }
+.net-status.good::before { background: var(--good); }
+.net-status.bad { color: var(--warn); }
+.net-status.bad::before { background: var(--warn); }
+
+/* The running "N armed this session" count's own small confirmation --
+   see admin.js's pulseTally, fired once per animal actually confirmed, not
+   on every render. A beat of color and scale, not a bounce or a spin: this
+   fires dozens of times in a working session and needs to read as a quiet
+   acknowledgement, not a distraction from the next tag. */
+#armTally { display: inline-block; }
+#armTally.pulse { animation: tally-pulse var(--dur-base) var(--ease-out); }
+@keyframes tally-pulse {
+  0% { transform: scale(1); color: inherit; }
+  35% { transform: scale(1.16); color: var(--good); }
+  100% { transform: scale(1); color: inherit; }
+}
+@media (prefers-reduced-motion: reduce) { #armTally.pulse { animation: none; } }
+
+/* A field the console carries forward instead of clearing after each arm --
+   see species.Measure.Sticky. Same tone as a pill, quieter than a banner:
+   this is a reassurance, not a warning. */
+.sticky-badge {
+  display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--panel));
+  border-radius: var(--radius-full); padding: 2px 8px; vertical-align: 1px; margin-left: 4px;
+}
+
+.row-inline { display: flex; gap: 8px; align-items: stretch; }
+.row-inline input { flex: 1; }
+.icon-btn { display: inline-flex; align-items: center; gap: 6px; padding: 12px 16px; white-space: nowrap; }
+.icon-btn svg { width: 18px; height: 18px; }
+
+/* A leading icon on an otherwise plain or .wide button -- left-aligned
+   with the label, not centered on its own, so "+ Create batch" reads as
+   one phrase. */
+button.btn-icon { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+button.btn-icon svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* Queued arms: a submission with nowhere to go yet (no signal) or one the
+   server refused and a person needs to look at. Nothing here is "done" --
+   a successful submission is removed, not shown, so this list is only ever
+   the work still outstanding. */
+.queue-list { margin-top: var(--sp-md); display: flex; flex-direction: column; gap: 8px; }
+.queue-list.hidden { display: none; }
+.queue-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel-2);
+}
+.queue-item strong { font-size: 14px; }
+.queue-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.queue-actions button { padding: 8px 12px; min-height: 36px; font-size: 13px; }
+.err-inline { color: var(--bad); }
+
+/* The rearm table's bulk-select bar -- same shape as .queue-item above
+   (a row with a status on the left and an action on the right), shown only
+   once something is actually selected. */
+.bulk-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: var(--sp-sm); padding: 10px 12px;
+  border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel-2);
+}
+.bulk-bar button { padding: 8px 12px; min-height: 36px; font-size: 13px; }
+
+/* ---- confirm-before-arm: a review, not another form --------------------- */
+.modal-scrim {
+  position: fixed; inset: 0; z-index: 97; background: rgb(10 14 18 / 0.4);
+  opacity: 0; transition: opacity var(--dur-base) var(--ease-out);
+}
+.modal-scrim.open { opacity: 1; }
+.modal-scrim[hidden] { display: none; }
+.confirm-sheet {
+  position: fixed; z-index: 98; left: 0; right: 0; bottom: 0;
+  background: var(--panel); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--shadow-overlay);
+  transform: translateY(16px); opacity: 0; visibility: hidden;
+  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out), visibility 0s linear var(--dur-base);
+  max-height: 80vh;
+  /* A flex column, not one long scrolling block: .confirm-sheet-scroll (the
+     heading and body) is the part that scrolls, so .cta-row's actions stay
+     reachable at the bottom of the sheet instead of requiring a scroll
+     past however much content a given sheet happens to have. */
+  display: flex; flex-direction: column;
+}
+.confirm-sheet-scroll { overflow-y: auto; min-height: 0; padding: var(--sp-lg) var(--sp-lg) 0; }
+.confirm-sheet .cta-row { padding: var(--sp-md) var(--sp-lg) calc(24px + env(safe-area-inset-bottom)); }
+.confirm-sheet.open { transform: translateY(0); opacity: 1; visibility: visible; transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out); }
+.confirm-sheet[hidden] { display: none; }
+@media (min-width: 640px) {
+  .confirm-sheet {
+    left: 50%; right: auto; bottom: auto; top: 50%; width: min(440px, calc(100vw - 48px));
+    transform: translate(-50%, calc(-50% + 16px)); border-radius: var(--radius-lg);
+  }
+  .confirm-sheet.open { transform: translate(-50%, -50%); }
+}
+/* Top-right quick-dismiss, in addition to whatever's in .cta-row -- used
+   by sheets where closing carries no consequence (the species detail
+   sheet), deliberately not added to the arm confirm sheet, where an easy
+   accidental dismiss right before an irreversible on-chain action is the
+   opposite of what that review step is for. */
+.sheet-close-x {
+  position: absolute; top: 12px; right: 12px; z-index: 1;
+  width: 32px; height: 32px; min-height: 32px; padding: 0;
+  border-radius: 50%; font-size: 20px; line-height: 1;
+  background: var(--panel-2); border: 1px solid var(--line-strong); color: var(--ink);
+}
+.confirm-row { display: flex; justify-content: space-between; gap: var(--sp-md); padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.confirm-row:last-child { border-bottom: none; }
+.confirm-k { color: var(--ink-dim); }
+.confirm-v { font-weight: 600; text-align: right; }
+/* A primary action paired with one secondary one: stacked and full-width
+   on mobile (thumb reach beats layout density), side by side with the
+   primary action rightmost on anything wider -- the confirm sheet's
+   buttons and the arm form's "locate" + "arm" pairing both use this
+   rather than two independently-placed .wide buttons that happened to be
+   near each other. */
+.cta-row { display: flex; flex-direction: column; gap: 8px; margin-top: var(--sp-md); }
+@media (min-width: 480px) { .cta-row { flex-direction: row; } .cta-row button { flex: 1; } }
+
+/* The arm form's own cta-row, and only that one -- scoped by #panel-arm
+   rather than a new class, so the mint form's identical-looking pair
+   below is untouched. This is the button pair a field biologist reaches
+   for after every single measurement, on a form long enough (species,
+   tag id, several fields, a position fix) that it can scroll well past
+   the bottom of the screen; pinning it removes the "scroll down, arm,
+   scroll back up for the next one" round trip from what is meant to be
+   the fast, repeated part of the job. Left as normal inline flow at
+   >=480px, the same breakpoint .cta-row itself already switches on,
+   because there the row sits at a natural reading position without a
+   phone's cramped vertical budget forcing the question. */
+@media (max-width: 479px) {
+  #panel-arm .card { padding-bottom: 160px; }
+  #panel-arm .cta-row {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    margin: 0; gap: 8px;
+    background: var(--panel); border-top: 1px solid var(--line);
+    padding: var(--sp-sm) var(--gutter-mobile) calc(var(--sp-sm) + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 16px rgb(20 30 45 / 0.08);
+  }
+}
+
+/* ---- status toasts -------------------------------------------------------
+   This app's stand-in for DESIGN.md's "sonner" toasts: there is no React
+   here for sonner itself to attach to, so this is the same contract --
+   proactive, one per mutation, no duplicate stacking, an inline action
+   where one exists -- hand-rolled the same way the hamburger menu and the
+   wallet client are. See toast.js.
+
+   Positioned top, not bottom: bottom-left is the dev FAB and bottom-right
+   is Agentation's own toolbar in dev mode, and both sheets in this file
+   already anchor to the bottom edge. A light/dark card matching every
+   other surface in the app (--panel, not a fixed solid color) -- a full
+   block of saturated green or red reads as an alarm even for routine
+   confirmations; the color now lives only in the icon circle, the way the
+   status pills elsewhere already do it. */
+.toast-stack {
+  position: fixed; z-index: 95; left: 0; right: 0;
+  top: calc(var(--header-h) + 12px);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 var(--gutter-mobile); pointer-events: none;
+}
+@media (min-width: 768px) {
+  .toast-stack { left: auto; right: 20px; align-items: flex-end; padding: 0; }
+}
+.toast {
+  pointer-events: auto;
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; max-width: 380px;
+  background: var(--panel); color: var(--ink); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 12px;
+  box-shadow: var(--shadow-overlay);
+  font-size: 14px;
+  transform: translateY(-8px); opacity: 0;
+  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out);
+}
+.toast.in { transform: translateY(0); opacity: 1; }
+.toast-icon {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+.toast-icon svg { width: 15px; height: 15px; }
+.toast-good .toast-icon { background: var(--good); }
+.toast-bad  .toast-icon { background: var(--bad); }
+.toast-text { flex: 1; text-wrap: balance; }
+.toast-action, .toast-close {
+  flex-shrink: 0; min-height: 32px; padding: 6px 10px; font-size: 13px;
+  background: var(--panel-2); border-color: var(--line-strong); color: var(--ink);
+}
+.toast-close { padding: 6px 9px; font-size: 16px; line-height: 1; }
+@media (prefers-reduced-motion: reduce) { .toast { transition: none !important; } }
+
+/* ---- QR scanner: a camera view standing in for a second app ------------- */
+.scanner-overlay {
+  position: fixed; inset: 0; z-index: 99; background: #000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.scanner-overlay[hidden] { display: none; }
+.scanner-overlay video { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.scanner-frame {
+  position: relative; width: min(70vw, 320px); aspect-ratio: 1; border-radius: var(--radius-lg);
+  box-shadow: 0 0 0 2000px rgb(0 0 0 / 0.45), inset 0 0 0 3px rgb(255 255 255 / 0.85);
+}
+.scanner-hint {
+  position: relative; margin-top: var(--sp-lg); color: #fff; font-size: 15px; text-align: center;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.6); padding: 0 var(--sp-lg);
+}
+.scanner-err {
+  position: absolute; bottom: calc(32px + env(safe-area-inset-bottom)); left: var(--sp-lg); right: var(--sp-lg);
+  color: #fff; background: rgb(191 58 34 / 0.9); border-radius: var(--radius); padding: 10px 14px;
+  font-size: 14px; text-align: center;
+}
+.scanner-err:empty { display: none; }
+.scanner-close {
+  position: absolute; top: calc(16px + env(safe-area-inset-top)); right: 16px;
+  width: 44px; height: 44px; min-height: 44px; padding: 0; border-radius: 50%;
+  background: rgb(255 255 255 / 0.15); border-color: rgb(255 255 255 / 0.3); color: #fff;
+  font-size: 24px; line-height: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-scrim, .confirm-sheet { transition: none !important; }
+}
+
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
-th { color: var(--ink-dim); font-weight: 600; font-size: 12px;
+th, td { text-align: left; padding: 10px 6px; border-bottom: 1px solid var(--line); }
+th { color: var(--ink-dim); font-weight: 700; font-size: 12px;
   text-transform: uppercase; letter-spacing: 0.06em; }
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
 .tabular { font-variant-numeric: tabular-nums; }
-
 .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 .pill {
-  display: inline-block; padding: 2px 8px; border-radius: 999px;
-  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  display: inline-block; padding: 3px 8px; border-radius: 999px;
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;
   background: var(--panel-2); border: 1px solid var(--line); color: var(--ink-dim);
 }
 .pill.active   { color: var(--good); border-color: var(--good); }
@@ -126,17 +1077,44 @@ th { color: var(--ink-dim); font-weight: 600; font-size: 12px;
 .pill.retired  { color: var(--ink-dim); }
 .pill.minted   { color: var(--ink-dim); }
 .pill.proven   { color: var(--good); border-color: var(--good); }
+.pill.failed   { color: var(--bad); border-color: var(--bad); }
 
-.reward { font-size: 34px; font-weight: 700; letter-spacing: -1px; }
+.reward { font-family: var(--font-display); font-size: 34px; font-weight: 700; letter-spacing: -1px; text-wrap: balance; }
 
-/* The provenance receipt: the thing SCDNR observed people actually come back
-   for, so it gets the visual weight rather than the payment confirmation. */
-.track { width: 100%; height: 190px; display: block;
-  background: var(--panel-2); border-radius: var(--radius); }
+/* ---- the signature motion: a reward settling into place ------------------
+   The one moment DESIGN.md reserves spring physics for. #paid is hidden
+   until handleRedeemComplete's receipt arrives, so this plays exactly once,
+   at the exact instant a finder learns they were paid -- the payoff the
+   whole flow exists to deliver. Everywhere else in the app cross-fades or
+   slides at --dur-fast/--dur-base; only this gets --dur-slow and overshoot. */
+#paid { text-align: center; }
+.paid-badge {
+  width: 64px; height: 64px; margin: 0 auto var(--sp-md);
+  border-radius: var(--radius-full);
+  background: var(--grad-estuary);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-raised);
+  animation: paid-settle var(--dur-slow) var(--ease-spring) both;
+}
+.paid-badge svg { width: 30px; height: 30px; stroke: #fff; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+#paid .reward { animation: paid-rise var(--dur-base) var(--ease-out) 90ms both; }
+#paid .note { animation: paid-rise var(--dur-base) var(--ease-out) 160ms both; }
+@keyframes paid-settle {
+  0%   { transform: scale(0.35); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes paid-rise {
+  0%   { transform: translateY(6px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .paid-badge, #paid .reward, #paid .note { animation: none; }
+}
+
 .leg { display: flex; gap: 16px; font-size: 12px; color: var(--ink-dim); margin-top: 8px; flex-wrap: wrap; }
 .leg span::before { content: "●"; margin-right: 5px; }
-.leg .tagged::before   { color: var(--accent); }
-.leg .caught::before   { color: var(--warn); }
+.leg .tagged::before { color: var(--accent); }
+.leg .caught::before { color: var(--warn); }
 
 .steps { counter-reset: step; list-style: none; padding: 0; margin: 0; }
 .steps li { counter-increment: step; padding: 10px 0 10px 34px; position: relative;
@@ -147,17 +1125,132 @@ th { color: var(--ink-dim); font-weight: 600; font-size: 12px;
   line-height: 22px; font-size: 12px; font-weight: 700;
   background: var(--panel-2); color: var(--ink-dim); border: 1px solid var(--line);
 }
-.steps li.done::before  { background: var(--good); color: var(--accent-ink); border-color: transparent; content: "✓"; }
+.steps li.done::before  { background: var(--good); color: #fff; border-color: transparent; content: "✓"; }
 .steps li.doing::before { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 .steps li.done, .steps li:not(.doing):not(.done) { color: var(--ink-dim); }
 
-/* The honesty panel. Every page that makes a claim about what the chain proves
-   carries one, and a test scans these pages for claims the chain cannot back. */
-.honesty { font-size: 13px; line-height: 1.6; }
-.honesty dt { font-weight: 650; margin-top: 10px; }
+.honesty { font-size: 14px; line-height: 1.6; }
+.honesty dt { font-weight: 700; margin-top: 10px; text-wrap: balance; }
 .honesty dd { margin: 2px 0 0; color: var(--ink-dim); }
 .honesty .yes::before { content: "✓ "; color: var(--good); }
 .honesty .no::before  { content: "✕ "; color: var(--warn); }
+/* The "In short" summary reserves space for a visual on desktop. Text-only
+   on mobile; the visual is decorative. */
+.summary-layout { display: flex; flex-direction: column; gap: var(--sp-lg); }
+@media (min-width: 768px) {
+  .summary-layout { flex-direction: row; align-items: stretch; }
+  .summary-text { flex: 1 1 auto; min-width: 0; }
+  /* width + min-width alongside the flex shorthand: .orbit-center is
+     position: absolute, out of flow, and should contribute nothing to
+     this item's size -- but a flex item's automatic min-width is its
+     content's min-content size unless told otherwise, and at least one
+     engine was folding the absolutely-positioned badge into that anyway,
+     stretching the card 92px wider than its 300px basis. */
+  .summary-visual { flex: 0 0 300px; width: 300px; min-width: 0; }
+}
+
+/* ---- the DNR seal, orbited by what it tags -------------------------------
+   Two rings, not the six this used to be: the two species this programme
+   actually tags closest in, five more families a future one might further
+   out. Animal icons only, and each one's medallion is colored with the
+   same --grad-* token its own species card uses elsewhere (see
+   SPECIES_GRADIENT in app.js/admin.js) instead of a flat translucent
+   white -- this constellation and the species grid below now read as one
+   system, not two different decorations that happen to share a page. A
+   deliberate, explicit exception to "nothing animates continuously at
+   rest" -- everywhere else that rule holds; this one ambient loop was
+   asked for by name, with a reference. It still freezes under
+   prefers-reduced-motion like everything else does.
+
+   Each ring is three nested elements, not one: the <ul> spins as a whole
+   (carrying its <li>s around with it, each parked at a fixed angle+radius
+   via a static transform), an .orbit-icon-offset wrapper cancels exactly
+   that static angle so the icon starts upright rather than tilted to
+   whatever angle placed it, and the innermost .orbit-icon then
+   counter-spins at the ring's own speed to cancel the ring's *animated*
+   rotation too. Skipping the offset wrapper was the bug behind "some
+   icons are not facing the right direction": the counter-spin animation
+   only ever cancelled the ring's motion, never the placement angle baked
+   into the <li> itself, so anything not placed at a multiple of 360°
+   stayed permanently tilted by however far around the circle it sat.
+
+   The outer ring sits *above* .orbit-center in stacking order, riding
+   visibly over the seal's face as it turns; the inner ring sits *behind*
+   it instead, at a radius further out than before so it reads as tucked
+   behind the seal's edge rather than sitting on top of the logo. */
+.orbit-card {
+  position: relative; overflow: hidden;
+  border-radius: var(--radius-lg); height: 100%; min-height: 300px;
+  display: flex; align-items: center; justify-content: center;
+  /* One hue, not two fighting each other -- a soft dark vignette so the
+     colored medallions are the only strong color note in the card. */
+  background: radial-gradient(circle at 50% 36%, #123f38 0%, #0a2420 60%, #061512 100%);
+}
+.orbit-card::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at 50% 26%, rgb(255 255 255 / 0.12), transparent 60%);
+}
+/* No z-index of its own -- if it had one, everything inside would be
+   forced to paint as a single unit relative to .orbit-center, and ring-1
+   could never sit behind the seal while ring-2 stays in front of it. Each
+   ring sets its own z-index below instead, compared directly against
+   .orbit-center's, all three as siblings in .orbit-card's one stacking
+   context. */
+.orbit-rings { position: relative; width: 300px; height: 300px; flex-shrink: 0; }
+.orbit-ring { position: absolute; top: 50%; left: 50%; list-style: none; margin: 0; padding: 0; }
+.orbit-ring-1 { width: 128px; height: 128px; margin: -64px;  z-index: 0; animation: orbit-spin 36s linear infinite; }
+.orbit-ring-2 { width: 236px; height: 236px; margin: -118px; z-index: 2; animation: orbit-spin 58s linear infinite reverse; }
+/* Each <li>'s own box is centred on the ring (top/left 50% + a negative
+   margin of half its size) *before* its inline rotate()+translateX()
+   transform runs, so that transform's default origin -- the box's own
+   center -- is exactly the ring's center. Without this, rotate() would
+   pivot around the icon's top-left corner instead of sweeping it around
+   the ring. */
+.orbit-ring li { position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; margin: -22px; }
+.orbit-icon-offset { display: block; width: 100%; height: 100%; }
+.orbit-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%; border-radius: 50%;
+  border: 1.5px solid rgb(255 255 255 / 0.25);
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.35);
+}
+.orbit-icon img {
+  width: 72%; height: 72%; object-fit: contain;
+  /* Same white-silhouette-plus-shadow treatment as .card-icon-badge img:
+     a plain white PhyloPic icon stays legible on any of these gradients,
+     including the brighter end of --grad-amber or --grad-coral, without
+     needing a backing disc of its own. */
+  filter: brightness(0) invert(1) drop-shadow(0 1px 2px rgb(0 0 0 / 0.35));
+}
+.orbit-ring-1 .orbit-icon { animation: orbit-spin 36s linear infinite reverse; }
+.orbit-ring-2 .orbit-icon { animation: orbit-spin 58s linear infinite; }
+@keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.orbit-center {
+  /* Absolute and centered on the card, not a flex sibling of .orbit-rings --
+     it has to sit on top of the rings' own center, not next to them.
+     z-index sits between the two rings' own (0 and 2) on purpose: see the
+     comment above .orbit-card for why the outer ring rides over the seal
+     while the inner one passes behind it. */
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;
+  width: 120px; height: 120px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 5px rgb(255 255 255 / 0.9), var(--shadow-raised);
+}
+.orbit-center img { width: 100%; height: 100%; border-radius: 50%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-ring, .orbit-icon { animation: none !important; }
+}
+
+/* Two columns on desktop: newspaper-style flow rather than a grid, since a
+   <dt>/<dd> pair has no wrapping element to place on a grid -- break-inside
+   keeps each pair from splitting across the column gap. */
+@media (min-width: 768px) {
+  .honesty { column-count: 2; column-gap: var(--sp-xl); }
+  .honesty dt { break-inside: avoid; break-after: avoid; }
+  .honesty dd { break-inside: avoid; break-before: avoid; padding-bottom: 4px; }
+}
 
 .hidden { display: none !important; }
 .spin { display: inline-block; width: 14px; height: 14px; vertical-align: -2px;
@@ -166,34 +1259,250 @@ th { color: var(--ink-dim); font-weight: 600; font-size: 12px;
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
 
-footer { color: var(--ink-dim); font-size: 12px; padding: 24px 16px 40px; text-align: center; }
+footer { color: var(--ink-dim); font-size: 13px; padding: 24px 16px 40px; text-align: center; }
 footer a { color: var(--ink-dim); }
+.photo-credit { margin: 10px 0 0; font-size: 12px; opacity: 0.8; }
+.photo-credit [data-photo-credit] { font-style: italic; }
+/* The seal ships white (for a dark badge); light mode's footer is on a pale
+   background, so it's inverted to read as ink instead of vanishing. */
+.footer-logo { width: 20px; height: 20px; vertical-align: -5px; margin-right: 6px; filter: invert(1); }
+:root[data-theme="dark"] .footer-logo,
+:root[data-theme="system"] .footer-logo { filter: none; }
 
-/* ---- the crab's story -------------------------------------------------
-   This is the part reporters actually come back for, so it gets the visual
-   weight. Everything here degrades: no name, no map tiles, no second sighting
-   -- each has a sensible empty state, because a crabber in a marsh will hit
-   all three. */
-
-.crab-hero { text-align: center; padding: 4px 0 18px; }
-.crab-name {
-  font-size: clamp(28px, 9vw, 44px); font-weight: 750; letter-spacing: -1px;
-  line-height: 1.05; color: var(--ink);
+/* ---- accordions & inline "read more" (About page) ---------------------- */
+.accordion-trigger {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-sm);
+  width: 100%; min-height: 44px;
+  background: none; border: none; padding: 0; margin: 0 0 var(--sp-sm);
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
 }
-.crab-name.unnamed { color: var(--ink-dim); font-style: italic; font-weight: 600; }
-.crab-sub { font-size: 13px; color: var(--ink-dim); margin-top: 6px; }
+.accordion-trigger h2 { margin: 0; }
+.accordion-trigger:last-child { margin-bottom: 0; }
+.accordion-trigger-icon { display: flex; align-items: center; gap: var(--sp-sm); min-width: 0; }
+.accordion-chevron {
+  flex-shrink: 0; width: 8px; height: 8px; margin-right: 4px;
+  border-right: 2px solid var(--ink-dim); border-bottom: 2px solid var(--ink-dim);
+  transform: rotate(-45deg);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.accordion-trigger[aria-expanded="true"] .accordion-chevron { transform: rotate(45deg); }
+.accordion-trigger:hover .accordion-chevron,
+.accordion-trigger:focus-visible .accordion-chevron { border-color: var(--ink); }
+.accordion-teaser { color: var(--ink-dim); margin: 0 0 var(--sp-sm); }
+.accordion-body[hidden] { display: none; }
+.accordion-body { opacity: 0; }
+.accordion-body.in { opacity: 1; transition: opacity var(--dur-fast) var(--ease-out); }
 
-/* The journey figures. Big numbers, plain words underneath. */
+.readmore-wrap { margin: var(--sp-md) 0; }
+.readmore {
+  display: inline-block; min-height: 32px;
+  background: none; border: none; padding: 0; margin-top: 2px;
+  font: inherit; font-size: 14px; font-weight: 600; color: var(--accent);
+  cursor: pointer;
+}
+.readmore:hover, .readmore:focus-visible { text-decoration: underline; }
+.readmore-body[hidden] { display: none; }
+.readmore-body { opacity: 0; margin-top: var(--sp-sm); }
+.readmore-body.in { opacity: 1; transition: opacity var(--dur-fast) var(--ease-out); }
+
+/* ---- tabs (admin console) ----------------------------------------------
+   A pill tab bar, arm-first: the action a field biologist does most stays
+   the default view, everything else is one tap away rather than sharing
+   the same scroll. */
+.tabbar {
+  display: flex; gap: var(--sp-sm); margin: 0 0 var(--sp-lg);
+  overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px;
+}
+.tab-btn {
+  display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0;
+  padding: 10px 18px; min-height: 44px; border-radius: var(--radius-full);
+  border: 1px solid var(--line-strong); background: var(--panel);
+  color: var(--ink-dim); font-size: 14px; font-weight: 600;
+}
+.tab-btn svg { width: 16px; height: 16px; }
+.tab-btn[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.tab-panel[hidden] { display: none; }
+.tab-panel { opacity: 0; transform: translateY(4px); }
+/* transform: none, not translateY(0) -- a transition can interpolate to
+   "none" exactly as if it were the identity matrix, so the settle motion
+   looks identical, but only an explicit non-none transform value creates
+   a new containing block for a fixed-position descendant. A lingering
+   translateY(0) here was silently turning the arm form's sticky cta-row
+   (position: fixed) into something scoped to this panel instead of the
+   viewport, which defeated the whole point of pinning it. */
+.tab-panel.in { opacity: 1; transform: none; transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); }
+@media (prefers-reduced-motion: reduce) { .tab-panel { transition: none !important; transform: none !important; } }
+
+/* ---- species picker -----------------------------------------------------
+   A visual card grid replacing a plain <select> wherever a person chooses
+   which animal they're recording -- the admin arming form, most notably.
+   Selection is a radiogroup of gradient cards; the selected one gets a
+   solid accent ring rather than changing size or moving, so choosing
+   doesn't reflow the grid. */
+.species-search { margin: 0 0 var(--sp-sm); }
+
+/* Pinned search terms (Enter commits whatever's typed), each carrying the
+   icon of a species it matches rather than a generic search glyph -- at
+   this many profiles, recognising a shape reads faster than reading a
+   word. Filtering itself is a plain OR across every pinned chip plus
+   whatever's still being typed, so multiple chips widen the grid rather
+   than narrow it further. */
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 var(--sp-sm); }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 6px 3px 3px; border-radius: var(--radius-full);
+  background: var(--panel-2); border: 1px solid var(--line);
+  font-size: 13px; font-weight: 600; color: var(--ink);
+}
+.chip-icon {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 20px; height: 20px; border-radius: 50%; background: var(--panel);
+}
+.chip-icon img { width: 70%; height: 70%; object-fit: contain; }
+.chip-remove {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 20px; height: 20px; padding: 0; border: none; border-radius: 50%;
+  background: transparent; color: var(--ink-dim); font-size: 16px; line-height: 1; cursor: pointer;
+}
+.chip-remove:hover, .chip-remove:focus-visible { background: var(--line); color: var(--ink); }
+
+.species-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-sm); margin: 0 0 var(--sp-md); }
+.species-card {
+  display: block; width: 100%; text-align: left; padding: 0;
+  background: var(--panel); border: 2px solid var(--line); border-radius: var(--radius-lg);
+  overflow: hidden; cursor: pointer; font: inherit;
+  box-shadow: var(--shadow-card);
+  transition: border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+.species-card:hover { transform: translateY(-2px); }
+.species-card[aria-pressed="true"] { border-color: var(--accent); }
+.species-card-header { position: relative; height: 76px; display: flex; align-items: center; justify-content: center; }
+
+/* A soft light-from-upper-left plus a faint opposite-corner vignette on
+   every gradient surface -- the difference between a flat color swatch and
+   something that reads as premium. Generated, not an image, so it costs
+   nothing to repeat across eight gradients and any future one. */
+.grad-card-header::before, .species-card-header::before, .crab-hero::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle at 26% 20%, rgb(255 255 255 / 0.32), transparent 55%),
+    radial-gradient(circle at 82% 92%, rgb(0 0 0 / 0.14), transparent 60%);
+}
+.grad-card-header > *, .species-card-header > *, .crab-hero > * { position: relative; z-index: 1; }
+.species-card-body { padding: var(--sp-sm) var(--sp-md) var(--sp-md); }
+.species-card-name { font-family: var(--font-display); font-size: 14px; font-weight: 600; color: var(--ink); }
+.species-card-sci { font-size: 12px; font-style: italic; color: var(--ink-dim); margin-top: 1px; }
+
+/* ---- the Dataset popover / bottom sheet --------------------------------- */
+.data-panel {
+  position: fixed; z-index: 96;
+  left: 0; right: 0; bottom: 0;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: var(--sp-md); padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  box-shadow: var(--shadow-overlay);
+  transform: translateY(12px); opacity: 0; visibility: hidden;
+  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out),
+              visibility 0s linear var(--dur-base);
+}
+.data-panel.open {
+  transform: translateY(0); opacity: 1; visibility: visible;
+  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out);
+}
+.data-panel[hidden] { display: none; }
+@media (min-width: 768px) {
+  .data-panel {
+    left: auto; right: auto; bottom: auto; width: 280px;
+    border-radius: var(--radius-lg); padding-bottom: var(--sp-md);
+  }
+}
+.data-panel-head {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--ink-dim); margin: 0 0 var(--sp-sm);
+}
+.data-panel-item {
+  display: flex; align-items: center; gap: 10px;
+  min-height: 48px; padding: 8px 10px; border-radius: var(--radius);
+  color: var(--ink); text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.data-panel-item:hover, .data-panel-item:focus-visible { background: var(--panel-2); }
+.data-panel-item .nav-icon { width: 20px; height: 20px; color: var(--accent); }
+.data-panel-label { display: block; font-size: 14px; font-weight: 600; }
+.data-panel-note { display: block; font-size: 13px; color: var(--ink-dim); }
+
+@media (prefers-reduced-motion: reduce) {
+  .data-panel, .nav-caret, .species-card { transition: none !important; }
+}
+
+/* ---- dev-mode mock content trigger -------------------------------------- */
+.dev-fab {
+  position: fixed; left: 16px; bottom: 16px; z-index: 90;
+  min-height: 44px; padding: 0 16px;
+  border-radius: 999px; border: 1px solid var(--line-strong);
+  background: var(--panel); color: var(--ink);
+  font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  box-shadow: var(--shadow-raised);
+}
+.dev-fab::before { content: "\1F41E"; margin-right: 6px; }
+.dev-panel {
+  position: fixed; z-index: 89;
+  left: 0; right: 0; bottom: 0;
+  max-height: 70svh; overflow-y: auto;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: var(--sp-md); padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  box-shadow: var(--shadow-overlay);
+  transform: translateY(12px); opacity: 0; visibility: hidden;
+  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out),
+              visibility 0s linear var(--dur-base);
+}
+.dev-panel.open {
+  transform: translateY(0); opacity: 1; visibility: visible;
+  transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out);
+}
+@media (min-width: 768px) {
+  .dev-panel { left: auto; right: 16px; bottom: 72px; width: 320px; border-radius: var(--radius-lg); padding-bottom: var(--sp-md); }
+}
+.dev-panel-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--ink-dim); margin-bottom: var(--sp-sm);
+}
+.dev-panel-list { display: grid; gap: 6px; }
+.dev-panel-item {
+  text-align: left; min-height: 40px; padding: 8px 12px;
+  background: var(--panel-2); border: 1px solid var(--line);
+  font-size: 14px; font-weight: 500; white-space: normal;
+}
+.dev-panel-empty { font-size: 13px; color: var(--ink-dim); }
+
+/* ---- the crab's story (redemption page) --------------------------------- */
+
+.crab-hero {
+  position: relative; text-align: center; padding: var(--sp-2xl) var(--sp-lg);
+  border-radius: var(--radius-lg); overflow: hidden; margin: 0 0 var(--sp-md);
+  color: #fff;
+}
+.crab-hero .card-icon-badge { width: 84px; height: 84px; margin: 0 auto var(--sp-md); }
+.crab-name {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 22px + 4vw, 48px); font-weight: 700; letter-spacing: -1px;
+  line-height: 1.1; color: #fff; text-wrap: balance;
+}
+.crab-name.unnamed { color: rgb(255 255 255 / 0.75); font-style: italic; font-weight: 600; }
+.crab-sub { font-size: 14px; color: rgb(255 255 255 / 0.85); margin-top: 6px; }
+
 .journey { display: grid; gap: 10px; grid-template-columns: repeat(3, 1fr); margin: 0 0 16px; }
 @media (max-width: 420px) { .journey { grid-template-columns: repeat(2, 1fr); } }
 .jstat { background: var(--panel-2); border-radius: var(--radius); padding: 14px 10px; text-align: center; }
 .jstat .n {
+  font-family: var(--font-display);
   font-size: clamp(20px, 6.5vw, 30px); font-weight: 700;
   letter-spacing: -0.5px; font-variant-numeric: tabular-nums; line-height: 1.1;
 }
-.jstat .u { font-size: 11px; color: var(--ink-dim); margin-top: 3px; }
-.jstat .k { font-size: 10px; color: var(--ink-dim); text-transform: uppercase;
-  letter-spacing: 0.07em; margin-top: 6px; }
+.jstat .u { font-size: 12px; color: var(--ink-dim); margin-top: 3px; }
+.jstat .k { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 6px; }
 .jstat.hero { grid-column: 1 / -1; background: var(--accent); color: var(--accent-ink); }
 .jstat.hero .u, .jstat.hero .k { color: var(--accent-ink); opacity: 0.85; }
 
@@ -201,28 +1510,20 @@ footer a { color: var(--ink-dim); }
 .map { width: 100%; height: 260px; border-radius: var(--radius); background: var(--panel-2); }
 .map.hidden { display: none; }
 .leaflet-container { border-radius: var(--radius); font: inherit; background: var(--panel-2); }
-/* Leaflet's default controls are light-on-light in dark mode. */
 .leaflet-control-attribution { font-size: 9px !important; background: rgba(255,255,255,0.75) !important; }
+:root[data-theme="dark"] .leaflet-control-attribution { background: rgba(20,25,30,0.75) !important; color: var(--ink-dim) !important; }
+:root[data-theme="dark"] .leaflet-control-attribution a { color: var(--ink-dim) !important; }
 .leaflet-bar a { color: #222 !important; }
-
-.pin {
-  width: 18px; height: 18px; border-radius: 50%;
-  border: 3px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.35);
-}
+.pin { width: 18px; height: 18px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.35); }
 .pin.tagged { background: var(--accent); }
 .pin.caught { background: var(--warn); }
-
 .maplegend { display: flex; align-items: center; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
 .maplegend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
 .maplegend .dot.tagged { background: var(--accent); }
 .maplegend .dot.caught { background: var(--warn); }
 
-/* The timeline of everything that has happened to this animal. */
 .tl { list-style: none; margin: 0 0 16px; padding: 0; position: relative; }
-.tl::before {
-  content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px;
-  width: 2px; background: var(--line);
-}
+.tl::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: var(--line); }
 .tl li { position: relative; padding: 0 0 16px 28px; }
 .tl li:last-child { padding-bottom: 0; }
 .tl li::before {
@@ -233,33 +1534,111 @@ footer a { color: var(--ink-dim); }
 .tl li.tagged::before { border-color: var(--accent); }
 .tl li.caught::before { border-color: var(--warn); }
 .tl li.now::before { border-color: var(--good); background: var(--good); }
-.tl .when { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.06em; }
-.tl .what { font-size: 14px; margin-top: 2px; }
-.tl .detail { font-size: 12px; color: var(--ink-dim); margin-top: 2px; }
+.tl .when { font-size: 12px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.06em; }
+.tl .what { font-size: 15px; margin-top: 2px; }
+.tl .detail { font-size: 13px; color: var(--ink-dim); margin-top: 2px; }
 
-/* One-line observations that make the numbers mean something. */
 .facts { display: grid; gap: 8px; }
-.fact {
-  background: var(--panel-2); border-radius: var(--radius);
-  padding: 10px 12px; font-size: 13px; line-height: 1.45;
-}
+.fact { background: var(--panel-2); border-radius: var(--radius); padding: 10px 12px; font-size: 14px; line-height: 1.5; text-wrap: pretty; }
 .fact b { color: var(--ink); }
 
-/* A script or record listing. Wraps rather than scrolls on a phone: the
-   locking script is the one thing on the about page a reader is likely to
-   study character by character, and a horizontal scrollbar hides the half of
-   it that explains the other half. */
 .script {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 13px;
-  line-height: 1.9;
-  background: #0b1418;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 14px;
-  margin: 12px 0;
-  overflow-wrap: anywhere;
+  font-size: 13px; line-height: 1.9;
+  background: #0b1418; color: #dbe6ea;
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: 14px; margin: 12px 0; overflow-wrap: anywhere;
 }
-.script .op  { color: var(--accent); }
-.script .arg { color: var(--warn); }
-.script .cmt { color: var(--ink-dim); }
+.script .op  { color: #5eead4; }
+.script .arg { color: #fbbf24; }
+.script .cmt { color: #93a8b3; }
+
+/* ---- first run --------------------------------------------------------
+   A walkthrough for whoever this page is the very first one of ours they
+   have ever opened -- which, for a QR code wired to a crab, is at least as
+   often /t/{tagID} as it is the dashboard. See onboarding.js.
+
+   Shown before first paint (an inline script in <head> sets
+   html.onboarding-pending from localStorage, the same technique theme.js
+   uses to avoid a light/dark flash) so nobody ever sees the real page
+   half-loaded behind it, then sits above everything on the page except the
+   dev tools -- a developer mid-test should never have to fight this to
+   reach the mock-content panel. */
+.onboard-veil { display: none; position: fixed; inset: 0; z-index: 80; background: var(--bg); flex-direction: column; }
+html.onboarding-pending .onboard-veil { display: flex; }
+@media (min-width: 768px) { .onboard-veil { flex-direction: row-reverse; } } /* art on the right, like the reference's own desktop shape */
+
+.onboard-scene { position: relative; overflow: hidden; flex-shrink: 0; height: 160px; background: var(--panel-2); border-bottom: 1px solid var(--line); }
+/* Percentage width alone grows without limit on a very wide monitor, and the
+   drawn scene inside is a fixed, small composition (see onboarding.js) --
+   past a certain point the panel is just empty space around it. Capped so
+   the extra width on a wide screen goes to .onboard-form (flex: 1) instead,
+   where the reading column below actually uses it. */
+@media (min-width: 768px) { .onboard-scene { height: auto; width: 42%; max-width: 640px; border-bottom: none; border-left: 1px solid var(--line); } }
+.onboard-scene::before {
+  content: ""; position: absolute; inset: 0; opacity: 0.3; pointer-events: none;
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(70% 60% at 50% 40%, black, transparent 75%);
+}
+.onboard-scene::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(70% 55% at 50% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%);
+}
+.onboard-scene-inner { position: relative; height: 100%; display: flex; align-items: center; justify-content: center; padding: var(--sp-lg); }
+
+.onboard-form { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: var(--sp-lg) var(--gutter-mobile) calc(var(--sp-xl) + env(safe-area-inset-bottom)); }
+@media (min-width: 768px) { .onboard-form { padding: var(--sp-2xl); } }
+/* A fixed 420px reads fine on a laptop, where .onboard-form (flex: 1) is
+   itself not much wider than that -- but on a large desktop monitor the
+   same 420px sits stranded in a much wider column, and the title/body read
+   as small only because there's so much empty margin either side of them.
+   Scales with the column instead, capped well short of a line length
+   that stops being comfortable to read. */
+.onboard-form-inner { margin: 0 auto; width: 100%; max-width: clamp(420px, 40vw, 620px); flex: 1; display: flex; flex-direction: column; }
+
+.onboard-top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-md); }
+.onboard-dots { display: flex; gap: 6px; }
+.onboard-dots span { height: 6px; width: 6px; border-radius: 999px; background: var(--line-strong); transition: width var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out); }
+.onboard-dots span.current { width: 22px; background: var(--accent); }
+.onboard-dots span.done { background: var(--ink-dim); }
+.onboard-skip { font-size: 13px; color: var(--ink-dim); background: none; border: none; padding: 4px; min-height: 0; cursor: pointer; }
+.onboard-skip:hover { color: var(--ink); background: none; }
+
+.onboard-eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-dim); margin: var(--sp-lg) 0 6px; }
+.onboard-title { font-family: var(--font-display); font-size: clamp(22px, 18px + 1.5vw, 28px); font-weight: 700; letter-spacing: -0.01em; margin: 0 0 var(--sp-sm); text-wrap: balance; }
+.onboard-body { font-size: 16px; color: var(--ink-dim); text-wrap: pretty; flex: 1; }
+
+.onboard-actions { display: flex; gap: 8px; margin-top: var(--sp-xl); }
+.onboard-actions button { flex: 1; }
+.onboard-ready-links { display: flex; flex-direction: column; gap: 8px; margin-top: var(--sp-md); }
+.onboard-ready-link {
+  display: flex; align-items: center; gap: 10px; min-height: 0;
+  padding: 12px 14px; border-radius: var(--radius); border: 1px solid var(--line);
+  background: var(--panel-2); color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 600;
+  transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.onboard-ready-link:hover { background: var(--panel); border-color: var(--line-strong); }
+.onboard-ready-link svg { width: 18px; height: 18px; color: var(--accent); flex-shrink: 0; }
+
+/* The scenes: skeleton/ghost shapes with one accent-colored focal element,
+   the same "structure in neutral, meaning in the accent" idea as the rest
+   of this app's iconography. Plain HTML strings rebuilt per step (see
+   onboarding.js), so a fresh DOM node is exactly what restarts these
+   animations -- no replay trick needed, unlike a framework that would
+   diff and reuse the old one. */
+.onboard-ghost { border-radius: 999px; background: color-mix(in srgb, var(--ink) 12%, transparent); }
+.onboard-surface { border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel); box-shadow: var(--shadow-card); }
+.onboard-rise, .onboard-settle, .onboard-sweep { opacity: 0; }
+.onboard-rise { animation: onboard-rise var(--dur-base) var(--ease-out) both; }
+.onboard-settle { animation: onboard-settle var(--dur-base) var(--ease-out) both; }
+.onboard-sweep { animation: onboard-sweep var(--dur-base) var(--ease-out) both; }
+@keyframes onboard-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes onboard-settle { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+@keyframes onboard-sweep { from { opacity: 0; transform: scaleX(0); } to { opacity: 1; transform: scaleX(1); } }
+.onboard-caption { text-align: center; font-size: 13px; font-style: italic; color: var(--ink-dim); margin-top: var(--sp-md); }
+
+@media (prefers-reduced-motion: reduce) {
+  .onboard-rise, .onboard-settle, .onboard-sweep { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .onboard-dots span { transition: none !important; }
+}

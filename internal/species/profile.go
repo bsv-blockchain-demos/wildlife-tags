@@ -44,14 +44,28 @@ type Measure struct {
 	Required bool   `json:"required"`
 	// TaggingOnly marks a field a tagger records and a finder is not asked
 	// for. See the note on Vocab.TaggingOnly.
-	TaggingOnly bool   `json:"tagging_only,omitempty"`
-	Help        string `json:"help,omitempty"`
+	TaggingOnly bool `json:"tagging_only,omitempty"`
+	// Sticky marks a value that describes the place and moment, not the
+	// animal: a water temperature or salinity reading is the same for
+	// every crab pulled from one trap haul. The console carries a sticky
+	// value forward from one tagging to the next rather than clearing it,
+	// so a biologist tagging a dozen animals off one haul types it once.
+	// A per-animal measurement like carapace width is never sticky.
+	Sticky bool   `json:"sticky,omitempty"`
+	Help   string `json:"help,omitempty"`
 }
 
 // VocabValue is one allowed answer.
 type VocabValue struct {
 	Code  string `json:"code"`
 	Label string `json:"label"`
+	// Icon names an entry in the frontend's small icon registry (see
+	// combobox.js) -- optional, and unknown to this package, which just
+	// carries the string through. A value with no obvious universal
+	// pictogram (a moult stage, a life-history code) is better shown with
+	// no icon than a fabricated one, so leaving this blank is a normal,
+	// expected choice, not an oversight.
+	Icon string `json:"icon,omitempty"`
 }
 
 // Vocab is a categorical choice: sex, life stage, gear, disposition.
@@ -70,8 +84,12 @@ type Vocab struct {
 	// never gets filed, which costs the programme the data point it exists for.
 	//
 	// The field is still accepted on a report if it is offered.
-	TaggingOnly bool   `json:"tagging_only,omitempty"`
-	Help        string `json:"help,omitempty"`
+	TaggingOnly bool `json:"tagging_only,omitempty"`
+	// Sticky: see Measure.Sticky. Gear is the usual case for a vocabulary --
+	// a trap haul is pulled with one kind of gear, not a different one per
+	// crab.
+	Sticky bool   `json:"sticky,omitempty"`
+	Help   string `json:"help,omitempty"`
 }
 
 // Label returns the human form of a code, or the code itself if unknown.
@@ -191,6 +209,17 @@ type Profile struct {
 	// GrowthExpected says whether a non-zero growth between sightings is normal.
 	// False for anything that sheds its tag when it grows.
 	GrowthExpected bool `json:"growth_expected"`
+
+	// FunFacts are shown one at a time, picked at random, the moment a tag on
+	// this species is armed -- see admin.js's armConfirmHTML. Optional: a
+	// species with none here just shows the confirmation without one, same as
+	// any other schema-driven field a new profile hasn't filled in yet.
+	//
+	// The bar is "genuinely surprising to someone who already knows this is a
+	// blue crab or a red drum", not trivia a field guide would open with --
+	// the whole point is a biologist arming their fortieth tag of the
+	// afternoon reads something they didn't already know.
+	FunFacts []string `json:"fun_facts,omitempty"`
 }
 
 var (

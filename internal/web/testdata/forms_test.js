@@ -33,7 +33,10 @@ function elementsFrom(html) {
   const selects = html.matchAll(/<select ([^>]*)>([\s\S]*?)<\/select>/g)
   for (const [, attrs, body] of selects) {
     const el = attributesOf(attrs, 'select')
-    el.options = [...body.matchAll(/<option value="([^"]*)">([^<]*)<\/option>/g)].map((m) => ({
+    // [^>]* between the value and the closing angle bracket, not a bare ">":
+    // an <option> for a vocab value with an icon (species.VocabValue.Icon)
+    // also carries a data-icon attribute.
+    el.options = [...body.matchAll(/<option value="([^"]*)"[^>]*>([^<]*)<\/option>/g)].map((m) => ({
       code: m[1],
       label: m[2]
     }))

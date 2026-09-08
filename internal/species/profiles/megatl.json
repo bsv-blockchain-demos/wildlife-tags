@@ -1,0 +1,56 @@
+{
+  "code": "MEGATL",
+  "common": "Tarpon",
+  "scientific": "Megalops atlanticus",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "tl",
+  "sweep_after_days": 0,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "A tarpon rolling at the surface usually isn't playing: it's gulping a mouthful of air into a modified swim bladder that works like a crude lung, letting it pull oxygen straight from the atmosphere in water too stagnant for gilled fish to survive in.",
+    "A tarpon can live 50 years, possibly past 70, but it doesn't reach sexual maturity until roughly its tenth year -- most of the giants caught and released off South Carolina are older than the anglers catching them.",
+    "For a fish tough enough to survive nearly oxygen-free water, tarpon are surprisingly fragile to cold: a hard snap that drops coastal water below about 50°F can cold-stun and kill them outright."
+  ],
+  "measures": [
+    { "key": "tl", "label": "Total length", "unit": "mm", "scale": 1,
+      "min": 500, "max": 2500, "required": true,
+      "help": "Tip of the lower jaw to the tip of the tail, fish laid flat and straight." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true },
+    { "key": "sal", "label": "Salinity", "unit": "ppt", "scale": 100,
+      "min": 0, "max": 4500, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Tarpon cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "LIVEBAIT",   "label": "Rod and reel, live bait", "icon": "gear-hook" },
+        { "code": "ARTIFICIAL", "label": "Rod and reel, artificial", "icon": "gear-hook" },
+        { "code": "FLY",        "label": "Fly", "icon": "gear-hook" },
+        { "code": "OTHER",      "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "tl", "less_than": 5000,
+      "reason": "tarpon have been a protected game fish in South Carolina since 1991: no harvest or possession is allowed under state law, and tarpon fishing here is a catch-and-release-only fishery; every tarpon encountered in this tagging programme is released" }
+  ]
+}

@@ -8,23 +8,28 @@
   "sweep_after_days": 540,
   "qr_version_max": 5,
   "growth_expected": false,
+  "fun_facts": [
+    "Its blood runs blue, not red: blue crabs carry oxygen with a copper-based protein called hemocyanin instead of hemoglobin, and it only turns blue once it touches the air.",
+    "Its rearmost pair of legs isn't for walking. They're flattened into paddles, which is what lets a blue crab swim sideways through open water instead of just scuttling along the bottom.",
+    "A female blue crab mates exactly once in her life, then stores that sperm and uses it to fertilize several broods of up to two million eggs each over the rest of her life."
+  ],
   "measures": [
     { "key": "cw", "label": "Carapace width", "unit": "mm", "scale": 1,
       "min": 50, "max": 260, "required": true,
       "help": "Measured from the tip of one lateral spine straight across the back of the shell to the tip of the opposite spine." },
     { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
-      "min": -200, "max": 4000, "required": false },
+      "min": -200, "max": 4000, "required": false, "sticky": true },
     { "key": "sal", "label": "Salinity", "unit": "ppt", "scale": 100,
-      "min": 0, "max": 4500, "required": false }
+      "min": 0, "max": 4500, "required": false, "sticky": true }
   ],
   "vocabs": [
     { "key": "sex", "label": "Sex", "required": true,
       "help": "Males have a T-shaped abdomen and blue claw fingers; females have orange fingers with purple tips.",
       "values": [
-        { "code": "M",  "label": "Male" },
-        { "code": "FI", "label": "Female, immature" },
-        { "code": "FM", "label": "Female, mature" },
-        { "code": "FS", "label": "Female with eggs (sponge)" }
+        { "code": "M",  "label": "Male", "icon": "gender-male" },
+        { "code": "FI", "label": "Female, immature", "icon": "gender-female" },
+        { "code": "FM", "label": "Female, mature", "icon": "gender-female" },
+        { "code": "FS", "label": "Female with eggs (sponge)", "icon": "gender-female" }
       ]},
     { "key": "stage", "tagging_only": true, "label": "Shell condition", "required": true,
       "help": "Only hard-shell crabs are tagged: a peeler sheds the tag at its next moult, and a soft or paper shell is injured by handling.",
@@ -36,14 +41,14 @@
         { "code": "SOFT",         "label": "Soft shell" },
         { "code": "PAPER",        "label": "Paper shell" }
       ]},
-    { "key": "gear", "label": "Gear", "required": true,
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
       "values": [
-        { "code": "TRAP",     "label": "Crab pot / trap" },
-        { "code": "TROTLINE", "label": "Trotline" },
-        { "code": "DIPNET",   "label": "Dip net" },
-        { "code": "HANDLINE", "label": "Hand line" },
-        { "code": "TRAWL",    "label": "Trawl" },
-        { "code": "OTHER",    "label": "Other" }
+        { "code": "TRAP",     "label": "Crab pot / trap", "icon": "gear-trap" },
+        { "code": "TROTLINE", "label": "Trotline", "icon": "gear-line" },
+        { "code": "DIPNET",   "label": "Dip net", "icon": "gear-net" },
+        { "code": "HANDLINE", "label": "Hand line", "icon": "gear-hook" },
+        { "code": "TRAWL",    "label": "Trawl", "icon": "gear-net" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
       ]}
   ],
   "not_taggable": [

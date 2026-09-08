@@ -1,0 +1,55 @@
+{
+  "code": "XIPGLA",
+  "common": "Swordfish",
+  "scientific": "Xiphias gladius",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "ljfl",
+  "sweep_after_days": 0,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "A swordfish keeps its brain and eyes running warm, up to 15°C above the near-freezing water it hunts in hundreds of feet down, using a heater organ built from modified eye muscle whose mass outweighs its own heart.",
+    "By the time a swordfish reaches adulthood it has no teeth and no scales at all, despite carrying the longest, heaviest bill of any billfish and being one of the ocean's more formidable predators.",
+    "Swordfish spend the day far deeper than a diver could survive, often 1,500 feet down or more in near-freezing water, then ride that same water column back up toward the surface every night to feed."
+  ],
+  "measures": [
+    { "key": "ljfl", "label": "Lower jaw fork length", "unit": "mm", "scale": 1,
+      "min": 900, "max": 2500, "required": true,
+      "help": "Tip of the lower jaw to the fork of the tail, measured in a straight line -- the standard billfish measurement, and the one federal minimum sizes are written in." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Swordfish cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "help": "Billfish tagging is normally done boat-side, leaving the fish in the water where possible.",
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "TROLL_LURE",   "label": "Trolling, artificial lure", "icon": "gear-hook" },
+        { "code": "DEEPDROP",     "label": "Daytime deep drop", "icon": "gear-line" },
+        { "code": "NIGHTDRIFT",   "label": "Night drift, bait under light", "icon": "gear-hook" },
+        { "code": "OTHER",        "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "ljfl", "less_than": 1194,
+      "reason": "under the federal 47-inch (about 1,194 mm) lower jaw fork length minimum for recreationally-caught swordfish" }
+  ]
+}

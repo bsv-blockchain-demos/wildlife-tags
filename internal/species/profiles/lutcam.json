@@ -1,0 +1,56 @@
+{
+  "code": "LUTCAM",
+  "common": "Red snapper",
+  "scientific": "Lutjanus campechanus",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "tl",
+  "sweep_after_days": 1825,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Red snapper are far older than most anglers assume: fisheries scientists have aged specimens past 50 years, with the oldest confirmed fish close to 57, meaning it hatched decades before most of the people who might catch it were born.",
+    "A single female doesn't spawn just once a year. Over one season she can release eggs in repeated batches as often as every four to six days, spawning 21 to 35 times before the season ends.",
+    "Tagging studies show adult red snapper often settle onto one reef or wreck and stay there: some tagged fish are recaptured a year or more later within a couple hundred meters of where they were first released."
+  ],
+  "measures": [
+    { "key": "tl", "label": "Total length", "unit": "mm", "scale": 1,
+      "min": 300, "max": 1000, "required": true,
+      "help": "Tip of the lower jaw to the tip of the tail, fish laid flat." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Red snapper cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "help": "Reef fish brought up from depth often show barotrauma: a bulging stomach, distended eyes, or a swim bladder too inflated to let the fish swim back down. Score the fish's overall responsiveness, not just whether barotrauma is present.",
+      "values": [
+        { "code": "GOOD",  "label": "Good: swam off strongly" },
+        { "code": "FAIR",  "label": "Fair: slow to recover" },
+        { "code": "POOR",  "label": "Poor: barely responsive" },
+        { "code": "BLEED", "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "HANDLINE", "label": "Bottom fishing / natural bait", "icon": "gear-hook" },
+        { "code": "JIG",      "label": "Jig", "icon": "gear-hook" },
+        { "code": "BANDIT",   "label": "Bandit rig (multi-hook drop line)", "icon": "gear-line" },
+        { "code": "SPEAR",    "label": "Spearfishing" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "tl", "less_than": 508,
+      "reason": "under the federal 20-inch minimum for red snapper in South Atlantic waters" }
+  ]
+}

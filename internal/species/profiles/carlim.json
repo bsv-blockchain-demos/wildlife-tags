@@ -1,0 +1,56 @@
+{
+  "code": "CARLIM",
+  "common": "Blacktip shark",
+  "scientific": "Carcharhinus limbatus",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "fl",
+  "sweep_after_days": 1825,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Blacktip sharks feed by ambushing schools of baitfish from below at speed, and the momentum often carries them clean out of the water in a spinning leap, a signature move so similar to the aptly named spinner shark that anglers, and even some biologists, struggle to tell the two apart at a glance.",
+    "Outside the spring mating season, male and female blacktip sharks mostly keep to separate schools, sometimes even using different stretches of the same coastline, so a tagger working one group of adults is often tagging one sex at a time without realizing it.",
+    "A blacktip shark matures late for an animal that tops out around six feet: males at 4 to 5 years old, females not until 6 or 7, a slow start that is part of why an overfished blacktip population takes so long to rebuild."
+  ],
+  "measures": [
+    { "key": "fl", "label": "Fork length", "unit": "mm", "scale": 1,
+      "min": 400, "max": 1800, "required": true,
+      "help": "Tip of the snout to the fork of the tail, measured in a straight line." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true },
+    { "key": "sal", "label": "Salinity", "unit": "ppt", "scale": 100,
+      "min": 0, "max": 4500, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Males have a pair of claspers on the inner pelvic fins; females do not.",
+      "values": [
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" },
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "help": "Sharks are unusually sensitive to capture stress; how it left the gear matters as much as its size.",
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "HANDLINE", "label": "Rod and reel", "icon": "gear-hook" },
+        { "code": "CHUM",     "label": "Live bait / chum" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a shark in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "fl", "less_than": 1372,
+      "reason": "under the federal Atlantic HMS recreational minimum size for this shark grouping, 54 inches fork length" }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "code": "ARCPRO",
+  "common": "Sheepshead",
+  "scientific": "Archosargus probatocephalus",
+  "workflow": "mark-recapture",
+  "programme": "SCDNR marine game fish tagging",
+  "primary_measure": "tl",
+  "sweep_after_days": 1095,
+  "qr_version_max": 5,
+  "growth_expected": true,
+  "fun_facts": [
+    "Sheepshead don't just have human-like front teeth: a second set of flat molar plates further back in the throat grinds the shell they've already bitten through, essentially a built-in nutcracker most anglers never see.",
+    "A tagged sheepshead is often recaptured within casting distance of where it was first caught: adults tend to stay loyal to one piling, wreck, or jetty for years rather than roam.",
+    "Sheepshead are notorious bait thieves. Their bite is so light and precise that experienced anglers set the hook on a hunch, not a feel, because by the time the rod tip dips the bait may already be gone."
+  ],
+  "measures": [
+    { "key": "tl", "label": "Total length", "unit": "mm", "scale": 1,
+      "min": 100, "max": 750, "required": true,
+      "help": "Tip of the lower jaw to the tip of the tail." },
+    { "key": "wt", "label": "Water temperature", "unit": "°C", "scale": 100,
+      "min": -200, "max": 4000, "required": false, "sticky": true },
+    { "key": "sal", "label": "Salinity", "unit": "ppt", "scale": 100,
+      "min": 0, "max": 4500, "required": false, "sticky": true }
+  ],
+  "vocabs": [
+    { "key": "sex", "label": "Sex", "required": true,
+      "help": "Sheepshead cannot be sexed externally in the field; unknown is the normal answer.",
+      "values": [
+        { "code": "U", "label": "Unknown", "icon": "gender-unknown" },
+        { "code": "M", "label": "Male", "icon": "gender-male" },
+        { "code": "F", "label": "Female", "icon": "gender-female" }
+      ]},
+    { "key": "cond", "tagging_only": true, "label": "Condition at release", "required": true,
+      "values": [
+        { "code": "GOOD",    "label": "Good: swam off strongly" },
+        { "code": "FAIR",    "label": "Fair: slow to recover" },
+        { "code": "POOR",    "label": "Poor: barely responsive" },
+        { "code": "BLEED",   "label": "Bleeding or gut-hooked" }
+      ]},
+    { "key": "gear", "label": "Gear", "required": true, "sticky": true,
+      "values": [
+        { "code": "HANDLINE", "label": "Rod and reel", "icon": "gear-hook" },
+        { "code": "FLY",      "label": "Fly", "icon": "gear-hook" },
+        { "code": "SPEAR",    "label": "Spearfishing", "icon": "gear-other" },
+        { "code": "TRAP",     "label": "Crab pot bycatch", "icon": "gear-trap" },
+        { "code": "OTHER",    "label": "Other", "icon": "gear-other" }
+      ]}
+  ],
+  "not_taggable": [
+    { "vocab": "cond", "in": ["POOR", "BLEED"],
+      "reason": "a fish in poor condition or bleeding is unlikely to survive release, so tagging it wastes the tag and the reward" }
+  ],
+  "must_release": [
+    { "measure": "tl", "less_than": 356,
+      "reason": "under South Carolina's 14-inch minimum for sheepshead" }
+  ]
+}
