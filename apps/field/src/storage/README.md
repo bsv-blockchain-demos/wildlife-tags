@@ -43,4 +43,4 @@ This adapter was adapted from BSV Browser. See [the field application attributio
 
 ## Licence
 
-The original adapter documentation identifies the Open BSV Licence. This checkout does not supply a repository-wide licence file.
+The original adapter documentation identifies the Open BSV Licence. The copied adapter retains its upstream terms; see [mobile attribution](../../ATTRIBUTION.md) for its provenance. The project's own code uses [Open BSV Licence v6](../../../../LICENSE.txt).

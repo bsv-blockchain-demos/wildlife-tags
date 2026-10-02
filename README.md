@@ -101,4 +101,8 @@ Keep Node.js on `PATH` for the Go tests that compare the JavaScript and Go encod
 
 The service uses `go-sdk` and `go-arcade-toolbox`. [go.mod](go.mod) pins the toolbox through a `replace` directive to its recorded source repository. Parts of the structure follow `toolbox-app-arcade` and `rule-110-arcade`.
 
-See [mobile attribution](apps/field/ATTRIBUTION.md) and [vendored web dependencies](internal/web/static/vendor/README.md) for copied code and assets. No repository-wide licence file is supplied in this checkout.
+See [mobile attribution](apps/field/ATTRIBUTION.md) and [vendored web dependencies](internal/web/static/vendor/README.md) for copied code and assets.
+
+## Licence
+
+**Open BSV Licence v6.** See [LICENSE.txt](LICENSE.txt) for the full terms. The licence applies to this project's original code and documentation and restricts use to the BSV blockchain defined in the licence. Third-party code, assets and referenced standards retain their respective terms. See [mobile attribution](apps/field/ATTRIBUTION.md) and [vendored web dependencies](internal/web/static/vendor/README.md) for copied code and assets.
